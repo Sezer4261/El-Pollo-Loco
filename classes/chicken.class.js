@@ -24,9 +24,9 @@ class Chicken extends MovableObject {
         super();
         this.isSmall = small;
         this.x = x;
-        this.y = ENEMY_GROUND_Y;
-        this.width = small ? 40 : 58;
-        this.height = small ? 39 : 57;
+        this.width = small ? 58 : 85;
+        this.height = small ? 57 : 83;
+        this.y = GROUND_Y + 197 - this.height;
         this.speed = small ? 2 : 1.5;
         this.patrolLeft = patrolLeft;
         this.patrolRight = patrolRight;

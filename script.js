@@ -62,6 +62,7 @@ function bindTouchEvents() {
     bindTouchButton("touchLeft", "LEFT");
     bindTouchButton("touchRight", "RIGHT");
     bindTouchButton("touchJump", "UP");
+    bindTouchButton("touchDuck", "DOWN");
     bindTouchButton("touchThrow", "SPACE");
     disableTouchContextMenu();
 }

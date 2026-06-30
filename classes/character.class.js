@@ -7,6 +7,7 @@ class Character extends MovableObject {
     coinBar = 0;
     bottleBar = 0;
     isDead = false;
+    isDucking = false;
     canThrow = true;
     currentState = "idle";
     frameLists = {};
@@ -81,14 +82,57 @@ class Character extends MovableObject {
     handleMovement() {
         const kb = keyboard;
         if (this.isAboveGround()) {
+            this.isDucking = false;
             this.resetIdleTimer();
+            this.applyAirMovement(kb);
             this.setState("jump");
             return;
         }
+        if (kb.DOWN) {
+            this.isDucking = true;
+            this.applyDuckMovement(kb);
+            return;
+        }
+        this.isDucking = false;
         if (kb.LEFT) this.moveLeft();
         else if (kb.RIGHT) this.moveRight();
         else this.handleIdleState();
         if (kb.UP) this.jump();
+    }
+
+
+    /**
+     * Moves Pepe while ducking on the ground.
+     * @param {Keyboard} kb - Keyboard state.
+     */
+    applyDuckMovement(kb) {
+        this.resetIdleTimer();
+        if (kb.LEFT) {
+            this.x -= 3;
+            this.otherDirection = true;
+            this.setState("walk");
+        } else if (kb.RIGHT) {
+            this.x += 3;
+            this.otherDirection = false;
+            this.setState("walk");
+        } else {
+            this.setState("idle");
+        }
+    }
+
+
+    /**
+     * Allows left/right movement while jumping.
+     * @param {Keyboard} kb - Keyboard state.
+     */
+    applyAirMovement(kb) {
+        if (kb.LEFT) {
+            this.x -= 5;
+            this.otherDirection = true;
+        } else if (kb.RIGHT) {
+            this.x += 5;
+            this.otherDirection = false;
+        }
     }
 
 
@@ -140,7 +184,7 @@ class Character extends MovableObject {
      */
     jump() {
         if (this.isAboveGround()) return;
-        this.speedY = -16;
+        this.speedY = -22;
         this.y -= 2;
         this.resetIdleTimer();
     }
@@ -167,9 +211,12 @@ class Character extends MovableObject {
         this.bottleBar = Math.max(0, this.bottleBar - 20);
         this.canThrow = false;
         setTimeout(() => { this.canThrow = true; }, 500);
-        const y = this.y + this.height * 0.35;
-        const x = this.otherDirection ? this.x : this.x + this.width;
-        return new ThrowableObject(x, y, this.otherDirection);
+        const throwType = this.isDucking ? "down" : "forward";
+        const y = this.isDucking
+            ? this.y + this.height * 0.72
+            : this.y + this.height * 0.4;
+        const x = this.otherDirection ? this.x + 5 : this.x + this.width - 5;
+        return new ThrowableObject(x, y, this.otherDirection, throwType);
     }
 
 

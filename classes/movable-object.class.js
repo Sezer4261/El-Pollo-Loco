@@ -1,5 +1,4 @@
 const GROUND_Y = 283;
-const ENEMY_GROUND_Y = 423;
 const GRAVITY = 1.8;
 
 /**

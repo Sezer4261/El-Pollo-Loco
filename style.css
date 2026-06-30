@@ -223,7 +223,8 @@ body {
 
 .touch-btn--left { left: 8px; bottom: 8px; }
 .touch-btn--right { left: 80px; bottom: 8px; }
-.touch-btn--jump { right: 80px; bottom: 8px; }
+.touch-btn--jump { right: 152px; bottom: 8px; }
+.touch-btn--duck { right: 80px; bottom: 8px; }
 .touch-btn--throw { right: 8px; bottom: 8px; font-size: 1.6rem; }
 
 .end-screen {

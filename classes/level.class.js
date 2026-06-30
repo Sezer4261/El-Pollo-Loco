@@ -6,11 +6,7 @@ const LEVEL_END = 3600;
  */
 class Level {
     static PARALLAX_LAYERS = [
-        { path: "img/5_background/layers/air.png", speed: 0 },
-        { path: "img/5_background/layers/4_clouds/full.png", speed: 0.2 },
-        { path: "img/5_background/layers/3_third_layer/full.png", speed: 0.4 },
-        { path: "img/5_background/layers/2_second_layer/full.png", speed: 0.6 },
-        { path: "img/5_background/layers/1_first_layer/full.png", speed: 1 }
+        { path: "img/5_background/complete_background.png", speed: 1 }
     ];
 
     /**

@@ -110,7 +110,8 @@ class World {
      * Clears canvas and draws all layers.
      */
     clearAndDraw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = "#c9a66b";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.save();
         this.moveCamera();
         this.drawBackgrounds();
@@ -142,12 +143,27 @@ class World {
     drawBackgrounds() {
         const w = this.canvas.width;
         const h = this.canvas.height;
-        this.backgrounds.forEach((layer) => {
-            if (!layer.img?.complete) return;
-            const srcY = Math.max(0, layer.img.height - h);
-            const offsetX = this.cameraX * layer.speed;
-            this.ctx.drawImage(layer.img, offsetX, srcY, w, h, 0, 0, w, h);
-        });
+        this.backgrounds.forEach((layer) => this.drawBackgroundLayer(layer, w, h));
+    }
+
+
+    /**
+     * Draws one scrolling background layer with seamless tiling.
+     * @param {BackgroundObject} layer - Background layer.
+     * @param {number} w - Canvas width.
+     * @param {number} h - Canvas height.
+     */
+    drawBackgroundLayer(layer, w, h) {
+        const img = layer.img;
+        if (!img?.complete || !img.naturalWidth) return;
+        const srcY = Math.max(0, img.naturalHeight - h);
+        const maxScroll = Math.max(0, img.naturalWidth - w);
+        const scrollX = Math.min(this.cameraX * layer.speed, maxScroll);
+        const sliceW = Math.min(w, img.naturalWidth - scrollX);
+        this.ctx.drawImage(
+            img, scrollX, srcY, sliceW, h,
+            0, 0, sliceW, h
+        );
     }
 
 
