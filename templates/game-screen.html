@@ -1,0 +1,25 @@
+<div id="gameScreen" class="screen game-screen screen--hidden">
+    <div class="game-screen__hud">
+        <div class="status-bar">
+            <span class="status-bar__label">Health</span>
+            <div class="status-bar__track">
+                <div id="healthBar" class="status-bar__fill status-bar__fill--health"></div>
+            </div>
+        </div>
+        <div class="status-bar">
+            <span class="status-bar__label">Progress</span>
+            <div class="status-bar__track">
+                <div id="progressBar" class="status-bar__fill status-bar__fill--progress"></div>
+            </div>
+        </div>
+        <button id="muteButton" class="btn btn--icon" type="button" aria-label="Toggle sound">🔊</button>
+    </div>
+    <canvas id="gameCanvas" width="720" height="480" aria-label="Game canvas"></canvas>
+    <div id="touchControls" class="touch-controls">
+        <button id="touchLeft" class="touch-btn touch-btn--left" type="button" aria-label="Move left">◀</button>
+        <button id="touchRight" class="touch-btn touch-btn--right" type="button" aria-label="Move right">▶</button>
+        <button id="touchJump" class="touch-btn touch-btn--jump" type="button" aria-label="Jump">▲</button>
+        <button id="touchCrawl" class="touch-btn touch-btn--crawl" type="button" aria-label="Crawl">▼</button>
+        <button id="touchShoot" class="touch-btn touch-btn--shoot" type="button" aria-label="Shoot">●</button>
+    </div>
+</div>

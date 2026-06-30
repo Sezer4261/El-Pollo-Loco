@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>El Pollo Loco</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="init()">
+
+    <div id="portraitWarning" class="screen portrait-warning" aria-hidden="true">
+        <p class="portrait-warning__text">Turn your device to play</p>
+    </div>
+
+    <div id="homeScreen" class="screen home-screen">
+        <h1 class="home-screen__title">El Pollo Loco</h1>
+        <p class="home-screen__subtitle">Hilf Pepe durch die Wüste!</p>
+        <div class="home-screen__actions">
+            <button id="startButton" class="btn btn--primary" type="button">Spiel starten</button>
+            <button id="helpButton" class="btn btn--secondary-inline" type="button">Spielanleitung</button>
+            <button id="controlsButton" class="btn btn--secondary-inline" type="button">Steuerung</button>
+        </div>
+        <a href="impressum.html" class="home-screen__link">Impressum</a>
+    </div>
+
+    <div id="gameScreen" class="screen game-screen screen--hidden">
+        <div class="game-screen__hud">
+            <div class="status-bar">
+                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
+                <img id="healthBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png" alt="">
+            </div>
+            <div class="status-bar">
+                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
+                <img id="coinBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/1_statusbar_coin/green/0.png" alt="">
+            </div>
+            <div class="status-bar">
+                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+                <img id="bottleBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png" alt="">
+            </div>
+            <div id="endbossBarContainer" class="status-bar status-bar--hidden">
+                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
+                <img id="endbossBar" class="status-bar__img" src="img/7_statusbars/2_statusbar_endboss/green/green100.png" alt="">
+            </div>
+            <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
+        </div>
+        <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
+        <div id="touchControls" class="touch-controls">
+            <button id="touchLeft" class="touch-btn touch-btn--left" type="button" aria-label="Links">◀</button>
+            <button id="touchRight" class="touch-btn touch-btn--right" type="button" aria-label="Rechts">▶</button>
+            <button id="touchJump" class="touch-btn touch-btn--jump" type="button" aria-label="Springen">▲</button>
+            <button id="touchThrow" class="touch-btn touch-btn--throw" type="button" aria-label="Werfen">🌶</button>
+        </div>
+    </div>
+
+    <div id="endScreen" class="screen end-screen screen--hidden">
+        <h2 id="endTitle" class="end-screen__title">Game Over</h2>
+        <p id="endMessage" class="end-screen__message">Du wurdest besiegt.</p>
+        <button id="restartButton" class="btn btn--primary" type="button">Nochmal spielen</button>
+        <button id="exitButton" class="btn btn--secondary" type="button">Beenden</button>
+    </div>
+
+    <div id="helpModal" class="modal modal--hidden">
+        <div class="modal__content">
+            <button class="modal__close" type="button" aria-label="Schließen">&times;</button>
+            <h2 class="modal__title">Spielanleitung</h2>
+            <p>Hilf Pepe, durch die Wüste zu laufen und den Endboss-Hühner zu besiegen!</p>
+            <ul class="modal__list">
+                <li>Sammle Münzen für extra Energie.</li>
+                <li>Sammle Salsa-Flaschen, um sie zu werfen.</li>
+                <li>Springe auf kleine Hühner, um sie zu besiegen.</li>
+                <li>Wirf Flaschen auf Gegner und den Endboss.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="controlsModal" class="modal modal--hidden">
+        <div class="modal__content">
+            <button class="modal__close" type="button" aria-label="Schließen">&times;</button>
+            <h2 class="modal__title">Steuerung</h2>
+            <ul class="modal__list">
+                <li><strong>← →</strong> oder <strong>A D</strong> – Laufen</li>
+                <li><strong>↑</strong> oder <strong>W</strong> – Springen</li>
+                <li><strong>Leertaste</strong> – Salsa-Flasche werfen</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="classes/drawable-object.class.js"></script>
+    <script src="classes/movable-object.class.js"></script>
+    <script src="classes/background-object.class.js"></script>
+    <script src="classes/coin.class.js"></script>
+    <script src="classes/bottle.class.js"></script>
+    <script src="classes/throwable-object.class.js"></script>
+    <script src="classes/character.class.js"></script>
+    <script src="classes/chicken.class.js"></script>
+    <script src="classes/endboss.class.js"></script>
+    <script src="classes/status-bar.class.js"></script>
+    <script src="classes/audio-manager.class.js"></script>
+    <script src="classes/collision-manager.class.js"></script>
+    <script src="classes/keyboard.class.js"></script>
+    <script src="classes/level.class.js"></script>
+    <script src="classes/levels/level1-data.js"></script>
+    <script src="classes/world-collisions.class.js"></script>
+    <script src="classes/world.class.js"></script>
+    <script src="classes/screen-manager.class.js"></script>
+    <script src="classes/modal-manager.class.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
