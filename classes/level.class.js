@@ -5,8 +5,9 @@ const LEVEL_END = 3600;
  * Defines level layout and entity factories.
  */
 class Level {
-    static PARALLAX_LAYERS = [
-        { path: "img/5_background/complete_background.png", speed: 1 }
+    static BACKGROUND_TILES = [
+        { path: "img/5_background/first_half_background.png", x: 0 },
+        { path: "img/5_background/second_half_background.png", x: 1920 }
     ];
 
     /**
@@ -24,12 +25,12 @@ class Level {
 
 
     /**
-     * Builds parallax background layers.
-     * @returns {BackgroundObject[]} Background layers.
+     * Builds scrolling background tiles.
+     * @returns {BackgroundObject[]} Background tiles.
      */
     createBackgrounds() {
-        return Level.PARALLAX_LAYERS.map(
-            (layer) => new BackgroundObject(layer.path, layer.speed)
+        return Level.BACKGROUND_TILES.map(
+            (tile) => new BackgroundObject(tile.path, tile.x)
         );
     }
 

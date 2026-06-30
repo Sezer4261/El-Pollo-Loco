@@ -1,11 +1,12 @@
 /**
- * Thrown salsa bottle projectile with gravity and rotation.
+ * Thrown salsa bottle with high arc or low ground trajectory.
  */
 class ThrowableObject extends MovableObject {
     isActive = true;
     rotationFrames = [];
     frameIndex = 0;
     lastFrameTime = 0;
+    isLowThrow = false;
 
     static ROTATION_PATHS = [
         "img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png",
@@ -19,15 +20,16 @@ class ThrowableObject extends MovableObject {
      * @param {number} x - Start X position.
      * @param {number} y - Start Y position.
      * @param {boolean} facingLeft - Direction flag.
-     * @param {string} throwType - "forward" or "down".
+     * @param {string} throwType - "high" or "low".
      */
-    constructor(x, y, facingLeft, throwType = "forward") {
+    constructor(x, y, facingLeft, throwType = "high") {
         super();
         this.x = x;
         this.y = y;
-        this.width = 50;
-        this.height = 50;
-        this.offset = { top: 10, left: 10, right: 10, bottom: 10 };
+        this.width = 45;
+        this.height = 45;
+        this.offset = { top: 8, left: 8, right: 8, bottom: 8 };
+        this.isLowThrow = throwType === "low";
         this.applyThrowSpeed(facingLeft, throwType);
         this.rotationFrames = this.loadImages(ThrowableObject.ROTATION_PATHS);
         this.img = this.rotationFrames[0];
@@ -35,31 +37,52 @@ class ThrowableObject extends MovableObject {
 
 
     /**
-     * Sets horizontal and vertical speed for the throw type.
+     * Sets speed for high arc or low ground throw.
      * @param {boolean} facingLeft - Direction flag.
-     * @param {string} throwType - "forward" or "down".
+     * @param {string} throwType - "high" or "low".
      */
     applyThrowSpeed(facingLeft, throwType) {
         const dir = facingLeft ? -1 : 1;
-        if (throwType === "down") {
-            this.speedX = dir * 6;
-            this.speedY = 14;
+        if (throwType === "low") {
+            this.speedX = dir * 18;
+            this.speedY = 0;
             return;
         }
-        this.speedX = dir * 10;
-        this.speedY = 4;
+        this.speedX = dir * 11;
+        this.speedY = -20;
     }
 
 
     /**
-     * Updates bottle position, gravity and rotation.
+     * Updates bottle position and rotation.
      */
     update() {
-        this.y += this.speedY;
         this.x += this.speedX;
-        this.speedY += GRAVITY;
+        if (this.isLowThrow) {
+            this.updateLowThrow();
+        } else {
+            this.updateHighThrow();
+        }
         this.animateRotation(performance.now());
-        if (this.y > 500 || this.x < -50 || this.x > 5000) {
+    }
+
+
+    /**
+     * Keeps the bottle on the ground line across the level.
+     */
+    updateLowThrow() {
+        this.y = GROUND_Y + 152;
+        if (this.x < -100 || this.x > 5000) this.isActive = false;
+    }
+
+
+    /**
+     * Moves the bottle in a high arc through the screen.
+     */
+    updateHighThrow() {
+        this.y += this.speedY;
+        this.speedY += GRAVITY;
+        if (this.y > 520 || this.x < -100 || this.x > 5000) {
             this.isActive = false;
         }
     }

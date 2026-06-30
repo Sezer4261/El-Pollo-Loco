@@ -211,11 +211,11 @@ class Character extends MovableObject {
         this.bottleBar = Math.max(0, this.bottleBar - 20);
         this.canThrow = false;
         setTimeout(() => { this.canThrow = true; }, 500);
-        const throwType = this.isDucking ? "down" : "forward";
+        const throwType = this.isDucking ? "low" : "high";
         const y = this.isDucking
-            ? this.y + this.height * 0.72
-            : this.y + this.height * 0.4;
-        const x = this.otherDirection ? this.x + 5 : this.x + this.width - 5;
+            ? GROUND_Y + 152
+            : this.y + 25;
+        const x = this.otherDirection ? this.x + 10 : this.x + this.width - 10;
         return new ThrowableObject(x, y, this.otherDirection, throwType);
     }
 

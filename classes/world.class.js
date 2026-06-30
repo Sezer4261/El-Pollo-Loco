@@ -110,11 +110,12 @@ class World {
      * Clears canvas and draws all layers.
      */
     clearAndDraw() {
+        this.updateCamera();
         this.ctx.fillStyle = "#c9a66b";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawBackgroundScreenSpace();
         this.ctx.save();
-        this.moveCamera();
-        this.drawBackgrounds();
+        this.ctx.translate(-this.cameraX, 0);
         this.drawObjects(this.coins);
         this.drawObjects(this.bottles);
         this.drawObjects(this.chickens);
@@ -126,44 +127,49 @@ class World {
 
 
     /**
-     * Shifts canvas based on character position.
+     * Draws background tiles in screen space before camera transform.
      */
-    moveCamera() {
+    drawBackgroundScreenSpace() {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        const cam = this.cameraX;
+        this.backgrounds.forEach((tile) => {
+            this.drawBackgroundTile(tile, cam, w, h);
+        });
+    }
+
+
+    /**
+     * Draws one background tile at its world position.
+     * @param {BackgroundObject} tile - Background tile.
+     * @param {number} cam - Camera X offset.
+     * @param {number} w - Canvas width.
+     * @param {number} h - Canvas height.
+     */
+    drawBackgroundTile(tile, cam, w, h) {
+        const img = tile.img;
+        if (!img?.complete || !img.naturalWidth) return;
+        const srcY = Math.max(0, img.naturalHeight - h);
+        const screenX = tile.tileX - cam;
+        if (screenX + img.naturalWidth < 0 || screenX > w) return;
+        const destX = Math.max(0, screenX);
+        const srcX = screenX < 0 ? -screenX : 0;
+        const drawW = Math.min(img.naturalWidth - srcX, w - destX);
+        this.ctx.drawImage(
+            img, srcX, srcY, drawW, h,
+            destX, 0, drawW, h
+        );
+    }
+
+
+    /**
+     * Updates camera position based on character.
+     */
+    updateCamera() {
         this.cameraX = this.character.x - 150;
         if (this.cameraX < 0) this.cameraX = 0;
         const maxCam = this.level.width - this.canvas.width;
         if (this.cameraX > maxCam) this.cameraX = maxCam;
-        this.ctx.translate(-this.cameraX, 0);
-    }
-
-
-    /**
-     * Draws parallax background layers.
-     */
-    drawBackgrounds() {
-        const w = this.canvas.width;
-        const h = this.canvas.height;
-        this.backgrounds.forEach((layer) => this.drawBackgroundLayer(layer, w, h));
-    }
-
-
-    /**
-     * Draws one scrolling background layer with seamless tiling.
-     * @param {BackgroundObject} layer - Background layer.
-     * @param {number} w - Canvas width.
-     * @param {number} h - Canvas height.
-     */
-    drawBackgroundLayer(layer, w, h) {
-        const img = layer.img;
-        if (!img?.complete || !img.naturalWidth) return;
-        const srcY = Math.max(0, img.naturalHeight - h);
-        const maxScroll = Math.max(0, img.naturalWidth - w);
-        const scrollX = Math.min(this.cameraX * layer.speed, maxScroll);
-        const sliceW = Math.min(w, img.naturalWidth - scrollX);
-        this.ctx.drawImage(
-            img, scrollX, srcY, sliceW, h,
-            0, 0, sliceW, h
-        );
     }
 
 
