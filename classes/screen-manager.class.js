@@ -48,6 +48,7 @@ class ScreenManager {
         this.showScreen("gameScreen");
         world = new World(document.getElementById("gameCanvas"));
         world.start();
+        fullscreenManager.requestOnDesktop();
     }
 
 
@@ -60,6 +61,7 @@ class ScreenManager {
         this.showScreen("gameScreen");
         world.reset();
         world.start();
+        fullscreenManager.requestOnDesktop();
     }
 
 

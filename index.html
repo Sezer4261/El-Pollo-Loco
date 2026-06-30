@@ -14,15 +14,18 @@
     </div>
 
     <div id="homeScreen" class="screen home-screen">
-        <div class="home-screen__layout">
-            <p class="home-screen__tagline">Hilf Pepe durch die Wüste!</p>
-            <div class="home-screen__footer">
-                <div class="home-screen__actions">
-                    <button id="startButton" class="btn btn--primary" type="button">Spiel starten</button>
-                    <button id="helpButton" class="btn btn--secondary-inline" type="button">Spielanleitung</button>
-                    <button id="controlsButton" class="btn btn--secondary-inline" type="button">Steuerung</button>
+        <div class="home-screen__frame">
+            <div class="home-screen__layout">
+                <button id="homeFullscreenButton" class="btn btn--icon home-screen__fullscreen fullscreen-btn" type="button" data-fullscreen-btn aria-label="Vollbild" title="Vollbild">⛶</button>
+                <p class="home-screen__tagline">Hilf Pepe durch die Wüste!</p>
+                <div class="home-screen__footer">
+                    <div class="home-screen__actions">
+                        <button id="startButton" class="btn btn--primary" type="button">Spiel starten</button>
+                        <button id="helpButton" class="btn btn--secondary-inline" type="button">Spielanleitung</button>
+                        <button id="controlsButton" class="btn btn--secondary-inline" type="button">Steuerung</button>
+                    </div>
+                    <a href="impressum.html" class="home-screen__link">Impressum</a>
                 </div>
-                <a href="impressum.html" class="home-screen__link">Impressum</a>
             </div>
         </div>
     </div>
@@ -45,7 +48,10 @@
                 <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
                 <img id="endbossBar" class="status-bar__img" src="img/7_statusbars/2_statusbar_endboss/green/green100.png" alt="">
             </div>
-            <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
+            <div class="game-screen__hud-actions">
+                <button id="fullscreenButton" class="btn btn--icon fullscreen-btn" type="button" data-fullscreen-btn aria-label="Vollbild" title="Vollbild">⛶</button>
+                <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
+            </div>
         </div>
         <div class="game-screen__stage">
             <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
@@ -119,6 +125,7 @@
     <script src="classes/levels/level1-data.js"></script>
     <script src="classes/world-collisions.class.js"></script>
     <script src="classes/world.class.js"></script>
+    <script src="classes/fullscreen-manager.class.js"></script>
     <script src="classes/screen-manager.class.js"></script>
     <script src="classes/modal-manager.class.js"></script>
     <script src="script.js"></script>

@@ -72,25 +72,40 @@ body {
 }
 
 .home-screen {
-    background: url("img/9_intro_outro_screens/start/startscreen_1.png") center / cover no-repeat;
     justify-content: center;
     padding: var(--screen-padding);
 }
 
-.home-screen__layout {
+.home-screen__frame {
     position: relative;
     width: min(100%, var(--game-max-width));
-    height: min(100%, calc(100dvh - var(--screen-padding) * 2));
-    max-height: calc(100dvh - var(--screen-padding) * 2);
+    max-height: min(
+        calc(100dvh - var(--screen-padding) * 2),
+        calc(var(--game-max-width) * 2 / 3)
+    );
+    aspect-ratio: var(--game-aspect);
+    background: url("img/9_intro_outro_screens/start/startscreen_1.png") center / cover no-repeat;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 1;
+    min-height: 0;
+    container-type: inline-size;
+}
+
+.home-screen__layout {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .home-screen__tagline {
     position: absolute;
-    top: 0;
+    top: 2%;
     left: 0;
     right: 0;
     margin: 0;
-    font-size: clamp(1.3rem, 4.5vw, 2rem);
+    font-size: clamp(0.85rem, 4.5cqw, 2rem);
     font-weight: 700;
     text-align: center;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
@@ -99,27 +114,32 @@ body {
 
 .home-screen__footer {
     position: absolute;
-    top: clamp(42%, 50%, 54%);
+    top: 50%;
     left: 0;
     right: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(10px, 2.5vw, 16px);
+    gap: clamp(6px, 2.5cqw, 16px);
     padding: 0 8px;
 }
 
 .home-screen__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: clamp(6px, 2cqw, 12px);
     justify-content: center;
+}
+
+.home-screen__actions .btn {
+    font-size: clamp(0.75rem, 3.5cqw, 1.1rem);
+    padding: clamp(8px, 2cqw, 12px) clamp(14px, 4.5cqw, 28px);
 }
 
 .home-screen__link {
     color: #fff;
     text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.9);
-    font-size: 1.15rem;
+    font-size: clamp(0.8rem, 3.5cqw, 1.15rem);
     text-decoration: underline;
     cursor: pointer;
 }
@@ -167,12 +187,34 @@ body {
     background: rgba(74, 74, 108, 0.95);
 }
 
+.home-screen__fullscreen {
+    position: absolute;
+    top: 2%;
+    right: 2%;
+    z-index: 2;
+}
+
+.fullscreen-btn {
+    display: none;
+}
+
+.game-screen__hud-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
 .btn--icon {
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
     font-size: 1.2rem;
     padding: 8px 12px;
     flex-shrink: 0;
+}
+
+.game-screen__hud .game-screen__hud-actions {
+    margin-left: auto;
 }
 
 .game-screen {
@@ -497,27 +539,47 @@ body {
 }
 
 @media (hover: hover) and (pointer: fine) {
+    :root {
+        --game-max-width: min(
+            calc(100vw - var(--screen-padding) * 2),
+            calc((100dvh - var(--hud-height) - var(--screen-padding) * 2 - 8px) * 1.5)
+        );
+    }
+
     .touch-controls {
         display: none !important;
     }
 
-    .game-screen__stage {
-        max-height: min(
-            calc(100dvh - var(--hud-height) - var(--screen-padding) * 2 - 16px),
-            calc(var(--game-max-width) * 2 / 3)
+    .fullscreen-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .home-screen__frame {
+        width: min(
+            calc(100vw - var(--screen-padding) * 2),
+            calc((100dvh - var(--screen-padding) * 2) * 1.5)
         );
+        max-height: calc(100dvh - var(--screen-padding) * 2);
+    }
+
+    .game-screen__hud,
+    .game-screen__stage {
+        width: var(--game-max-width);
+        max-width: var(--game-max-width);
+    }
+
+    .game-screen__stage {
+        max-height: calc(100dvh - var(--hud-height) - var(--screen-padding) * 2 - 16px);
     }
 }
 
+html:fullscreen .screen {
+    padding: 8px;
+}
+
 @media (max-width: 720px) {
-    .home-screen__tagline {
-        font-size: clamp(1.1rem, 4vw, 1.35rem);
-    }
-
-    .home-screen__footer {
-        top: clamp(44%, 50%, 56%);
-    }
-
     .home-screen__actions {
         gap: 8px;
     }
@@ -540,10 +602,5 @@ body {
     .btn--icon {
         padding: 4px 8px;
         font-size: 1rem;
-    }
-
-    .home-screen__footer {
-        top: 48%;
-        gap: 8px;
     }
 }

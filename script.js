@@ -1,6 +1,7 @@
 let keyboard = new Keyboard();
 let audioManager = new AudioManager();
 let rewardPopup = new RewardPopup();
+let fullscreenManager;
 let world;
 let screenManager;
 let modalManager;
@@ -11,8 +12,10 @@ let modalManager;
 function init() {
     screenManager = new ScreenManager();
     modalManager = new ModalManager();
+    fullscreenManager = new FullscreenManager();
     screenManager.bindEvents();
     modalManager.bindEvents();
+    fullscreenManager.bindButtons();
     bindKeyboardEvents();
     bindTouchEvents();
     applySavedMuteState();
