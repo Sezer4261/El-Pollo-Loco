@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>El Pollo Loco</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="style.css">
@@ -10,18 +10,21 @@
 <body onload="init()">
 
     <div id="portraitWarning" class="screen portrait-warning" aria-hidden="true">
-        <p class="portrait-warning__text">Turn your device to play</p>
+        <p class="portrait-warning__text">Drehe dein Gerät zum Spielen</p>
     </div>
 
     <div id="homeScreen" class="screen home-screen">
-        <h1 class="home-screen__title">El Pollo Loco</h1>
-        <p class="home-screen__subtitle">Hilf Pepe durch die Wüste!</p>
-        <div class="home-screen__actions">
-            <button id="startButton" class="btn btn--primary" type="button">Spiel starten</button>
-            <button id="helpButton" class="btn btn--secondary-inline" type="button">Spielanleitung</button>
-            <button id="controlsButton" class="btn btn--secondary-inline" type="button">Steuerung</button>
+        <div class="home-screen__layout">
+            <p class="home-screen__tagline">Hilf Pepe durch die Wüste!</p>
+            <div class="home-screen__footer">
+                <div class="home-screen__actions">
+                    <button id="startButton" class="btn btn--primary" type="button">Spiel starten</button>
+                    <button id="helpButton" class="btn btn--secondary-inline" type="button">Spielanleitung</button>
+                    <button id="controlsButton" class="btn btn--secondary-inline" type="button">Steuerung</button>
+                </div>
+                <a href="impressum.html" class="home-screen__link">Impressum</a>
+            </div>
         </div>
-        <a href="impressum.html" class="home-screen__link">Impressum</a>
     </div>
 
     <div id="gameScreen" class="screen game-screen screen--hidden">
@@ -44,7 +47,13 @@
             </div>
             <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
         </div>
-        <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
+        <div class="game-screen__stage">
+            <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
+            <div id="rewardPopup" class="reward-popup reward-popup--hidden" aria-hidden="true">
+                <span class="reward-popup__plus">+</span>
+                <img class="reward-popup__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+            </div>
+        </div>
         <div id="touchControls" class="touch-controls">
             <button id="touchLeft" class="touch-btn touch-btn--left" type="button" aria-label="Links">◀</button>
             <button id="touchRight" class="touch-btn touch-btn--right" type="button" aria-label="Rechts">▶</button>
@@ -55,10 +64,12 @@
     </div>
 
     <div id="endScreen" class="screen end-screen screen--hidden">
-        <h2 id="endTitle" class="end-screen__title">Game Over</h2>
-        <p id="endMessage" class="end-screen__message">Du wurdest besiegt.</p>
-        <button id="restartButton" class="btn btn--primary" type="button">Nochmal spielen</button>
-        <button id="exitButton" class="btn btn--secondary" type="button">Beenden</button>
+        <div class="end-screen__content">
+            <h2 id="endTitle" class="end-screen__title">Game Over</h2>
+            <p id="endMessage" class="end-screen__message">Du wurdest besiegt.</p>
+            <button id="restartButton" class="btn btn--primary" type="button">Nochmal spielen</button>
+            <button id="exitButton" class="btn btn--secondary" type="button">Beenden</button>
+        </div>
     </div>
 
     <div id="helpModal" class="modal modal--hidden">
@@ -67,10 +78,11 @@
             <h2 class="modal__title">Spielanleitung</h2>
             <p>Hilf Pepe, durch die Wüste zu laufen und den Endboss-Hühner zu besiegen!</p>
             <ul class="modal__list">
-                <li>Sammle Münzen für extra Energie.</li>
+                <li>Sammle Münzen für extra Energie und Bonus-Flaschen.</li>
+                <li>Alle 5 Münzen oder 5 besiegte Gegner gibt eine Extra-Flasche.</li>
                 <li>Sammle Salsa-Flaschen, um sie zu werfen.</li>
-                <li>Springe auf kleine Hühner, um sie zu besiegen.</li>
-                <li>Wirf Flaschen auf Gegner und den Endboss.</li>
+                <li>Springe auf kleine Hühner oder wirf Flaschen am Boden (↓ + Leertaste).</li>
+                <li>Wirf Flaschen im hohen Bogen auf große Gegner und den Endboss.</li>
             </ul>
         </div>
     </div>
@@ -83,8 +95,8 @@
                 <li><strong>← →</strong> oder <strong>A D</strong> – Laufen</li>
                 <li><strong>↑</strong> oder <strong>W</strong> – Springen</li>
                 <li><strong>↓</strong> oder <strong>S</strong> – Ducken</li>
-                <li><strong>Leertaste</strong> – Flasche im hohen Bogen werfen (große Gegner)</li>
                 <li><strong>↓ + Leertaste</strong> – Flasche am Boden werfen (kleine Gegner)</li>
+                <li><strong>Leertaste</strong> – Flasche im hohen Bogen werfen (Endboss &amp; große Gegner)</li>
             </ul>
         </div>
     </div>
@@ -100,6 +112,7 @@
     <script src="classes/endboss.class.js"></script>
     <script src="classes/status-bar.class.js"></script>
     <script src="classes/audio-manager.class.js"></script>
+    <script src="classes/reward-popup.class.js"></script>
     <script src="classes/collision-manager.class.js"></script>
     <script src="classes/keyboard.class.js"></script>
     <script src="classes/level.class.js"></script>

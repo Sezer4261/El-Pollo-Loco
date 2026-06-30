@@ -71,8 +71,8 @@ class ThrowableObject extends MovableObject {
      * Keeps the bottle on the ground line across the level.
      */
     updateLowThrow() {
-        this.y = GROUND_Y + 152;
-        if (this.x < -100 || this.x > 5000) this.isActive = false;
+        this.y = LOW_THROW_Y;
+        if (this.x < -100 || this.x > 7000) this.isActive = false;
     }
 
 
@@ -82,7 +82,7 @@ class ThrowableObject extends MovableObject {
     updateHighThrow() {
         this.y += this.speedY;
         this.speedY += GRAVITY;
-        if (this.y > 520 || this.x < -100 || this.x > 5000) {
+        if (this.y > 520 || this.x < -100 || this.x > 7000) {
             this.isActive = false;
         }
     }

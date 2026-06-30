@@ -58,7 +58,7 @@ class World {
     start() {
         this.isRunning = true;
         this.gameEnded = false;
-        audioManager.startMusic();
+        audioManager.startGameMusic();
         this.draw();
     }
 
@@ -68,7 +68,7 @@ class World {
      */
     stop() {
         this.isRunning = false;
-        audioManager.stopAll();
+        audioManager.stopEffects();
     }
 
 
@@ -119,7 +119,8 @@ class World {
         this.drawObjects(this.coins);
         this.drawObjects(this.bottles);
         this.drawObjects(this.chickens);
-        this.drawFlipped(this.endboss);
+        if (this.endboss.isRoasted) this.drawEndbossRoasted(this.endboss);
+        else this.drawFlipped(this.endboss);
         this.drawObjects(this.throwables);
         this.drawFlipped(this.character);
         this.ctx.restore();
@@ -211,6 +212,23 @@ class World {
 
 
     /**
+     * Draws the roasted endboss with rotation while falling.
+     * @param {Endboss} boss - Defeated endboss.
+     */
+    drawEndbossRoasted(boss) {
+        if (!boss.img?.complete) return;
+        const cx = boss.x + boss.width / 2;
+        const cy = boss.y + boss.height / 2;
+        this.ctx.save();
+        this.ctx.translate(cx, cy);
+        this.ctx.rotate(boss.rotation);
+        if (boss.otherDirection) this.ctx.scale(-1, 1);
+        this.ctx.drawImage(boss.img, -boss.width / 2, -boss.height / 2, boss.width, boss.height);
+        this.ctx.restore();
+    }
+
+
+    /**
      * Updates collisions, bars and win/lose checks.
      */
     updateGameState() {
@@ -244,7 +262,7 @@ class World {
             this.handleGameOver(false);
             return;
         }
-        if (this.endboss.isDead) {
+        if (this.endboss.deathComplete && !this.gameEnded) {
             this.gameEnded = true;
             this.handleGameOver(true);
         }

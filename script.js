@@ -1,5 +1,6 @@
 let keyboard = new Keyboard();
 let audioManager = new AudioManager();
+let rewardPopup = new RewardPopup();
 let world;
 let screenManager;
 let modalManager;
@@ -15,6 +16,22 @@ function init() {
     bindKeyboardEvents();
     bindTouchEvents();
     applySavedMuteState();
+    audioManager.startMenuMusic();
+    bindMenuMusicUnlock();
+}
+
+
+/**
+ * Starts menu music after the first user interaction if autoplay was blocked.
+ */
+function bindMenuMusicUnlock() {
+    const unlockMenuMusic = () => {
+        if (world?.isRunning) return;
+        audioManager.startMenuMusic();
+    };
+    const homeScreen = document.getElementById("homeScreen");
+    homeScreen.addEventListener("pointerdown", unlockMenuMusic, { once: true, capture: true });
+    document.addEventListener("keydown", unlockMenuMusic, { once: true });
 }
 
 

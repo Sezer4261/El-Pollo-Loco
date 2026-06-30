@@ -7,21 +7,36 @@ class Endboss extends MovableObject {
     isDead = false;
     isHurt = false;
     isAlert = false;
+    isRoasted = false;
+    deathComplete = false;
+    deathPhase = "";
+    rotation = 0;
+    targetRotation = 0;
+    groundY = 0;
     currentState = "walk";
     frameLists = {};
     frameIndex = 0;
     lastAnimTime = 0;
     hurtEndTime = 0;
     alertEndTime = 0;
+    landedAt = 0;
     direction = -1;
+
+    static ROASTED_WIDTH = 210;
+    static ROASTED_HEIGHT = 115;
+    static END_DELAY_MS = 1000;
 
     /**
      * Creates the endboss at the given position.
      * @param {number} x - Start X position.
+     * @param {number} patrolLeft - Left patrol boundary.
+     * @param {number} patrolRight - Right patrol boundary.
      */
-    constructor(x) {
+    constructor(x, patrolLeft, patrolRight) {
         super();
         this.x = x;
+        this.patrolLeft = patrolLeft;
+        this.patrolRight = patrolRight;
         this.y = 55;
         this.width = 200;
         this.height = 320;
@@ -70,12 +85,85 @@ class Endboss extends MovableObject {
      */
     update(character) {
         if (this.isDead) {
-            this.updateAnimation(performance.now());
+            this.updateDeath(performance.now());
             return;
         }
         this.updateStates(character);
         this.patrol();
         this.updateAnimation(performance.now());
+    }
+
+
+    /**
+     * Plays roast transformation and fall after defeat.
+     * @param {number} now - Current timestamp.
+     */
+    updateDeath(now) {
+        if (this.deathPhase === "animating") {
+            this.updateDeathAnimation(now);
+            return;
+        }
+        if (this.deathPhase === "falling" || this.deathPhase === "landed") {
+            this.updateRoastFall(now);
+        }
+    }
+
+
+    /**
+     * Advances the roast transformation frames.
+     * @param {number} now - Current timestamp.
+     */
+    updateDeathAnimation(now) {
+        if (now - this.lastAnimTime < 180) return;
+        const frames = this.frameLists.dead;
+        if (this.frameIndex < frames.length - 1) {
+            this.frameIndex++;
+            this.img = frames[this.frameIndex];
+            this.lastAnimTime = now;
+            return;
+        }
+        this.startRoastFall(frames[frames.length - 1]);
+        this.lastAnimTime = now;
+    }
+
+
+    /**
+     * Switches to the roasted turkey sprite and starts falling.
+     * @param {HTMLImageElement} roastedImg - Final roast frame.
+     */
+    startRoastFall(roastedImg) {
+        this.deathPhase = "falling";
+        this.isRoasted = true;
+        this.img = roastedImg;
+        this.x += (this.width - Endboss.ROASTED_WIDTH) / 2;
+        this.width = Endboss.ROASTED_WIDTH;
+        this.height = Endboss.ROASTED_HEIGHT;
+        this.groundY = GROUND_Y + 197 - this.height;
+        this.speedY = 1;
+        this.targetRotation = this.otherDirection ? -1.35 : 1.35;
+    }
+
+
+    /**
+     * Applies gravity and rotation while the roast falls to the ground.
+     * @param {number} now - Current timestamp.
+     */
+    updateRoastFall(now) {
+        if (this.deathPhase === "landed") {
+            if (now - this.landedAt >= Endboss.END_DELAY_MS) {
+                this.deathComplete = true;
+            }
+            return;
+        }
+        this.speedY += GRAVITY * 1.15;
+        this.y += this.speedY;
+        this.rotation += (this.targetRotation - this.rotation) * 0.12;
+        if (this.y < this.groundY) return;
+        this.y = this.groundY;
+        this.speedY = 0;
+        this.rotation = this.targetRotation;
+        this.deathPhase = "landed";
+        this.landedAt = now;
     }
 
 
@@ -109,8 +197,8 @@ class Endboss extends MovableObject {
         if (this.isHurt) return;
         this.x += this.direction * 0.8;
         this.otherDirection = this.direction < 0;
-        if (this.x < 3000) this.direction = 1;
-        if (this.x > 3400) this.direction = -1;
+        if (this.x <= this.patrolLeft) this.direction = 1;
+        if (this.x >= this.patrolRight) this.direction = -1;
     }
 
 
@@ -132,10 +220,7 @@ class Endboss extends MovableObject {
     updateAnimation(now) {
         if (now - this.lastAnimTime < 150) return;
         const frames = this.frameLists[this.currentState] || this.frameLists.walk;
-        if (this.isDead && this.frameIndex >= frames.length - 1) return;
-        this.frameIndex = this.isDead
-            ? Math.min(this.frameIndex + 1, frames.length - 1)
-            : (this.frameIndex + 1) % frames.length;
+        this.frameIndex = (this.frameIndex + 1) % frames.length;
         this.img = frames[this.frameIndex];
         this.lastAnimTime = now;
     }
@@ -156,11 +241,37 @@ class Endboss extends MovableObject {
 
 
     /**
-     * Plays death animation.
+     * Starts the roast transformation death sequence.
      */
     die() {
         this.isDead = true;
-        this.setState("dead");
+        this.isHurt = false;
+        this.isAlert = false;
+        this.deathComplete = false;
+        this.deathPhase = "animating";
+        this.landedAt = 0;
+        this.frameIndex = 0;
+        this.currentState = "dead";
+        this.img = this.frameLists.dead[0];
+        this.lastAnimTime = performance.now();
+    }
+
+
+    /**
+     * Checks collision with a thrown bottle using a generous hitbox.
+     * @param {ThrowableObject} bottle - Thrown bottle.
+     * @returns {boolean} True when the bottle hits.
+     */
+    isHitByBottle(bottle) {
+        const b = bottle.getHitBox();
+        const box = {
+            x: this.x + 10,
+            y: this.y + 15,
+            w: this.width - 20,
+            h: this.height - 5
+        };
+        return b.x < box.x + box.w && b.x + b.w > box.x &&
+            b.y < box.y + box.h && b.y + b.h > box.y;
     }
 
 }

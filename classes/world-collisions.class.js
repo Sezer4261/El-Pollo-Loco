@@ -43,15 +43,15 @@ class WorldCollisions {
         this.world.throwables.forEach((obj) => {
             if (!obj.isActive) return;
             this.world.chickens.forEach((chicken) => {
-                if (chicken.isDead || !obj.isColliding(chicken)) return;
+                if (chicken.isDead || !chicken.isHitByBottle(obj)) return;
                 obj.isActive = false;
-                chicken.die();
+                this.defeatChicken(chicken);
                 audioManager.playEffect("hit");
             });
             const boss = this.world.endboss;
-            if (!boss.isDead && obj.isColliding(boss)) {
+            if (!boss.isDead && boss.isHitByBottle(obj)) {
                 obj.isActive = false;
-                boss.takeDamage(10);
+                boss.takeDamage(BOSS_BOTTLE_DAMAGE);
                 audioManager.playEffect("bossHit");
             }
         });
@@ -68,7 +68,7 @@ class WorldCollisions {
         this.world.chickens.forEach((chicken) => {
             if (chicken.isDead) return;
             if (this.manager.isStomp(char, chicken)) {
-                chicken.die();
+                this.defeatChicken(chicken);
                 char.speedY = -8;
                 audioManager.playEffect("hit");
                 return;
@@ -82,6 +82,17 @@ class WorldCollisions {
             char.takeDamage(30);
             this.world.lastEnemyHit = now;
         }
+    }
+
+
+    /**
+     * Defeats a chicken and tracks kill milestones.
+     * @param {Chicken} chicken - Chicken to defeat.
+     */
+    defeatChicken(chicken) {
+        if (chicken.isDead) return;
+        chicken.die();
+        this.world.character.registerEnemyDefeated();
     }
 
 

@@ -6,6 +6,8 @@ class Character extends MovableObject {
     maxHealth = 100;
     coinBar = 0;
     bottleBar = 0;
+    coinsCollected = 0;
+    enemiesDefeated = 0;
     isDead = false;
     isDucking = false;
     canThrow = true;
@@ -213,7 +215,7 @@ class Character extends MovableObject {
         setTimeout(() => { this.canThrow = true; }, 500);
         const throwType = this.isDucking ? "low" : "high";
         const y = this.isDucking
-            ? GROUND_Y + 152
+            ? LOW_THROW_Y
             : this.y + 25;
         const x = this.otherDirection ? this.x + 10 : this.x + this.width - 10;
         return new ThrowableObject(x, y, this.otherDirection, throwType);
@@ -221,15 +223,41 @@ class Character extends MovableObject {
 
 
     /**
+     * Grants one bonus bottle and shows the reward popup.
+     */
+    grantBonusBottle() {
+        this.bottleBar = Math.min(100, this.bottleBar + 20);
+        audioManager.playEffect("bottle");
+        rewardPopup.show();
+    }
+
+
+    /**
      * Collects a coin and updates the coin bar.
+     * Every 5 coins grants one extra bottle.
      */
     collectCoin() {
+        this.coinsCollected++;
         this.coinBar = Math.min(100, this.coinBar + 10);
+        if (this.coinsCollected % 5 === 0) {
+            this.grantBonusBottle();
+        }
         if (this.coinBar >= 100) {
             this.health = Math.min(this.maxHealth, this.health + 20);
             this.coinBar = 0;
         }
         audioManager.playEffect("coin");
+    }
+
+
+    /**
+     * Registers a defeated enemy and grants a bottle every 5 kills.
+     */
+    registerEnemyDefeated() {
+        this.enemiesDefeated++;
+        if (this.enemiesDefeated % 5 === 0) {
+            this.grantBonusBottle();
+        }
     }
 
 

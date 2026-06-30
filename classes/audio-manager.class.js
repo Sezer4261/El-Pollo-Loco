@@ -1,100 +1,186 @@
 /**
- * Manages game audio with Web Audio fallback synthesis.
+ * Manages game audio playback and mute state.
  */
 class AudioManager {
     isMuted = false;
-    audioContext = null;
+    sounds = {};
+    music = null;
+    musicMode = "menu";
+    gameLoopStart = 10;
 
     /**
      * Initializes audio and restores mute preference.
      */
     constructor() {
+        this.loadSounds();
         this.isMuted = localStorage.getItem("gameMuted") === "true";
     }
 
 
     /**
-     * Returns or creates the AudioContext.
-     * @returns {AudioContext} Audio context instance.
+     * Registers all game sound files.
      */
-    getContext() {
-        if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        return this.audioContext;
+    loadSounds() {
+        this.sounds.throw = this.createSound("Audio/shoot.wav", 0.35);
+        this.sounds.hit = this.createSound("Audio/hit.wav", 0.4);
+        this.sounds.bossHit = this.createSound("Audio/hit.wav", 0.45);
+        this.sounds.coin = this.createSound("Audio/win.wav", 0.3);
+        this.sounds.bottle = this.createSound("Audio/shoot.wav", 0.25);
+        this.sounds.hurt = this.createSound("Audio/hit.wav", 0.35);
+        this.sounds.gameOver = this.createSound("Audio/game-over.wav", 0.5);
+        this.sounds.win = this.createSound("Audio/win.wav", 0.5);
+        this.music = this.createSound("Audio/background.mp3", 0.25);
+        this.music.preload = "auto";
+        this.music.loop = false;
+        this.bindMusicEvents();
     }
 
 
     /**
-     * Plays a synthesized sound effect.
+     * Creates an audio element with volume.
+     * @param {string} path - Audio file path.
+     * @param {number} volume - Playback volume.
+     * @returns {HTMLAudioElement} Configured audio element.
+     */
+    createSound(path, volume) {
+        const audio = new Audio(path);
+        audio.volume = volume;
+        return audio;
+    }
+
+
+    /**
+     * Binds loop handling for menu and in-game music playback.
+     */
+    bindMusicEvents() {
+        this.music.addEventListener("timeupdate", () => this.handleMusicLoop());
+        this.music.addEventListener("ended", () => this.handleMusicEnded());
+    }
+
+
+    /**
+     * Loops in-game music from the gameplay start marker.
+     */
+    handleMusicLoop() {
+        if (this.isMuted || this.musicMode !== "game" || !this.music.duration) return;
+        if (this.music.currentTime >= this.music.duration - 0.15) {
+            this.music.currentTime = this.gameLoopStart;
+        }
+    }
+
+
+    /**
+     * Restarts music when playback reaches the end.
+     */
+    handleMusicEnded() {
+        if (this.isMuted) return;
+        if (this.musicMode === "game") {
+            this.playFrom(this.gameLoopStart);
+            return;
+        }
+        this.playFrom(0);
+    }
+
+
+    /**
+     * Plays music from a specific time if not muted.
+     * @param {number} time - Start time in seconds.
+     */
+    playFrom(time) {
+        if (this.isMuted || !this.music) return;
+        this.music.currentTime = time;
+        this.music.play().catch(() => {});
+    }
+
+
+    /**
+     * Starts menu music from the beginning.
+     * @param {boolean} [reset=false] - Restart from second 0.
+     */
+    startMenuMusic(reset = false) {
+        if (this.isMuted || !this.music) return;
+        const switchFromGame = this.musicMode === "game";
+        this.musicMode = "menu";
+        if (reset || switchFromGame) {
+            this.playFrom(0);
+            return;
+        }
+        if (!this.music.paused) return;
+        const time = this.music.currentTime >= this.gameLoopStart ? 0 : this.music.currentTime;
+        this.playFrom(time);
+    }
+
+
+    /**
+     * Starts in-game music from the gameplay loop marker.
+     */
+    startGameMusic() {
+        if (this.isMuted || !this.music) return;
+        this.musicMode = "game";
+        this.playFrom(this.gameLoopStart);
+    }
+
+
+    /**
+     * Plays a sound effect by name.
      * @param {string} name - Sound identifier.
      */
     playEffect(name) {
-        if (this.isMuted) return;
-        const ctx = this.getContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        const presets = {
-            throw: { freq: 400, dur: 0.1, type: "square" },
-            hit: { freq: 200, dur: 0.15, type: "sawtooth" },
-            coin: { freq: 880, dur: 0.12, type: "sine" },
-            bottle: { freq: 660, dur: 0.1, type: "sine" },
-            hurt: { freq: 150, dur: 0.2, type: "sawtooth" },
-            bossHit: { freq: 120, dur: 0.25, type: "square" },
-            win: { freq: 523, dur: 0.4, type: "sine" },
-            gameOver: { freq: 100, dur: 0.5, type: "sawtooth" },
-            snore: { freq: 80, dur: 0.3, type: "sine" }
-        };
-        const p = presets[name] || presets.hit;
-        osc.type = p.type;
-        osc.frequency.value = p.freq;
-        gain.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + p.dur);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + p.dur);
+        if (this.isMuted || !this.sounds[name]) return;
+        const sound = this.sounds[name].cloneNode();
+        sound.volume = this.sounds[name].volume;
+        sound.play().catch(() => {});
     }
 
 
     /**
-     * Starts background music loop.
+     * Stops sound effects without affecting background music.
      */
-    startMusic() {
-        if (this.isMuted || this.musicOsc) return;
-        const ctx = this.getContext();
-        this.musicOsc = ctx.createOscillator();
-        this.musicGain = ctx.createGain();
-        this.musicOsc.connect(this.musicGain);
-        this.musicGain.connect(ctx.destination);
-        this.musicOsc.type = "sine";
-        this.musicOsc.frequency.value = 220;
-        this.musicGain.gain.value = 0.03;
-        this.musicOsc.start();
+    stopEffects() {
+        Object.values(this.sounds).forEach((sound) => {
+            sound.pause();
+            sound.currentTime = 0;
+        });
     }
 
 
     /**
-     * Stops all audio playback.
+     * Pauses music and stops all sound effects.
      */
     stopAll() {
-        if (this.musicOsc) {
-            this.musicOsc.stop();
-            this.musicOsc = null;
-        }
+        this.stopEffects();
+        if (this.music) this.music.pause();
     }
 
 
     /**
-     * Toggles mute and persists setting.
+     * Toggles mute and persists the setting.
      * @returns {boolean} New mute state.
      */
     toggleMute() {
         this.isMuted = !this.isMuted;
         localStorage.setItem("gameMuted", String(this.isMuted));
-        if (this.isMuted) this.stopAll();
-        else if (typeof world !== "undefined" && world?.isRunning) this.startMusic();
+        this.applyMuteState();
         return this.isMuted;
+    }
+
+
+    /**
+     * Applies the current mute state to all audio.
+     */
+    applyMuteState() {
+        if (this.isMuted) {
+            this.stopAll();
+            return;
+        }
+        if (this.musicMode === "game") {
+            const time = this.music.currentTime >= this.gameLoopStart
+                ? this.music.currentTime
+                : this.gameLoopStart;
+            this.playFrom(time);
+            return;
+        }
+        this.startMenuMusic(false);
     }
 
 }

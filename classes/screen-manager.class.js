@@ -55,6 +55,7 @@ class ScreenManager {
      * Restarts without page reload.
      */
     restartGame() {
+        rewardPopup.hide();
         this.hideScreen("endScreen");
         this.showScreen("gameScreen");
         world.reset();
@@ -66,11 +67,13 @@ class ScreenManager {
      * Returns to home screen from end screen.
      */
     exitToHome() {
+        rewardPopup.hide();
         if (world) world.stop();
         this.hideScreen("endScreen");
         this.hideScreen("gameScreen");
         this.showScreen("homeScreen");
         keyboard = new Keyboard();
+        audioManager.startMenuMusic(true);
     }
 
 
@@ -84,7 +87,7 @@ class ScreenManager {
         const endScreen = document.getElementById("endScreen");
         endScreen.classList.toggle("end-screen--won", won);
         endScreen.classList.toggle("end-screen--lost", !won);
-        document.getElementById("endTitle").textContent = won ? "Gewonnen!" : "Game Over";
+        document.getElementById("endTitle").textContent = won ? "Spiel gewonnen!" : "Game Over";
         document.getElementById("endMessage").textContent = won
             ? "Pepe hat den Endboss besiegt!"
             : "Pepe wurde besiegt. Versuch es nochmal!";

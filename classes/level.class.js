@@ -1,5 +1,5 @@
-const LEVEL_WIDTH = 3840;
-const LEVEL_END = 3600;
+const LEVEL_WIDTH = 5760;
+const LEVEL_END = 5400;
 
 /**
  * Defines level layout and entity factories.
@@ -7,7 +7,8 @@ const LEVEL_END = 3600;
 class Level {
     static BACKGROUND_TILES = [
         { path: "img/5_background/first_half_background.png", x: 0 },
-        { path: "img/5_background/second_half_background.png", x: 1920 }
+        { path: "img/5_background/second_half_background.png", x: 1920 },
+        { path: "img/5_background/first_half_background.png", x: 3840 }
     ];
 
     /**
@@ -21,6 +22,8 @@ class Level {
         this.coinData = data.coins;
         this.bottleData = data.bottles;
         this.endbossX = data.endboss.x;
+        this.endbossLeft = data.endboss.left;
+        this.endbossRight = data.endboss.right;
     }
 
 
@@ -69,7 +72,7 @@ class Level {
      * @returns {Endboss} Endboss instance.
      */
     createEndboss() {
-        return new Endboss(this.endbossX);
+        return new Endboss(this.endbossX, this.endbossLeft, this.endbossRight);
     }
 
 }
