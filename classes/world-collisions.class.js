@@ -43,17 +43,9 @@ class WorldCollisions {
         this.world.throwables.forEach((obj) => {
             if (!obj.isActive) return;
             this.world.chickens.forEach((chicken) => {
-                if (chicken.isDead || !chicken.isHitByBottle(obj)) return;
-                obj.isActive = false;
-                this.defeatChicken(chicken);
-                audioManager.playEffect("hit");
+                resolveBottleChickenHit(this, obj, chicken);
             });
-            const boss = this.world.endboss;
-            if (!boss.isDead && boss.isHitByBottle(obj)) {
-                obj.isActive = false;
-                boss.takeDamage(BOSS_BOTTLE_DAMAGE);
-                audioManager.playEffect("bossHit");
-            }
+            resolveBottleBossHit(obj, this.world.endboss);
         });
     }
 
@@ -66,22 +58,9 @@ class WorldCollisions {
         if (now - this.world.lastEnemyHit < 800) return;
         const char = this.world.character;
         this.world.chickens.forEach((chicken) => {
-            if (chicken.isDead) return;
-            if (this.manager.isStomp(char, chicken)) {
-                this.defeatChicken(chicken);
-                char.speedY = -8;
-                audioManager.playEffect("hit");
-                return;
-            }
-            if (!this.manager.isSideHit(char, chicken)) return;
-            char.takeDamage(20);
-            this.world.lastEnemyHit = now;
+            resolveChickenCharacterHit(this, char, chicken, now);
         });
-        const boss = this.world.endboss;
-        if (!boss.isDead && this.manager.isBossSideHit(char, boss)) {
-            char.takeDamage(30);
-            this.world.lastEnemyHit = now;
-        }
+        resolveBossCharacterHit(this, char, this.world.endboss, now);
     }
 
 
@@ -101,18 +80,8 @@ class WorldCollisions {
      */
     checkCollectibles() {
         const char = this.world.character;
-        this.world.coins = this.world.coins.filter((coin) => {
-            if (coin.collected || !char.isColliding(coin)) return !coin.collected;
-            coin.collected = true;
-            char.collectCoin();
-            return false;
-        });
-        this.world.bottles = this.world.bottles.filter((bottle) => {
-            if (bottle.collected || !char.isColliding(bottle)) return !bottle.collected;
-            bottle.collected = true;
-            char.collectBottle();
-            return false;
-        });
+        this.world.coins = filterCollectedCoins(char, this.world.coins);
+        this.world.bottles = filterCollectedBottles(char, this.world.bottles);
     }
 
 }

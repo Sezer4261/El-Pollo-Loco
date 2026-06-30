@@ -111,19 +111,21 @@ class World {
      */
     clearAndDraw() {
         this.updateCamera();
-        this.ctx.fillStyle = "#c9a66b";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.clearCanvas();
         this.drawBackgroundScreenSpace();
         this.ctx.save();
         this.ctx.translate(-this.cameraX, 0);
-        this.drawObjects(this.coins);
-        this.drawObjects(this.bottles);
-        this.drawObjects(this.chickens);
-        if (this.endboss.isRoasted) this.drawEndbossRoasted(this.endboss);
-        else this.drawFlipped(this.endboss);
-        this.drawObjects(this.throwables);
-        this.drawFlipped(this.character);
+        drawWorldLayer(this);
         this.ctx.restore();
+    }
+
+
+    /**
+     * Fills the canvas with the ground color.
+     */
+    clearCanvas() {
+        this.ctx.fillStyle = "#c9a66b";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
 
@@ -135,31 +137,8 @@ class World {
         const h = this.canvas.height;
         const cam = this.cameraX;
         this.backgrounds.forEach((tile) => {
-            this.drawBackgroundTile(tile, cam, w, h);
+            drawBackgroundTile(this.ctx, tile, cam, w, h);
         });
-    }
-
-
-    /**
-     * Draws one background tile at its world position.
-     * @param {BackgroundObject} tile - Background tile.
-     * @param {number} cam - Camera X offset.
-     * @param {number} w - Canvas width.
-     * @param {number} h - Canvas height.
-     */
-    drawBackgroundTile(tile, cam, w, h) {
-        const img = tile.img;
-        if (!img?.complete || !img.naturalWidth) return;
-        const srcY = Math.max(0, img.naturalHeight - h);
-        const screenX = tile.tileX - cam;
-        if (screenX + img.naturalWidth < 0 || screenX > w) return;
-        const destX = Math.max(0, screenX);
-        const srcX = screenX < 0 ? -screenX : 0;
-        const drawW = Math.min(img.naturalWidth - srcX, w - destX);
-        this.ctx.drawImage(
-            img, srcX, srcY, drawW, h,
-            destX, 0, drawW, h
-        );
     }
 
 
@@ -171,60 +150,6 @@ class World {
         if (this.cameraX < 0) this.cameraX = 0;
         const maxCam = this.level.width - this.canvas.width;
         if (this.cameraX > maxCam) this.cameraX = maxCam;
-    }
-
-
-    /**
-     * Draws an array of image objects.
-     * @param {MovableObject[]} objects - Objects to draw.
-     */
-    drawObjects(objects) {
-        objects.forEach((obj) => this.drawImage(obj));
-    }
-
-
-    /**
-     * Draws a single image object.
-     * @param {MovableObject} obj - Object to draw.
-     */
-    drawImage(obj) {
-        if (!obj.img?.complete) return;
-        this.ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-    }
-
-
-    /**
-     * Draws object with horizontal flip.
-     * @param {MovableObject} obj - Object to draw.
-     */
-    drawFlipped(obj) {
-        if (!obj.img?.complete) return;
-        if (!obj.otherDirection) {
-            this.drawImage(obj);
-            return;
-        }
-        this.ctx.save();
-        this.ctx.translate(obj.x + obj.width, obj.y);
-        this.ctx.scale(-1, 1);
-        this.ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);
-        this.ctx.restore();
-    }
-
-
-    /**
-     * Draws the roasted endboss with rotation while falling.
-     * @param {Endboss} boss - Defeated endboss.
-     */
-    drawEndbossRoasted(boss) {
-        if (!boss.img?.complete) return;
-        const cx = boss.x + boss.width / 2;
-        const cy = boss.y + boss.height / 2;
-        this.ctx.save();
-        this.ctx.translate(cx, cy);
-        this.ctx.rotate(boss.rotation);
-        if (boss.otherDirection) this.ctx.scale(-1, 1);
-        this.ctx.drawImage(boss.img, -boss.width / 2, -boss.height / 2, boss.width, boss.height);
-        this.ctx.restore();
     }
 
 
@@ -258,14 +183,10 @@ class World {
     checkEndConditions() {
         if (this.gameEnded) return;
         if (this.character.isDead) {
-            this.gameEnded = true;
             this.handleGameOver(false);
             return;
         }
-        if (this.endboss.deathComplete && !this.gameEnded) {
-            this.gameEnded = true;
-            this.handleGameOver(true);
-        }
+        if (this.endboss.deathComplete) this.handleGameOver(true);
     }
 
 
@@ -274,6 +195,7 @@ class World {
      * @param {boolean} won - Whether player won.
      */
     handleGameOver(won) {
+        this.gameEnded = true;
         this.stop();
         audioManager.playEffect(won ? "win" : "gameOver");
         screenManager.showEndScreen(won);

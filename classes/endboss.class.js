@@ -50,32 +50,10 @@ class Endboss extends MovableObject {
      * Loads all endboss animation frames.
      */
     loadAnimations() {
-        this.frameLists.walk = this.loadImages([
-            "img/4_enemie_boss_chicken/1_walk/G1.png",
-            "img/4_enemie_boss_chicken/1_walk/G2.png",
-            "img/4_enemie_boss_chicken/1_walk/G3.png",
-            "img/4_enemie_boss_chicken/1_walk/G4.png"
-        ]);
-        this.frameLists.alert = this.loadImages([
-            "img/4_enemie_boss_chicken/2_alert/G5.png",
-            "img/4_enemie_boss_chicken/2_alert/G6.png",
-            "img/4_enemie_boss_chicken/2_alert/G7.png",
-            "img/4_enemie_boss_chicken/2_alert/G8.png",
-            "img/4_enemie_boss_chicken/2_alert/G9.png",
-            "img/4_enemie_boss_chicken/2_alert/G10.png",
-            "img/4_enemie_boss_chicken/2_alert/G11.png",
-            "img/4_enemie_boss_chicken/2_alert/G12.png"
-        ]);
-        this.frameLists.hurt = this.loadImages([
-            "img/4_enemie_boss_chicken/4_hurt/G21.png",
-            "img/4_enemie_boss_chicken/4_hurt/G22.png",
-            "img/4_enemie_boss_chicken/4_hurt/G23.png"
-        ]);
-        this.frameLists.dead = this.loadImages([
-            "img/4_enemie_boss_chicken/5_dead/G24.png",
-            "img/4_enemie_boss_chicken/5_dead/G25.png",
-            "img/4_enemie_boss_chicken/5_dead/G26.png"
-        ]);
+        this.frameLists.walk = this.loadImages(ENDBOSS_FRAME_PATHS.walk);
+        this.frameLists.alert = this.loadImages(ENDBOSS_FRAME_PATHS.alert);
+        this.frameLists.hurt = this.loadImages(ENDBOSS_FRAME_PATHS.hurt);
+        this.frameLists.dead = this.loadImages(ENDBOSS_FRAME_PATHS.dead);
     }
 
 
@@ -150,20 +128,10 @@ class Endboss extends MovableObject {
      */
     updateRoastFall(now) {
         if (this.deathPhase === "landed") {
-            if (now - this.landedAt >= Endboss.END_DELAY_MS) {
-                this.deathComplete = true;
-            }
+            checkRoastLandDelay(this, now);
             return;
         }
-        this.speedY += GRAVITY * 1.15;
-        this.y += this.speedY;
-        this.rotation += (this.targetRotation - this.rotation) * 0.12;
-        if (this.y < this.groundY) return;
-        this.y = this.groundY;
-        this.speedY = 0;
-        this.rotation = this.targetRotation;
-        this.deathPhase = "landed";
-        this.landedAt = now;
+        applyRoastFallPhysics(this, now);
     }
 
 
@@ -173,20 +141,8 @@ class Endboss extends MovableObject {
      */
     updateStates(character) {
         const now = performance.now();
-        if (this.isHurt && now > this.hurtEndTime) {
-            this.isHurt = false;
-            this.setState("walk");
-        }
-        if (this.isAlert && now > this.alertEndTime) {
-            this.isAlert = false;
-            this.setState("walk");
-        }
-        const dist = Math.abs(character.x - this.x);
-        if (dist < 400 && !this.isHurt) {
-            this.isAlert = true;
-            this.alertEndTime = now + 2000;
-            this.setState("alert");
-        }
+        clearEndbossTimedStates(this, now);
+        activateEndbossAlert(this, character, now);
     }
 
 
@@ -264,14 +220,23 @@ class Endboss extends MovableObject {
      */
     isHitByBottle(bottle) {
         const b = bottle.getHitBox();
-        const box = {
+        const box = this.getBottleHitBox();
+        return b.x < box.x + box.w && b.x + b.w > box.x &&
+            b.y < box.y + box.h && b.y + b.h > box.y;
+    }
+
+
+    /**
+     * Returns the bottle collision box for the endboss.
+     * @returns {{x: number, y: number, w: number, h: number}} Hitbox.
+     */
+    getBottleHitBox() {
+        return {
             x: this.x + 10,
             y: this.y + 15,
             w: this.width - 20,
             h: this.height - 5
         };
-        return b.x < box.x + box.w && b.x + b.w > box.x &&
-            b.y < box.y + box.h && b.y + b.h > box.y;
     }
 
 }

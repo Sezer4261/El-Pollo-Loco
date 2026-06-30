@@ -64,13 +64,21 @@ class StatusBar {
      * @param {boolean} visible - Whether bar is visible.
      */
     setEndboss(current, max, visible) {
-        if (this.endbossContainer) {
-            this.endbossContainer.classList.toggle("status-bar--hidden", !visible);
-        }
+        this.toggleEndbossVisibility(visible);
         const percent = Math.max(0, (current / max) * 100);
-        const level = this.getNearestLevel(percent);
-        const color = percent > 60 ? "green" : percent > 30 ? "orange" : "blue";
+        const level = getNearestBarLevel(percent);
+        const color = getBarColor(percent);
         this.endbossElement.src = "img/7_statusbars/2_statusbar_endboss/" + color + "/" + color + level + ".png";
+    }
+
+
+    /**
+     * Shows or hides the endboss bar container.
+     * @param {boolean} visible - Visibility flag.
+     */
+    toggleEndbossVisibility(visible) {
+        if (!this.endbossContainer) return;
+        this.endbossContainer.classList.toggle("status-bar--hidden", !visible);
     }
 
 
@@ -81,23 +89,9 @@ class StatusBar {
      * @param {number} percent - Fill percentage.
      */
     setBarImage(el, type, percent) {
-        const level = this.getNearestLevel(percent);
-        const color = percent > 60 ? "green" : percent > 30 ? "orange" : "blue";
+        const level = getNearestBarLevel(percent);
+        const color = getBarColor(percent);
         el.src = StatusBar.BAR_PATHS[type] + color + "/" + level + ".png";
-    }
-
-
-    /**
-     * Returns nearest bar level for percentage.
-     * @param {number} percent - Fill percentage.
-     * @returns {number} Bar level value.
-     */
-    getNearestLevel(percent) {
-        let nearest = StatusBar.LEVELS[0];
-        StatusBar.LEVELS.forEach((level) => {
-            if (percent >= level - 10) nearest = level;
-        });
-        return nearest;
     }
 
 }

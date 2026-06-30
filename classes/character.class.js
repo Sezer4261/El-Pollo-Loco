@@ -37,30 +37,9 @@ class Character extends MovableObject {
      * Loads all Pepe animation frame lists.
      */
     loadAnimations() {
-        this.frameLists.idle = this.buildFrames("img/2_character_pepe/1_idle/idle/I-", 1, 10);
-        this.frameLists.longIdle = this.buildFrames("img/2_character_pepe/1_idle/long_idle/I-", 11, 20);
-        this.frameLists.walk = this.buildFrames("img/2_character_pepe/2_walk/W-", 21, 26);
-        this.frameLists.jump = this.buildFrames("img/2_character_pepe/3_jump/J-", 31, 39);
-        this.frameLists.hurt = this.buildFrames("img/2_character_pepe/4_hurt/H-", 41, 43);
-        this.frameLists.dead = this.buildFrames("img/2_character_pepe/5_dead/D-", 51, 57);
-    }
-
-
-    /**
-     * Builds numbered frame images.
-     * @param {string} basePath - Path prefix.
-     * @param {number} start - First frame number.
-     * @param {number} end - Last frame number.
-     * @returns {HTMLImageElement[]} Frame images.
-     */
-    buildFrames(basePath, start, end) {
-        const frames = [];
-        for (let i = start; i <= end; i++) {
-            const img = new Image();
-            img.src = basePath + i + ".png";
-            frames.push(img);
-        }
-        return frames;
+        CHARACTER_FRAME_CONFIG.forEach((config) => {
+            this.frameLists[config.key] = buildFrames(config.basePath, config.start, config.end);
+        });
     }
 
 
@@ -84,22 +63,10 @@ class Character extends MovableObject {
     handleMovement() {
         const kb = keyboard;
         if (this.isAboveGround()) {
-            this.isDucking = false;
-            this.resetIdleTimer();
-            this.applyAirMovement(kb);
-            this.setState("jump");
+            handleCharacterAirMovement(this, kb);
             return;
         }
-        if (kb.DOWN) {
-            this.isDucking = true;
-            this.applyDuckMovement(kb);
-            return;
-        }
-        this.isDucking = false;
-        if (kb.LEFT) this.moveLeft();
-        else if (kb.RIGHT) this.moveRight();
-        else this.handleIdleState();
-        if (kb.UP) this.jump();
+        handleCharacterGroundMovement(this, kb);
     }
 
 
@@ -113,13 +80,15 @@ class Character extends MovableObject {
             this.x -= 3;
             this.otherDirection = true;
             this.setState("walk");
-        } else if (kb.RIGHT) {
+            return;
+        }
+        if (kb.RIGHT) {
             this.x += 3;
             this.otherDirection = false;
             this.setState("walk");
-        } else {
-            this.setState("idle");
+            return;
         }
+        this.setState("idle");
     }
 
 
@@ -131,7 +100,9 @@ class Character extends MovableObject {
         if (kb.LEFT) {
             this.x -= 5;
             this.otherDirection = true;
-        } else if (kb.RIGHT) {
+            return;
+        }
+        if (kb.RIGHT) {
             this.x += 5;
             this.otherDirection = false;
         }
@@ -213,10 +184,17 @@ class Character extends MovableObject {
         this.bottleBar = Math.max(0, this.bottleBar - 20);
         this.canThrow = false;
         setTimeout(() => { this.canThrow = true; }, 500);
+        return this.createThrownBottle();
+    }
+
+
+    /**
+     * Creates a thrown bottle at the correct position.
+     * @returns {ThrowableObject} Thrown bottle instance.
+     */
+    createThrownBottle() {
         const throwType = this.isDucking ? "low" : "high";
-        const y = this.isDucking
-            ? LOW_THROW_Y
-            : this.y + 25;
+        const y = this.isDucking ? LOW_THROW_Y : this.y + 25;
         const x = this.otherDirection ? this.x + 10 : this.x + this.width - 10;
         return new ThrowableObject(x, y, this.otherDirection, throwType);
     }
@@ -234,19 +212,23 @@ class Character extends MovableObject {
 
     /**
      * Collects a coin and updates the coin bar.
-     * Every 5 coins grants one extra bottle.
      */
     collectCoin() {
         this.coinsCollected++;
         this.coinBar = Math.min(100, this.coinBar + 10);
-        if (this.coinsCollected % 5 === 0) {
-            this.grantBonusBottle();
-        }
-        if (this.coinBar >= 100) {
-            this.health = Math.min(this.maxHealth, this.health + 20);
-            this.coinBar = 0;
-        }
+        if (this.coinsCollected % 5 === 0) this.grantBonusBottle();
+        this.applyCoinHealthBonus();
         audioManager.playEffect("coin");
+    }
+
+
+    /**
+     * Applies health bonus when the coin bar is full.
+     */
+    applyCoinHealthBonus() {
+        if (this.coinBar < 100) return;
+        this.health = Math.min(this.maxHealth, this.health + 20);
+        this.coinBar = 0;
     }
 
 
@@ -255,9 +237,7 @@ class Character extends MovableObject {
      */
     registerEnemyDefeated() {
         this.enemiesDefeated++;
-        if (this.enemiesDefeated % 5 === 0) {
-            this.grantBonusBottle();
-        }
+        if (this.enemiesDefeated % 5 === 0) this.grantBonusBottle();
     }
 
 
@@ -277,6 +257,15 @@ class Character extends MovableObject {
     updateAnimation(now) {
         const speed = this.animationSpeeds[this.currentState] || 120;
         if (now - this.lastAnimTime < speed) return;
+        this.advanceAnimationFrame();
+        this.lastAnimTime = now;
+    }
+
+
+    /**
+     * Moves to the next animation frame.
+     */
+    advanceAnimationFrame() {
         const frames = this.frameLists[this.currentState];
         if (!frames?.length) return;
         if (this.currentState === "dead" && this.frameIndex >= frames.length - 1) return;
@@ -284,7 +273,6 @@ class Character extends MovableObject {
             ? Math.min(this.frameIndex + 1, frames.length - 1)
             : (this.frameIndex + 1) % frames.length;
         this.img = frames[this.frameIndex];
-        this.lastAnimTime = now;
     }
 
 
@@ -305,13 +293,18 @@ class Character extends MovableObject {
      */
     playHurt() {
         this.setState("hurt");
-        setTimeout(() => {
-            if (!this.isDead && this.currentState === "hurt") {
-                this.setState("idle");
-                this.img = this.frameLists.idle[0];
-            }
-        }, 600);
+        setTimeout(() => this.resetFromHurt(), 600);
         audioManager.playEffect("hurt");
+    }
+
+
+    /**
+     * Resets Pepe after the hurt animation.
+     */
+    resetFromHurt() {
+        if (this.isDead || this.currentState !== "hurt") return;
+        this.setState("idle");
+        this.img = this.frameLists.idle[0];
     }
 
 

@@ -1,25 +1,38 @@
 <div id="gameScreen" class="screen game-screen screen--hidden">
     <div class="game-screen__hud">
         <div class="status-bar">
-            <span class="status-bar__label">Health</span>
-            <div class="status-bar__track">
-                <div id="healthBar" class="status-bar__fill status-bar__fill--health"></div>
-            </div>
+            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
+            <img id="healthBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png" alt="">
         </div>
         <div class="status-bar">
-            <span class="status-bar__label">Progress</span>
-            <div class="status-bar__track">
-                <div id="progressBar" class="status-bar__fill status-bar__fill--progress"></div>
-            </div>
+            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
+            <img id="coinBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/1_statusbar_coin/green/0.png" alt="">
         </div>
-        <button id="muteButton" class="btn btn--icon" type="button" aria-label="Toggle sound">🔊</button>
+        <div class="status-bar">
+            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+            <img id="bottleBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png" alt="">
+        </div>
+        <div id="endbossBarContainer" class="status-bar status-bar--hidden">
+            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
+            <img id="endbossBar" class="status-bar__img" src="img/7_statusbars/2_statusbar_endboss/green/green100.png" alt="">
+        </div>
+        <div class="game-screen__hud-actions">
+            <button id="fullscreenButton" class="btn btn--icon fullscreen-btn" type="button" data-fullscreen-btn aria-label="Vollbild" title="Vollbild">⛶</button>
+            <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
+        </div>
     </div>
-    <canvas id="gameCanvas" width="720" height="480" aria-label="Game canvas"></canvas>
+    <div class="game-screen__stage">
+        <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
+        <div id="rewardPopup" class="reward-popup reward-popup--hidden" aria-hidden="true">
+            <span class="reward-popup__plus">+</span>
+            <img class="reward-popup__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+        </div>
+    </div>
     <div id="touchControls" class="touch-controls">
-        <button id="touchLeft" class="touch-btn touch-btn--left" type="button" aria-label="Move left">◀</button>
-        <button id="touchRight" class="touch-btn touch-btn--right" type="button" aria-label="Move right">▶</button>
-        <button id="touchJump" class="touch-btn touch-btn--jump" type="button" aria-label="Jump">▲</button>
-        <button id="touchCrawl" class="touch-btn touch-btn--crawl" type="button" aria-label="Crawl">▼</button>
-        <button id="touchShoot" class="touch-btn touch-btn--shoot" type="button" aria-label="Shoot">●</button>
+        <button id="touchLeft" class="touch-btn touch-btn--left" type="button" aria-label="Links">◀</button>
+        <button id="touchRight" class="touch-btn touch-btn--right" type="button" aria-label="Rechts">▶</button>
+        <button id="touchJump" class="touch-btn touch-btn--jump" type="button" aria-label="Springen">▲</button>
+        <button id="touchDuck" class="touch-btn touch-btn--duck" type="button" aria-label="Ducken">▼</button>
+        <button id="touchThrow" class="touch-btn touch-btn--throw" type="button" aria-label="Werfen">🌶</button>
     </div>
 </div>

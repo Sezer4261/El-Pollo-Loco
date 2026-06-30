@@ -21,17 +21,8 @@ class AudioManager {
      * Registers all game sound files.
      */
     loadSounds() {
-        this.sounds.throw = this.createSound("Audio/shoot.wav", 0.35);
-        this.sounds.hit = this.createSound("Audio/hit.wav", 0.4);
-        this.sounds.bossHit = this.createSound("Audio/hit.wav", 0.45);
-        this.sounds.coin = this.createSound("Audio/win.wav", 0.3);
-        this.sounds.bottle = this.createSound("Audio/shoot.wav", 0.25);
-        this.sounds.hurt = this.createSound("Audio/hit.wav", 0.35);
-        this.sounds.gameOver = this.createSound("Audio/game-over.wav", 0.5);
-        this.sounds.win = this.createSound("Audio/win.wav", 0.5);
-        this.music = this.createSound("Audio/background.mp3", 0.25);
-        this.music.preload = "auto";
-        this.music.loop = false;
+        registerSoundEffects(this);
+        registerBackgroundMusic(this);
         this.bindMusicEvents();
     }
 
@@ -105,6 +96,14 @@ class AudioManager {
             this.playFrom(0);
             return;
         }
+        this.resumeMenuMusic();
+    }
+
+
+    /**
+     * Resumes paused menu music without resetting position.
+     */
+    resumeMenuMusic() {
         if (!this.music.paused) return;
         const time = this.music.currentTime >= this.gameLoopStart ? 0 : this.music.currentTime;
         this.playFrom(time);
@@ -174,13 +173,21 @@ class AudioManager {
             return;
         }
         if (this.musicMode === "game") {
-            const time = this.music.currentTime >= this.gameLoopStart
-                ? this.music.currentTime
-                : this.gameLoopStart;
-            this.playFrom(time);
+            this.resumeGameMusic();
             return;
         }
         this.startMenuMusic(false);
+    }
+
+
+    /**
+     * Resumes in-game music after unmuting.
+     */
+    resumeGameMusic() {
+        const time = this.music.currentTime >= this.gameLoopStart
+            ? this.music.currentTime
+            : this.gameLoopStart;
+        this.playFrom(time);
     }
 
 }

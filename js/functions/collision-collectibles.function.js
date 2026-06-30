@@ -1,0 +1,30 @@
+/**
+ * Filters collected coins and updates the character bar.
+ * @param {Character} character - Player character.
+ * @param {Coin[]} coins - Coin list.
+ * @returns {Coin[]} Remaining coins.
+ */
+function filterCollectedCoins(character, coins) {
+    return coins.filter((coin) => {
+        if (coin.collected || !character.isColliding(coin)) return !coin.collected;
+        coin.collected = true;
+        character.collectCoin();
+        return false;
+    });
+}
+
+
+/**
+ * Filters collected bottles and updates the character bar.
+ * @param {Character} character - Player character.
+ * @param {Bottle[]} bottles - Bottle list.
+ * @returns {Bottle[]} Remaining bottles.
+ */
+function filterCollectedBottles(character, bottles) {
+    return bottles.filter((bottle) => {
+        if (bottle.collected || !character.isColliding(bottle)) return !bottle.collected;
+        bottle.collected = true;
+        character.collectBottle();
+        return false;
+    });
+}

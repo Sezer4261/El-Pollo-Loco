@@ -98,15 +98,7 @@ class Chicken extends MovableObject {
      * @returns {boolean} True when the bottle hits.
      */
     isHitByBottle(bottle) {
-        const b = bottle.getHitBox();
-        const padX = bottle.isLowThrow ? 12 : 6;
-        const padY = bottle.isLowThrow ? 18 : 10;
-        const cx = this.x + this.offset.left - padX;
-        const cy = this.y + this.offset.top - padY;
-        const cw = this.width - this.offset.left - this.offset.right + padX * 2;
-        const ch = this.height - this.offset.top - this.offset.bottom + padY * 2;
-        return b.x < cx + cw && b.x + b.w > cx &&
-            b.y < cy + ch && b.y + b.h > cy;
+        return isChickenHitByBottle(this, bottle);
     }
 
 }
