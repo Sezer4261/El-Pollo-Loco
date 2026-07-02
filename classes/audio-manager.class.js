@@ -7,6 +7,7 @@ class AudioManager {
     music = null;
     musicMode = "menu";
     gameLoopStart = 10;
+    audioContext = null;
 
     /**
      * Initializes audio and restores mute preference.
@@ -14,6 +15,7 @@ class AudioManager {
     constructor() {
         this.loadSounds();
         this.isMuted = localStorage.getItem("gameMuted") === "true";
+        preloadSpeechVoices();
     }
 
 
@@ -125,9 +127,77 @@ class AudioManager {
      * @param {string} name - Sound identifier.
      */
     playEffect(name) {
+        if (this.isMuted) return;
+        if (name === "coin") {
+            this.playCoinChime();
+            return;
+        }
+        if (name === "hurt") {
+            playHurtVoice(this);
+            return;
+        }
         if (this.isMuted || !this.sounds[name]) return;
         const sound = this.sounds[name].cloneNode();
         sound.volume = this.sounds[name].volume;
+        sound.play().catch(() => {});
+    }
+
+
+    /**
+     * Plays a short "coin" chime (Mario-like) via WebAudio.
+     */
+    playCoinChime() {
+        if (this.isMuted) return;
+        const ctx = this.getAudioContext();
+        if (!ctx) return this.playFallbackCoin();
+        const now = ctx.currentTime;
+        this.playTone(ctx, 988, now, 0.06);
+        this.playTone(ctx, 1319, now + 0.06, 0.08);
+    }
+
+
+    /**
+     * Returns an AudioContext instance when available.
+     * @returns {AudioContext|null} Audio context or null.
+     */
+    getAudioContext() {
+        if (this.audioContext) return this.audioContext;
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        this.audioContext = new Ctx();
+        if (this.audioContext.state === "suspended") this.audioContext.resume().catch(() => {});
+        return this.audioContext;
+    }
+
+
+    /**
+     * Plays a short sine tone with a quick envelope.
+     * @param {AudioContext} ctx - Audio context.
+     * @param {number} freq - Frequency in Hz.
+     * @param {number} start - Start time.
+     * @param {number} duration - Duration in seconds.
+     */
+    playTone(ctx, freq, start, duration) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.12, start + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration + 0.02);
+    }
+
+
+    /**
+     * Fallback to an existing file-based coin sound.
+     */
+    playFallbackCoin() {
+        if (!this.sounds.coin) return;
+        const sound = this.sounds.coin.cloneNode();
+        sound.volume = this.sounds.coin.volume;
         sound.play().catch(() => {});
     }
 

@@ -18,8 +18,8 @@ class Coin extends MovableObject {
         super();
         this.x = x;
         this.y = y;
-        this.width = 60;
-        this.height = 60;
+        this.width = 72;
+        this.height = 72;
         this.offset = { top: 10, left: 10, right: 10, bottom: 10 };
         this.frames = this.loadImages(Coin.FRAMES);
         this.img = this.frames[0];

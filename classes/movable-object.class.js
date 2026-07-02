@@ -1,6 +1,5 @@
-const GROUND_Y = 283;
 const GRAVITY = 1.8;
-const LOW_THROW_Y = GROUND_Y + 168;
+const LOW_THROW_Y = GROUND_Y + Math.round(CHARACTER_HEIGHT * 0.85);
 const BOSS_BOTTLE_DAMAGE = 20;
 
 /**

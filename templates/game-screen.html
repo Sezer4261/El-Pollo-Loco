@@ -1,27 +1,51 @@
 <div id="gameScreen" class="screen game-screen screen--hidden">
-    <div class="game-screen__hud">
-        <div class="status-bar">
-            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
-            <img id="healthBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png" alt="">
-        </div>
-        <div class="status-bar">
-            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
-            <img id="coinBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/1_statusbar_coin/green/0.png" alt="">
-        </div>
-        <div class="status-bar">
-            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
-            <img id="bottleBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png" alt="">
-        </div>
-        <div id="endbossBarContainer" class="status-bar status-bar--hidden">
-            <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
-            <img id="endbossBar" class="status-bar__img" src="img/7_statusbars/2_statusbar_endboss/green/green100.png" alt="">
-        </div>
-        <div class="game-screen__hud-actions">
-            <button id="fullscreenButton" class="btn btn--icon fullscreen-btn" type="button" data-fullscreen-btn aria-label="Vollbild" title="Vollbild">⛶</button>
-            <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
-        </div>
-    </div>
     <div class="game-screen__stage">
+        <div class="game-screen__hud-overlay" aria-hidden="false">
+            <div class="game-screen__statusbars">
+                <div class="status-bar">
+                    <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
+                    <div class="status-bar__track" role="img" aria-label="Leben">
+                        <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                        <div id="healthBar" class="status-bar__fill" style="width: 100%;">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="status-bar">
+                    <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
+                    <div class="status-bar__track" role="img" aria-label="Münzen">
+                        <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                        <div id="coinBar" class="status-bar__fill" style="width: 0%;">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="status-bar">
+                    <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+                    <div class="status-bar__track" role="img" aria-label="Flaschen">
+                        <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                        <div id="bottleBar" class="status-bar__fill" style="width: 0%;">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="game-screen__hud-right">
+                <div id="endbossBarContainer" class="status-bar status-bar--endboss status-bar--hidden">
+                    <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
+                    <div class="status-bar__track" role="img" aria-label="Endboss Leben">
+                        <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                        <div id="endbossBar" class="status-bar__fill" style="width: 100%;">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="game-screen__hud-actions">
+                    <button id="fullscreenButton" class="btn btn--icon fullscreen-btn" type="button" data-fullscreen-btn aria-label="Vollbild" title="Vollbild">⛶</button>
+                    <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
+                </div>
+            </div>
+        </div>
         <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
         <div id="rewardPopup" class="reward-popup reward-popup--hidden" aria-hidden="true">
             <span class="reward-popup__plus">+</span>

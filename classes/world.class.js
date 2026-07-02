@@ -100,6 +100,7 @@ class World {
     updateEntities() {
         this.character.update();
         this.chickens.forEach((c) => c.update());
+        this.chickens = this.chickens.filter((c) => !hasChickenLeftLevel(c));
         this.endboss.update(this.character);
         this.coins.forEach((c) => c.animate(performance.now()));
         this.throwables.forEach((t) => t.update());
@@ -124,7 +125,7 @@ class World {
      * Fills the canvas with the ground color.
      */
     clearCanvas() {
-        this.ctx.fillStyle = "#c9a66b";
+        this.ctx.fillStyle = "#8ebad6";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -135,10 +136,7 @@ class World {
     drawBackgroundScreenSpace() {
         const w = this.canvas.width;
         const h = this.canvas.height;
-        const cam = this.cameraX;
-        this.backgrounds.forEach((tile) => {
-            drawBackgroundTile(this.ctx, tile, cam, w, h);
-        });
+        drawBackgroundLayers(this.ctx, this.backgrounds, this.cameraX, w, h);
     }
 
 
@@ -172,8 +170,12 @@ class World {
         this.statusBar.setHealth(char.health, char.maxHealth);
         this.statusBar.setCoins(char.coinBar);
         this.statusBar.setBottles(char.bottleBar);
-        const bossVisible = this.character.x > this.endboss.x - 500;
-        this.statusBar.setEndboss(this.endboss.health, this.endboss.maxHealth, bossVisible);
+        const bossVisible = this.character.x > this.endboss.x - 500 && !this.endboss.isDead;
+        this.statusBar.setEndboss(
+            this.endboss.health,
+            this.endboss.maxHealth,
+            bossVisible
+        );
     }
 
 

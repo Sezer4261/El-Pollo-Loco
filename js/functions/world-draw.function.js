@@ -1,5 +1,5 @@
 /**
- * Draws one background tile at its world position.
+ * Draws one parallax background tile in screen space.
  * @param {CanvasRenderingContext2D} ctx - Canvas context.
  * @param {BackgroundObject} tile - Background tile.
  * @param {number} cam - Camera X offset.
@@ -9,13 +9,23 @@
 function drawBackgroundTile(ctx, tile, cam, w, h) {
     const img = tile.img;
     if (!img?.complete || !img.naturalWidth) return;
-    const srcY = Math.max(0, img.naturalHeight - h);
-    const screenX = tile.tileX - cam;
-    if (screenX + img.naturalWidth < 0 || screenX > w) return;
+    if (tile.isSky) {
+        ctx.drawImage(img, 0, 0, w, h);
+        return;
+    }
+    const scale = h / img.naturalHeight;
+    const drawH = h;
+    const drawW = img.naturalWidth * scale;
+    const screenX = tile.tileX - cam * tile.speedFactor;
+    if (screenX + drawW < 0 || screenX > w) return;
     const destX = Math.max(0, screenX);
-    const srcX = screenX < 0 ? -screenX : 0;
-    const drawW = Math.min(img.naturalWidth - srcX, w - destX);
-    ctx.drawImage(img, srcX, srcY, drawW, h, destX, 0, drawW, h);
+    const srcX = screenX < 0 ? (-screenX / scale) : 0;
+    const visibleW = Math.min(drawW - srcX * scale, w - destX);
+    ctx.drawImage(
+        img,
+        srcX, 0, visibleW / scale, img.naturalHeight,
+        destX, 0, visibleW, drawH
+    );
 }
 
 

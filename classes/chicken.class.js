@@ -1,11 +1,9 @@
 /**
- * Chicken enemy with patrol behavior and stomp vulnerability.
+ * Chicken enemy that marches through the level.
  */
 class Chicken extends MovableObject {
     health = 1;
     isDead = false;
-    patrolLeft = 0;
-    patrolRight = 0;
     direction = -1;
     walkFrames = [];
     deadFrames = [];
@@ -14,22 +12,20 @@ class Chicken extends MovableObject {
     speed = 1.5;
 
     /**
-     * Creates a chicken at the given patrol zone.
+     * Creates a chicken at the given position.
      * @param {number} x - Start X position.
-     * @param {number} patrolLeft - Left patrol boundary.
-     * @param {number} patrolRight - Right patrol boundary.
+     * @param {number} direction - March direction (-1 left, 1 right).
      * @param {boolean} [small=false] - Use small chicken variant.
      */
-    constructor(x, patrolLeft, patrolRight, small = false) {
+    constructor(x, direction, small = false) {
         super();
         this.isSmall = small;
         this.x = x;
-        this.width = small ? 58 : 85;
-        this.height = small ? 57 : 83;
-        this.y = GROUND_Y + 197 - this.height;
-        this.speed = small ? 2 : 1.5;
-        this.patrolLeft = patrolLeft;
-        this.patrolRight = patrolRight;
+        this.direction = direction;
+        this.width = small ? 66 : 98;
+        this.height = small ? 64 : 96;
+        this.y = getGroundYForHeight(this.height);
+        this.speed = small ? 2.8 : 2.4;
         this.offset = { top: 5, left: 5, right: 5, bottom: 5 };
         this.loadFrames();
     }
@@ -50,22 +46,11 @@ class Chicken extends MovableObject {
 
 
     /**
-     * Updates patrol and animation each frame.
+     * Updates march and animation each frame.
      */
     update() {
-        if (!this.isDead) this.patrol();
+        if (!this.isDead) marchChicken(this);
         this.updateAnimation(performance.now());
-    }
-
-
-    /**
-     * Patrols between boundaries.
-     */
-    patrol() {
-        this.x += this.direction * this.speed;
-        this.otherDirection = this.direction < 0;
-        if (this.x <= this.patrolLeft) this.direction = 1;
-        if (this.x >= this.patrolRight) this.direction = -1;
     }
 
 

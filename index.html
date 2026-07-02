@@ -31,29 +31,53 @@
     </div>
 
     <div id="gameScreen" class="screen game-screen screen--hidden">
-        <div class="game-screen__hud">
-            <div class="status-bar">
-                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
-                <img id="healthBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png" alt="">
-            </div>
-            <div class="status-bar">
-                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
-                <img id="coinBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/1_statusbar_coin/green/0.png" alt="">
-            </div>
-            <div class="status-bar">
-                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
-                <img id="bottleBar" class="status-bar__img" src="img/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png" alt="">
-            </div>
-            <div id="endbossBarContainer" class="status-bar status-bar--hidden">
-                <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
-                <img id="endbossBar" class="status-bar__img" src="img/7_statusbars/2_statusbar_endboss/green/green100.png" alt="">
-            </div>
-            <div class="game-screen__hud-actions">
-                <button id="fullscreenButton" class="btn btn--icon fullscreen-btn" type="button" data-fullscreen-btn aria-label="Vollbild" title="Vollbild">⛶</button>
-                <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
-            </div>
-        </div>
         <div class="game-screen__stage">
+            <div class="game-screen__hud-overlay" aria-hidden="false">
+                <div class="game-screen__statusbars">
+                    <div class="status-bar">
+                        <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
+                        <div class="status-bar__track" role="img" aria-label="Leben">
+                            <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                            <div id="healthBar" class="status-bar__fill" style="width: 100%;">
+                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-bar">
+                        <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
+                        <div class="status-bar__track" role="img" aria-label="Münzen">
+                            <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                            <div id="coinBar" class="status-bar__fill" style="width: 0%;">
+                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-bar">
+                        <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+                        <div class="status-bar__track" role="img" aria-label="Flaschen">
+                            <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                            <div id="bottleBar" class="status-bar__fill" style="width: 0%;">
+                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="game-screen__hud-right">
+                    <div id="endbossBarContainer" class="status-bar status-bar--endboss status-bar--hidden">
+                        <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
+                        <div class="status-bar__track" role="img" aria-label="Endboss Leben">
+                            <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
+                            <div id="endbossBar" class="status-bar__fill" style="width: 100%;">
+                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-screen__hud-actions">
+                        <button id="fullscreenButton" class="btn btn--icon fullscreen-btn" type="button" data-fullscreen-btn aria-label="Vollbild" title="Vollbild">⛶</button>
+                        <button id="muteButton" class="btn btn--icon" type="button" aria-label="Ton umschalten">🔊</button>
+                    </div>
+                </div>
+            </div>
             <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
             <div id="rewardPopup" class="reward-popup reward-popup--hidden" aria-hidden="true">
                 <span class="reward-popup__plus">+</span>
@@ -70,11 +94,14 @@
     </div>
 
     <div id="endScreen" class="screen end-screen screen--hidden">
-        <div class="end-screen__content">
-            <h2 id="endTitle" class="end-screen__title">Game Over</h2>
-            <p id="endMessage" class="end-screen__message">Du wurdest besiegt.</p>
-            <button id="restartButton" class="btn btn--primary" type="button">Nochmal spielen</button>
-            <button id="exitButton" class="btn btn--secondary" type="button">Beenden</button>
+        <div class="end-screen__frame">
+            <div class="end-screen__banner" aria-hidden="true"></div>
+            <div class="end-screen__content">
+                <h2 id="endTitle" class="end-screen__title">Game Over</h2>
+                <p id="endMessage" class="end-screen__message">Du wurdest besiegt.</p>
+                <button id="restartButton" class="btn btn--primary" type="button">Nochmal spielen</button>
+                <button id="exitButton" class="btn btn--secondary" type="button">Beenden</button>
+            </div>
         </div>
     </div>
 
@@ -111,11 +138,17 @@
     <script src="js/constants/character-frames.constant.js"></script>
     <script src="js/constants/audio-paths.constant.js"></script>
     <script src="js/constants/keyboard-map.constant.js"></script>
+    <script src="js/constants/game-scale.constant.js"></script>
+    <script src="js/constants/background-layers.constant.js"></script>
     <script src="js/functions/build-frames.function.js"></script>
     <script src="js/functions/character-movement.function.js"></script>
     <script src="js/functions/endboss-death.function.js"></script>
     <script src="js/functions/endboss-states.function.js"></script>
+    <script src="js/functions/endboss-movement.function.js"></script>
+    <script src="js/functions/chicken-movement.function.js"></script>
     <script src="js/functions/world-draw.function.js"></script>
+    <script src="js/functions/create-backgrounds.function.js"></script>
+    <script src="js/functions/draw-seamless-background.function.js"></script>
     <script src="js/functions/collision-throwable.function.js"></script>
     <script src="js/functions/collision-enemy.function.js"></script>
     <script src="js/functions/collision-collectibles.function.js"></script>
@@ -123,7 +156,9 @@
     <script src="js/functions/keyboard-events.function.js"></script>
     <script src="js/functions/touch-events.function.js"></script>
     <script src="js/functions/load-audio-sounds.function.js"></script>
+    <script src="js/functions/play-hurt-voice.function.js"></script>
     <script src="js/functions/status-bar-helper.function.js"></script>
+    <script src="js/functions/endboss-bar-position.function.js"></script>
     <script src="js/functions/audio-init.function.js"></script>
     <script src="js/functions/init-app.function.js"></script>
     <script src="classes/drawable-object.class.js"></script>

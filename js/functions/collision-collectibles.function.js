@@ -7,8 +7,9 @@
 function filterCollectedCoins(character, coins) {
     return coins.filter((coin) => {
         if (coin.collected || !character.isColliding(coin)) return !coin.collected;
+        const pickedUp = character.collectCoin();
+        if (!pickedUp) return true;
         coin.collected = true;
-        character.collectCoin();
         return false;
     });
 }
@@ -23,8 +24,9 @@ function filterCollectedCoins(character, coins) {
 function filterCollectedBottles(character, bottles) {
     return bottles.filter((bottle) => {
         if (bottle.collected || !character.isColliding(bottle)) return !bottle.collected;
+        const pickedUp = character.collectBottle();
+        if (!pickedUp) return true;
         bottle.collected = true;
-        character.collectBottle();
         return false;
     });
 }

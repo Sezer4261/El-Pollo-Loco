@@ -2,12 +2,14 @@
  * Endboss chicken with alert, attack and hurt states.
  */
 class Endboss extends MovableObject {
-    health = 100;
-    maxHealth = 100;
+    health = 120;
+    maxHealth = 120;
     isDead = false;
     isHurt = false;
     isAlert = false;
     isRoasted = false;
+    isJumping = false;
+    isLeapAttack = false;
     deathComplete = false;
     deathPhase = "";
     rotation = 0;
@@ -20,6 +22,7 @@ class Endboss extends MovableObject {
     hurtEndTime = 0;
     alertEndTime = 0;
     landedAt = 0;
+    nextJumpTime = 0;
     direction = -1;
 
     static ROASTED_WIDTH = 210;
@@ -37,9 +40,10 @@ class Endboss extends MovableObject {
         this.x = x;
         this.patrolLeft = patrolLeft;
         this.patrolRight = patrolRight;
-        this.y = 55;
-        this.width = 200;
-        this.height = 320;
+        this.width = 230;
+        this.height = 368;
+        this.groundY = getGroundYForHeight(this.height);
+        this.y = this.groundY;
         this.offset = { top: 40, left: 30, right: 30, bottom: 20 };
         this.loadAnimations();
         this.img = this.frameLists.walk[0];
@@ -67,7 +71,8 @@ class Endboss extends MovableObject {
             return;
         }
         this.updateStates(character);
-        this.patrol();
+        updateEndbossMovement(this, character);
+        applyEndbossGravity(this);
         this.updateAnimation(performance.now());
     }
 
@@ -116,7 +121,7 @@ class Endboss extends MovableObject {
         this.x += (this.width - Endboss.ROASTED_WIDTH) / 2;
         this.width = Endboss.ROASTED_WIDTH;
         this.height = Endboss.ROASTED_HEIGHT;
-        this.groundY = GROUND_Y + 197 - this.height;
+        this.groundY = getGroundYForHeight(this.height);
         this.speedY = 1;
         this.targetRotation = this.otherDirection ? -1.35 : 1.35;
     }
@@ -143,18 +148,6 @@ class Endboss extends MovableObject {
         const now = performance.now();
         clearEndbossTimedStates(this, now);
         activateEndbossAlert(this, character, now);
-    }
-
-
-    /**
-     * Moves the boss slowly left and right.
-     */
-    patrol() {
-        if (this.isHurt) return;
-        this.x += this.direction * 0.8;
-        this.otherDirection = this.direction < 0;
-        if (this.x <= this.patrolLeft) this.direction = 1;
-        if (this.x >= this.patrolRight) this.direction = -1;
     }
 
 

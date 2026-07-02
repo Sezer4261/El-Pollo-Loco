@@ -25,8 +25,8 @@ class Character extends MovableObject {
         super();
         this.x = 80;
         this.y = GROUND_Y;
-        this.width = 100;
-        this.height = 197;
+        this.width = CHARACTER_WIDTH;
+        this.height = CHARACTER_HEIGHT;
         this.offset = { top: 30, left: 20, right: 20, bottom: 10 };
         this.loadAnimations();
         this.img = this.frameLists.idle[0];
@@ -53,6 +53,7 @@ class Character extends MovableObject {
         }
         this.applyGravity();
         if (this.currentState !== "hurt") this.handleMovement();
+        clampCharacterLevelBounds(this);
         this.updateAnimation(performance.now());
     }
 
@@ -204,9 +205,11 @@ class Character extends MovableObject {
      * Grants one bonus bottle and shows the reward popup.
      */
     grantBonusBottle() {
+        if (this.bottleBar >= 100) return false;
         this.bottleBar = Math.min(100, this.bottleBar + 20);
         audioManager.playEffect("bottle");
         rewardPopup.show();
+        return true;
     }
 
 
@@ -214,11 +217,14 @@ class Character extends MovableObject {
      * Collects a coin and updates the coin bar.
      */
     collectCoin() {
+        if (this.coinBar >= 100) return false;
+        const wasFull = this.coinBar >= 90;
         this.coinsCollected++;
         this.coinBar = Math.min(100, this.coinBar + 10);
         if (this.coinsCollected % 5 === 0) this.grantBonusBottle();
-        this.applyCoinHealthBonus();
+        if (wasFull && this.coinBar === 100) this.applyCoinHealthBonus();
         audioManager.playEffect("coin");
+        return true;
     }
 
 
@@ -228,7 +234,6 @@ class Character extends MovableObject {
     applyCoinHealthBonus() {
         if (this.coinBar < 100) return;
         this.health = Math.min(this.maxHealth, this.health + 20);
-        this.coinBar = 0;
     }
 
 
@@ -245,8 +250,10 @@ class Character extends MovableObject {
      * Collects a ground bottle.
      */
     collectBottle() {
+        if (this.bottleBar >= 100) return false;
         this.bottleBar = Math.min(100, this.bottleBar + 20);
         audioManager.playEffect("bottle");
+        return true;
     }
 
 

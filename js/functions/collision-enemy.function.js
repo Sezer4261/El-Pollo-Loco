@@ -15,7 +15,7 @@ function resolveChickenCharacterHit(collisions, character, chicken, now) {
         return false;
     }
     if (!collisions.manager.isSideHit(character, chicken)) return false;
-    character.takeDamage(20);
+    character.takeDamage(25);
     collisions.world.lastEnemyHit = now;
     return true;
 }
@@ -30,6 +30,6 @@ function resolveChickenCharacterHit(collisions, character, chicken, now) {
  */
 function resolveBossCharacterHit(collisions, character, boss, now) {
     if (boss.isDead || !collisions.manager.isBossSideHit(character, boss)) return;
-    character.takeDamage(30);
+    character.takeDamage(40);
     collisions.world.lastEnemyHit = now;
 }

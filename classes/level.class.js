@@ -5,12 +5,6 @@ const LEVEL_END = 5400;
  * Defines level layout and entity factories.
  */
 class Level {
-    static BACKGROUND_TILES = [
-        { path: "img/5_background/first_half_background.png", x: 0 },
-        { path: "img/5_background/second_half_background.png", x: 1920 },
-        { path: "img/5_background/first_half_background.png", x: 3840 }
-    ];
-
     /**
      * Creates a level from configuration data.
      * @param {object} data - Level configuration.
@@ -32,9 +26,7 @@ class Level {
      * @returns {BackgroundObject[]} Background tiles.
      */
     createBackgrounds() {
-        return Level.BACKGROUND_TILES.map(
-            (tile) => new BackgroundObject(tile.path, tile.x)
-        );
+        return createParallaxBackgrounds(this.width);
     }
 
 
@@ -44,7 +36,7 @@ class Level {
      */
     createChickens() {
         return this.enemyData.map(
-            (e) => new Chicken(e.x, e.left, e.right, e.small)
+            (e) => new Chicken(e.x, e.direction, e.small)
         );
     }
 

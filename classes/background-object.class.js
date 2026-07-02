@@ -3,16 +3,24 @@
  */
 class BackgroundObject extends DrawableObject {
     tileX = 0;
-    tileWidth = 1920;
+    speedFactor = 1;
+    isSky = false;
+    layerId = 0;
+    tileWorldWidth = 0;
 
     /**
      * Creates a background tile.
      * @param {string} imagePath - Image path.
      * @param {number} tileX - World X position of this tile.
+     * @param {object} config - Layer configuration.
      */
-    constructor(imagePath, tileX) {
+    constructor(imagePath, tileX, config = {}) {
         super();
         this.loadImage(imagePath);
         this.tileX = tileX;
+        this.speedFactor = config.speed ?? 1;
+        this.isSky = config.isSky ?? false;
+        this.layerId = config.layerId ?? 0;
+        this.tileWorldWidth = config.tileWidth ?? 0;
     }
 }

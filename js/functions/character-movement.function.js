@@ -1,4 +1,15 @@
 /**
+ * Clamps Pepe inside the level bounds (SNES-style walls left and right).
+ * @param {Character} character - Player character.
+ */
+function clampCharacterLevelBounds(character) {
+    if (character.x < LEVEL_MIN_X) character.x = LEVEL_MIN_X;
+    const maxX = LEVEL_WIDTH - character.width;
+    if (character.x > maxX) character.x = maxX;
+}
+
+
+/**
  * Handles Pepe movement while jumping.
  * @param {Character} character - Player character.
  * @param {Keyboard} kb - Keyboard state.
