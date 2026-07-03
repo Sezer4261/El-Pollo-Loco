@@ -222,6 +222,7 @@ body {
     justify-content: center;
     gap: clamp(4px, 1vw, 8px);
     min-height: 0;
+    --game-stage-max-height: calc(100dvh - var(--screen-padding) * 2 - var(--touch-height) - 8px);
 }
 
 .game-screen__hud {
@@ -255,10 +256,14 @@ body {
 
 .game-screen__stage {
     position: relative;
-    width: 720px;
-    height: 480px;
-    max-width: 100%;
-    max-height: min(100dvh, 480px);
+    width: min(
+        100%,
+        var(--game-max-width),
+        calc(var(--game-stage-max-height) * 3 / 2)
+    );
+    aspect-ratio: var(--game-aspect);
+    height: auto;
+    max-height: var(--game-stage-max-height);
     flex-shrink: 1;
     min-height: 0;
 }
@@ -289,7 +294,7 @@ body {
 .game-screen__statusbars {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
     pointer-events: none;
 }
 
@@ -309,14 +314,79 @@ body {
     flex: 0 0 auto;
 }
 
-.status-bar__icon {
+.game-screen__statusbars .status-bar__icon {
+    height: 38px;
+}
+
+.game-screen__statusbars .status-bar__track {
+    position: relative;
     height: 26px;
+    width: 230px;
+}
+
+.game-screen__statusbars .status-bar__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.game-screen__statusbars .status-bar__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.game-screen__statusbars .status-bar__fill-img {
+    height: 100%;
+    width: 230px;
+    object-fit: contain;
+    display: block;
+}
+
+.game-screen__statusbars .status-bar {
+    position: relative;
+}
+
+.game-screen__statusbars .status-bar--health-critical .status-bar__icon {
+    animation: healthIconBlink 0.6s ease-in-out infinite;
+}
+
+.game-screen__statusbars .status-bar--health-critical .status-bar__fill-img {
+    animation: healthBarRedPulse 0.6s ease-in-out infinite;
+}
+
+@keyframes healthBarRedPulse {
+    0%, 100% {
+        opacity: 1;
+        filter: sepia(1) saturate(14) hue-rotate(-38deg) brightness(1.2);
+    }
+    50% {
+        opacity: 0.35;
+        filter: sepia(1) saturate(20) hue-rotate(-45deg) brightness(1.55);
+    }
+}
+
+@keyframes healthIconBlink {
+    0%, 100% {
+        opacity: 1;
+        filter: sepia(1) saturate(12) hue-rotate(-35deg) brightness(1.1);
+    }
+    50% {
+        opacity: 0.35;
+        filter: sepia(1) saturate(16) hue-rotate(-42deg) brightness(1.35);
+    }
+}
+
+.status-bar--endboss {
+    pointer-events: none;
 }
 
 .status-bar__track {
     position: relative;
-    height: 18px;
-    width: 170px;
 }
 
 .status-bar__bg {
@@ -337,13 +407,8 @@ body {
 
 .status-bar__fill-img {
     height: 100%;
-    width: 170px;
     object-fit: contain;
     display: block;
-}
-
-.status-bar--endboss {
-    pointer-events: none;
 }
 
 .status-bar--endboss .status-bar__icon {
@@ -351,6 +416,7 @@ body {
 }
 
 .status-bar--endboss .status-bar__track {
+    position: relative;
     width: 110px;
     height: 14px;
 }
@@ -427,8 +493,11 @@ body {
 .touch-controls {
     display: none;
     position: relative;
-    width: 100%;
-    max-width: var(--game-max-width);
+    width: min(
+        100%,
+        var(--game-max-width),
+        calc(var(--game-stage-max-height) * 3 / 2)
+    );
     height: var(--touch-height);
     flex-shrink: 0;
     margin-top: clamp(2px, 1vw, 4px);
@@ -436,6 +505,9 @@ body {
 
 .touch-btn {
     position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: clamp(48px, 14vw, 64px);
     height: clamp(48px, 14vw, 64px);
     border: none;
@@ -449,6 +521,14 @@ body {
     -webkit-touch-callout: none;
 }
 
+.touch-btn__icon {
+    width: 62%;
+    height: 62%;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.45));
+}
+
 .touch-btn:active {
     background: rgba(233, 69, 96, 0.6);
 }
@@ -457,7 +537,7 @@ body {
 .touch-btn--right { left: 18%; bottom: 8px; }
 .touch-btn--jump { right: 38%; bottom: 8px; }
 .touch-btn--duck { right: 20%; bottom: 8px; }
-.touch-btn--throw { right: 2%; bottom: 8px; font-size: clamp(1.2rem, 4.5vw, 1.6rem); }
+.touch-btn--throw { right: 2%; bottom: 8px; }
 
 .end-screen {
     background: #0f0f1a;
@@ -469,8 +549,13 @@ body {
 .end-screen__frame {
     display: flex;
     flex-direction: column;
-    width: min(100%, var(--game-max-width));
-    max-height: min(calc(100dvh - var(--screen-padding) * 2), 560px);
+    align-items: stretch;
+    width: min(
+        100%,
+        var(--game-max-width),
+        calc((100dvh - var(--screen-padding) * 2 - 140px) * 1.5)
+    );
+    max-height: calc(100dvh - var(--screen-padding) * 2);
     border: 2px solid #3a3a5c;
     border-radius: 4px;
     overflow: hidden;
@@ -480,10 +565,12 @@ body {
 
 .end-screen__banner {
     width: 100%;
-    height: clamp(240px, 46vh, 360px);
-    flex-shrink: 0;
+    aspect-ratio: var(--game-aspect);
+    max-height: min(46vh, 360px);
+    min-height: 0;
+    flex-shrink: 1;
     background-color: #1a1a2e;
-    background-position: center top;
+    background-position: center center;
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -629,12 +716,8 @@ body {
 
     .game-screen {
         padding: clamp(4px, 1vw, 8px);
-    }
-
-    .game-screen__stage {
-        max-height: min(
-            calc(100dvh - var(--hud-height) - var(--touch-height) - var(--screen-padding) * 2 - 8px),
-            calc(var(--game-max-width) * 2 / 3)
+        --game-stage-max-height: calc(
+            100dvh - var(--touch-height) - var(--screen-padding) * 2 - 8px
         );
     }
 }
@@ -653,9 +736,10 @@ body {
 
 @media (hover: hover) and (pointer: fine) {
     :root {
+        --touch-height: 0px;
         --game-max-width: min(
             calc(100vw - var(--screen-padding) * 2),
-            calc((100dvh - var(--hud-height) - var(--screen-padding) * 2 - 8px) * 1.5)
+            calc((100dvh - var(--screen-padding) * 2 - 16px) * 1.5)
         );
     }
 
@@ -672,19 +756,23 @@ body {
     .home-screen__frame {
         width: min(
             calc(100vw - var(--screen-padding) * 2),
+            var(--game-max-width),
             calc((100dvh - var(--screen-padding) * 2) * 1.5)
         );
         max-height: calc(100dvh - var(--screen-padding) * 2);
     }
 
-    .game-screen__hud,
-    .game-screen__stage {
-        width: var(--game-max-width);
-        max-width: var(--game-max-width);
+    .end-screen__frame {
+        width: min(
+            calc(100vw - var(--screen-padding) * 2),
+            var(--game-max-width),
+            calc((100dvh - var(--screen-padding) * 2 - 140px) * 1.5)
+        );
+        max-height: calc(100dvh - var(--screen-padding) * 2);
     }
 
-    .game-screen__stage {
-        max-height: calc(100dvh - var(--hud-height) - var(--screen-padding) * 2 - 16px);
+    .game-screen {
+        --game-stage-max-height: calc(100dvh - var(--screen-padding) * 2 - 16px);
     }
 }
 

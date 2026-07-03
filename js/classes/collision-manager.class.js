@@ -10,6 +10,7 @@ class CollisionManager {
      * @returns {boolean} True when stomp is valid.
      */
     isStomp(character, enemy) {
+        if (enemy.isDead) return false;
         if (!character.isColliding(enemy)) return false;
         if (!character.isAboveGround() || character.speedY <= 0) return false;
         const charBox = character.getHitBox();
@@ -25,6 +26,7 @@ class CollisionManager {
      * @returns {boolean} True when side hit occurs.
      */
     isSideHit(character, enemy) {
+        if (enemy.isDead) return false;
         if (!character.isColliding(enemy)) return false;
         return !this.isStomp(character, enemy);
     }

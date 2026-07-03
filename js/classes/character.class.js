@@ -300,7 +300,7 @@ class Character extends MovableObject {
      */
     playHurt() {
         this.setState("hurt");
-        setTimeout(() => this.resetFromHurt(), 600);
+        setTimeout(() => this.resetFromHurt(), 800);
         audioManager.playEffect("hurt");
     }
 

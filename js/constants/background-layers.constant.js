@@ -18,6 +18,3 @@ const BACKGROUND_LAYER_GROUPS = [
         isComposite: true
     }
 ];
-
-const GROUND_FILL_HEIGHT = 72;
-const GROUND_FILL_COLOR = "#c9a66b";

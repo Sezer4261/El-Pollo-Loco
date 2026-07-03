@@ -23,6 +23,8 @@ class Endboss extends MovableObject {
     alertEndTime = 0;
     landedAt = 0;
     nextJumpTime = 0;
+    nextAttackTime = 0;
+    contactCooldownUntil = 0;
     direction = -1;
 
     static ROASTED_WIDTH = 210;

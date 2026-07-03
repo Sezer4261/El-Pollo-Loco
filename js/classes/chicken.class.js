@@ -68,6 +68,18 @@ class Chicken extends MovableObject {
 
 
     /**
+     * Returns no hitbox for defeated chickens.
+     * @returns {{x: number, y: number, w: number, h: number}} Hitbox.
+     */
+    getHitBox() {
+        if (this.isDead) {
+            return { x: this.x, y: this.y, w: 0, h: 0 };
+        }
+        return super.getHitBox();
+    }
+
+
+    /**
      * Kills the chicken instantly.
      */
     die() {

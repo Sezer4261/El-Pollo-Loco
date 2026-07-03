@@ -9,6 +9,7 @@ class StatusBar {
     endbossContainer;
 
     static LEVELS = [0, 20, 40, 60, 80, 100];
+    static HEALTH_CRITICAL_HP = 20;
     static FILL_PATHS = {
         green: "img/7_statusbars/4_bar_elements/statusbar_green.png",
         orange: "img/7_statusbars/4_bar_elements/statusbar_orange.png",
@@ -34,7 +35,20 @@ class StatusBar {
      */
     setHealth(current, max) {
         const percent = Math.max(0, (current / max) * 100);
-        this.setBarFill(this.healthElement, percent);
+        const critical = current > 0 && current <= StatusBar.HEALTH_CRITICAL_HP;
+        this.setBarFill(this.healthElement, percent, critical ? "orange" : undefined);
+        this.toggleHealthWarning(critical);
+    }
+
+
+    /**
+     * Blinks the health bar red when health is critically low.
+     * @param {boolean} active - Whether warning state is active.
+     */
+    toggleHealthWarning(active) {
+        const bar = this.healthElement?.closest(".status-bar");
+        if (!bar) return;
+        bar.classList.toggle("status-bar--health-critical", active);
     }
 
 

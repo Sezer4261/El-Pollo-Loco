@@ -23,7 +23,7 @@ function clearEndbossTimedStates(boss, now) {
  */
 function activateEndbossAlert(boss, character, now) {
     const dist = Math.abs(character.x - boss.x);
-    if (dist >= 550 || boss.isHurt) return;
+    if (dist >= 800 || boss.isHurt) return;
     boss.isAlert = true;
     boss.alertEndTime = now + 1200;
     boss.setState("alert");

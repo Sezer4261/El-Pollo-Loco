@@ -58,6 +58,7 @@ class WorldCollisions {
         if (now - this.world.lastEnemyHit < 800) return;
         const char = this.world.character;
         this.world.chickens.forEach((chicken) => {
+            if (chicken.isDead) return;
             resolveChickenCharacterHit(this, char, chicken, now);
         });
         resolveBossCharacterHit(this, char, this.world.endboss, now);

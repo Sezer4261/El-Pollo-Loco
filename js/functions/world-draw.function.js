@@ -78,6 +78,23 @@ function drawRoastedEndboss(ctx, boss) {
 
 
 /**
+ * Draws Pepe with the hurt animation tinted red instead of gray.
+ * @param {CanvasRenderingContext2D} ctx - Canvas context.
+ * @param {Character} character - Player character.
+ */
+function drawCharacterLayer(ctx, character) {
+    if (character.currentState !== "hurt") {
+        drawFlippedObject(ctx, character);
+        return;
+    }
+    ctx.save();
+    ctx.filter = "sepia(1) saturate(7) hue-rotate(-32deg) brightness(1.08)";
+    drawFlippedObject(ctx, character);
+    ctx.restore();
+}
+
+
+/**
  * Draws all world objects inside the camera transform.
  * @param {World} world - Game world instance.
  */
@@ -88,7 +105,7 @@ function drawWorldLayer(world) {
     drawObjectsLayer(ctx, world.chickens);
     drawEndbossLayer(ctx, world.endboss);
     drawObjectsLayer(ctx, world.throwables);
-    drawFlippedObject(ctx, world.character);
+    drawCharacterLayer(ctx, world.character);
 }
 
 
