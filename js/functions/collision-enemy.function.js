@@ -22,7 +22,7 @@ function resolveChickenCharacterHit(collisions, character, chicken, now) {
 
 
 /**
- * Pushes the endboss away from the player after a hit.
+ * Pushes the endboss away and continues the retreat phase after a hit.
  * @param {Endboss} boss - Endboss instance.
  * @param {Character} character - Player character.
  */
@@ -33,8 +33,35 @@ function separateBossFromPlayer(boss, character) {
     boss.x += dir * 90;
     boss.speedX = 0;
     boss.isJumping = false;
-    boss.isLeapAttack = false;
+    boss.jumpAttackStarted = false;
     clampEndbossLevelBounds(boss, character);
+    if (boss.isAttacking) {
+        setEndbossAttackPhase(boss, "retreat");
+        return;
+    }
+    boss.isAttacking = false;
+    boss.attackPhase = null;
+}
+
+
+/**
+ * Applies damage when the boss lands on the player during a jump attack.
+ * @param {WorldCollisions} collisions - Collision handler.
+ * @param {Character} character - Player character.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {number} now - Current timestamp.
+ */
+function resolveBossJumpHit(collisions, character, boss, now) {
+    if (!boss.isAttacking || boss.attackPhase !== "jump") return;
+    if (boss.jumpHitDealt) return;
+    if (boss.isDead || character.isDead || character.currentState === "hurt") return;
+    if (!character.isColliding(boss)) return;
+    character.takeDamage(ENDBOSS_JUMP_DAMAGE);
+    collisions.world.lastEnemyHit = now;
+    boss.jumpHitDealt = true;
+    audioManager.playEffect("bossHit");
+    separateBossFromPlayer(boss, character);
+    boss.nextAttackTime = performance.now() + 350;
 }
 
 
@@ -47,12 +74,13 @@ function separateBossFromPlayer(boss, character) {
  */
 function resolveBossCharacterHit(collisions, character, boss, now) {
     if (boss.isDead || character.isDead || character.currentState === "hurt") return;
-    if (boss.contactCooldownUntil && now < boss.contactCooldownUntil) return;
+    if (boss.isAttacking && boss.attackPhase === "jump") return;
+    const bossNow = performance.now();
+    if (boss.contactCooldownUntil && bossNow < boss.contactCooldownUntil) return;
     if (!collisions.manager.isBossSideHit(character, boss)) return;
     character.takeDamage(ENDBOSS_CONTACT_DAMAGE);
     collisions.world.lastEnemyHit = now;
     separateBossFromPlayer(boss, character);
-    boss.contactCooldownUntil = now + 1400;
-    boss.nextAttackTime = now + 2200;
-    boss.nextJumpTime = now + 900;
+    boss.contactCooldownUntil = bossNow + 900;
+    boss.nextAttackTime = bossNow + 350;
 }

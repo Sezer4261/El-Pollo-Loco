@@ -34,7 +34,7 @@ class StatusBar {
      * @param {number} max - Maximum health.
      */
     setHealth(current, max) {
-        const percent = Math.max(0, (current / max) * 100);
+        const percent = current <= 0 ? 0 : Math.min(100, (current / max) * 100);
         const critical = current > 0 && current <= StatusBar.HEALTH_CRITICAL_HP;
         this.setBarFill(this.healthElement, percent, critical ? "orange" : undefined);
         this.toggleHealthWarning(critical);

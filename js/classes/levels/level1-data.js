@@ -1,5 +1,6 @@
-const COIN_GROUND_Y = 420;
-const COIN_JUMP_Y = 220;
+const COIN_GROUND_Y = CANVAS_GROUND_Y - 60;
+const COIN_JUMP_Y = CANVAS_GROUND_Y - 260;
+const BOTTLE_GROUND_Y = CANVAS_GROUND_Y - 80;
 
 const level1Data = {
     width: LEVEL_WIDTH,
@@ -52,13 +53,13 @@ const level1Data = {
         { x: 4000, y: COIN_GROUND_Y }
     ],
     bottles: [
-        { x: 450, y: 400 },
-        { x: 1000, y: 400 },
-        { x: 1650, y: 400 },
-        { x: 2250, y: 400 },
-        { x: 2950, y: 400 },
-        { x: 3550, y: 400 },
-        { x: 4150, y: 400 },
-        { x: 4850, y: 400 }
+        { x: 450, y: BOTTLE_GROUND_Y },
+        { x: 1000, y: BOTTLE_GROUND_Y },
+        { x: 1650, y: BOTTLE_GROUND_Y },
+        { x: 2250, y: BOTTLE_GROUND_Y },
+        { x: 2950, y: BOTTLE_GROUND_Y },
+        { x: 3550, y: BOTTLE_GROUND_Y },
+        { x: 4150, y: BOTTLE_GROUND_Y },
+        { x: 4850, y: BOTTLE_GROUND_Y }
     ]
 };

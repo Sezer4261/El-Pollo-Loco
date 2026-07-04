@@ -18,3 +18,5 @@ const BACKGROUND_LAYER_GROUPS = [
         isComposite: true
     }
 ];
+
+const BACKGROUND_SEAM_OVERLAP = 2;

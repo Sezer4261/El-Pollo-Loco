@@ -167,6 +167,7 @@ class World {
      */
     updateStatusBars() {
         const char = this.character;
+        if (char.health <= 0 && !char.isDead) char.die();
         this.statusBar.setHealth(char.health, char.maxHealth);
         this.statusBar.setCoins(char.coinBar);
         this.statusBar.setBottles(char.bottleBar);

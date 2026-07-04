@@ -26,6 +26,13 @@ class Endboss extends MovableObject {
     nextAttackTime = 0;
     contactCooldownUntil = 0;
     direction = -1;
+    isAttacking = false;
+    attackPhase = null;
+    attackPhaseStart = 0;
+    attackAnimDone = false;
+    jumpHitDealt = false;
+    jumpAttackStarted = false;
+    hasAlerted = false;
 
     static ROASTED_WIDTH = 210;
     static ROASTED_HEIGHT = 115;
@@ -58,6 +65,7 @@ class Endboss extends MovableObject {
     loadAnimations() {
         this.frameLists.walk = this.loadImages(ENDBOSS_FRAME_PATHS.walk);
         this.frameLists.alert = this.loadImages(ENDBOSS_FRAME_PATHS.alert);
+        this.frameLists.attack = this.loadImages(ENDBOSS_FRAME_PATHS.attack);
         this.frameLists.hurt = this.loadImages(ENDBOSS_FRAME_PATHS.hurt);
         this.frameLists.dead = this.loadImages(ENDBOSS_FRAME_PATHS.dead);
     }
@@ -185,6 +193,11 @@ class Endboss extends MovableObject {
         if (this.isDead) return;
         this.health = Math.max(0, this.health - amount);
         this.isHurt = true;
+        this.isAttacking = false;
+        this.attackPhase = null;
+        this.isJumping = false;
+        this.jumpAttackStarted = false;
+        this.speedX = 0;
         this.hurtEndTime = performance.now() + 600;
         this.setState("hurt");
         if (this.health <= 0) this.die();

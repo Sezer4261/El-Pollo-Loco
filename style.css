@@ -24,11 +24,15 @@ body {
 }
 
 :root {
-    --game-max-width: 720px;
     --game-aspect: 3 / 2;
     --hud-height: 40px;
     --touch-height: 100px;
-    --screen-padding: clamp(6px, 2vw, 16px);
+    --screen-padding: clamp(4px, 1.5vw, 16px);
+    --game-max-width: min(
+        calc(100vw - var(--screen-padding) * 2 - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)),
+        720px
+    );
+    --touch-btn-size: clamp(40px, 12vw, 64px);
 }
 
 body {
@@ -78,11 +82,12 @@ body {
 
 .home-screen__frame {
     position: relative;
-    width: min(100%, var(--game-max-width));
-    max-height: min(
-        calc(100dvh - var(--screen-padding) * 2),
-        calc(var(--game-max-width) * 2 / 3)
+    width: min(
+        100%,
+        var(--game-max-width),
+        calc((100dvh - var(--screen-padding) * 2) * 1.5)
     );
+    max-height: calc(100dvh - var(--screen-padding) * 2);
     aspect-ratio: var(--game-aspect);
     background: url("img/9_intro_outro_screens/start/startscreen_1.png") center / cover no-repeat;
     border-radius: 4px;
@@ -97,52 +102,75 @@ body {
     inset: 0;
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(6px, 2.5cqw, 16px);
+    padding-top: max(clamp(6px, 2.5cqw, 16px), env(safe-area-inset-top));
 }
 
 .home-screen__tagline {
-    position: absolute;
-    top: 2%;
-    left: 0;
-    right: 0;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
     margin: 0;
-    font-size: clamp(0.85rem, 4.5cqw, 2rem);
+    padding-top: clamp(4px, 1.5cqw, 12px);
+    font-size: clamp(0.7rem, 4.5cqw, 2rem);
     font-weight: 700;
     text-align: center;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
     color: #fff;
+    flex-shrink: 0;
 }
 
 .home-screen__footer {
-    position: absolute;
-    top: 20%;
-    transform: translateY(-50%);
-    left: 0;
-    right: 0;
+    position: relative;
+    top: auto;
+    transform: none;
+    left: auto;
+    right: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(6px, 2.5cqw, 16px);
-    padding: 0 8px;
+    gap: clamp(4px, 2cqw, 14px);
+    padding: 0 clamp(4px, 2cqw, 12px) clamp(4px, 1.5cqw, 10px);
+    flex-shrink: 0;
+    width: 100%;
 }
 
 .home-screen__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(6px, 2cqw, 12px);
+    gap: clamp(4px, 1.8cqw, 12px);
     justify-content: center;
+    width: 100%;
+    max-width: 100%;
 }
 
 .home-screen__actions .btn {
-    font-size: clamp(0.75rem, 3.5cqw, 1.1rem);
-    padding: clamp(8px, 2cqw, 12px) clamp(14px, 4.5cqw, 28px);
+    font-size: clamp(0.65rem, 3.2cqw, 1.1rem);
+    padding: clamp(6px, 1.8cqw, 12px) clamp(10px, 3.5cqw, 28px);
+    flex: 1 1 auto;
+    min-width: min(100%, 7.5rem);
+    max-width: 100%;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .home-screen__link {
     color: #fff;
     text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.9);
-    font-size: clamp(0.8rem, 3.5cqw, 1.15rem);
+    font-size: clamp(0.65rem, 3cqw, 1.15rem);
     text-decoration: underline;
     cursor: pointer;
+}
+
+.home-screen__fullscreen {
+    position: absolute;
+    top: clamp(4px, 1.5cqw, 12px);
+    right: clamp(4px, 1.5cqw, 12px);
+    z-index: 2;
 }
 
 .btn {
@@ -188,29 +216,15 @@ body {
     background: rgba(74, 74, 108, 0.95);
 }
 
-.home-screen__fullscreen {
-    position: absolute;
-    top: 2%;
-    right: 2%;
-    z-index: 2;
-}
-
 .fullscreen-btn {
     display: none;
 }
 
 .game-screen__hud-actions {
+    pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.btn--icon {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    font-size: 1.2rem;
-    padding: 8px 12px;
+    gap: clamp(3px, 1cqw, 6px);
     flex-shrink: 0;
 }
 
@@ -234,7 +248,7 @@ body {
     align-items: center;
     gap: 4px;
     flex: 1 1 auto;
-    min-width: 72px;
+    min-width: 0;
 }
 
 .status-bar--hidden {
@@ -256,6 +270,10 @@ body {
 
 .game-screen__stage {
     position: relative;
+    container-type: inline-size;
+    --bar-icon-size: clamp(28px, 11cqw, 72px);
+    --bar-track-width: clamp(72px, 46cqw, 360px);
+    --bar-track-height: clamp(16px, 7.5cqw, 44px);
     width: min(
         100%,
         var(--game-max-width),
@@ -280,48 +298,62 @@ body {
 
 .game-screen__hud-overlay {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
+    top: clamp(4px, 1.2cqw, 14px);
+    left: clamp(4px, 1.2cqw, 14px);
+    right: clamp(4px, 1.2cqw, 14px);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
+    gap: clamp(4px, 1.5cqw, 12px);
     z-index: 6;
     pointer-events: none;
+    min-width: 0;
 }
 
 .game-screen__statusbars {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: clamp(1px, 0.5cqw, 3px);
     pointer-events: none;
-}
-
-.game-screen__hud-actions {
-    pointer-events: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+    max-width: 58%;
 }
 
 .game-screen__hud-right {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 6px;
+    gap: clamp(3px, 1cqw, 6px);
     pointer-events: none;
+    min-width: 0;
+    flex: 0 1 auto;
+    max-width: 42%;
+}
+
+.btn--icon {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: clamp(0.85rem, 3.5cqw, 1.2rem);
+    padding: clamp(4px, 1.5cqw, 8px) clamp(6px, 2.5cqw, 12px);
+    flex-shrink: 0;
 }
 
 .status-bar {
     flex: 0 0 auto;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .game-screen__statusbars .status-bar__icon {
-    height: 38px;
+    height: var(--bar-icon-size);
 }
 
 .game-screen__statusbars .status-bar__track {
     position: relative;
-    height: 26px;
-    width: 230px;
+    height: var(--bar-track-height);
+    width: var(--bar-track-width);
+    max-width: calc(100cqw - var(--bar-icon-size) - 4px);
 }
 
 .game-screen__statusbars .status-bar__bg {
@@ -329,7 +361,7 @@ body {
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: fill;
 }
 
 .game-screen__statusbars .status-bar__fill {
@@ -342,13 +374,16 @@ body {
 
 .game-screen__statusbars .status-bar__fill-img {
     height: 100%;
-    width: 230px;
-    object-fit: contain;
+    width: var(--bar-track-width);
+    max-width: none;
+    object-fit: fill;
     display: block;
 }
 
 .game-screen__statusbars .status-bar {
     position: relative;
+    gap: 0;
+    width: 100%;
 }
 
 .game-screen__statusbars .status-bar--health-critical .status-bar__icon {
@@ -383,21 +418,28 @@ body {
 
 .status-bar--endboss {
     pointer-events: none;
+    gap: 0;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
 }
 
-.status-bar__track {
+.status-bar--endboss .status-bar__icon {
+    height: var(--bar-icon-size);
+}
+
+.status-bar--endboss .status-bar__track {
     position: relative;
+    width: var(--bar-track-width);
+    max-width: calc(100cqw - var(--bar-icon-size) - 4px);
+    height: var(--bar-track-height);
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.35);
 }
 
-.status-bar__bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.status-bar__fill {
+.status-bar--endboss .status-bar__fill {
     position: absolute;
     top: 0;
     left: 0;
@@ -405,24 +447,12 @@ body {
     overflow: hidden;
 }
 
-.status-bar__fill-img {
-    height: 100%;
-    object-fit: contain;
-    display: block;
-}
-
-.status-bar--endboss .status-bar__icon {
-    height: 22px;
-}
-
-.status-bar--endboss .status-bar__track {
-    position: relative;
-    width: 110px;
-    height: 14px;
-}
-
 .status-bar--endboss .status-bar__fill-img {
-    width: 110px;
+    height: 100%;
+    width: var(--bar-track-width);
+    max-width: none;
+    object-fit: fill;
+    display: block;
 }
 
 .reward-popup {
@@ -501,24 +531,36 @@ body {
     height: var(--touch-height);
     flex-shrink: 0;
     margin-top: clamp(2px, 1vw, 4px);
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(4px, 1.5vw, 10px);
+    padding: 0 clamp(4px, 2vw, 12px);
+    box-sizing: border-box;
 }
 
 .touch-btn {
-    position: absolute;
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: var(--touch-btn-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(48px, 14vw, 64px);
-    height: clamp(48px, 14vw, 64px);
+    width: var(--touch-btn-size);
+    height: var(--touch-btn-size);
     border: none;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     color: #fff;
-    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    font-size: clamp(0.95rem, 3.5vw, 1.4rem);
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+    margin: 0 auto;
 }
 
 .touch-btn__icon {
@@ -533,27 +575,15 @@ body {
     background: rgba(233, 69, 96, 0.6);
 }
 
-.touch-btn--left { left: 2%; bottom: 8px; }
-.touch-btn--right { left: 18%; bottom: 8px; }
-.touch-btn--jump { right: 38%; bottom: 8px; }
-.touch-btn--duck { right: 20%; bottom: 8px; }
-.touch-btn--throw { right: 2%; bottom: 8px; }
-
-.end-screen {
-    background: #0f0f1a;
-    justify-content: center;
-    align-items: center;
-    padding: var(--screen-padding);
-}
-
 .end-screen__frame {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     width: min(
         100%,
         var(--game-max-width),
-        calc((100dvh - var(--screen-padding) * 2 - 140px) * 1.5)
+        calc((100dvh - var(--screen-padding) * 2) * 1.5)
     );
     max-height: calc(100dvh - var(--screen-padding) * 2);
     border: 2px solid #3a3a5c;
@@ -561,14 +591,20 @@ body {
     overflow: hidden;
     background: #1a1a2e;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    flex-shrink: 1;
+    min-height: 0;
+    container-type: inline-size;
 }
 
 .end-screen__banner {
+    flex: 0 1 auto;
     width: 100%;
     aspect-ratio: var(--game-aspect);
-    max-height: min(46vh, 360px);
+    max-height: min(
+        calc(100dvh - var(--screen-padding) * 2 - 6.5rem),
+        calc(var(--game-max-width) * 2 / 3)
+    );
     min-height: 0;
-    flex-shrink: 1;
     background-color: #1a1a2e;
     background-position: center center;
     background-size: contain;
@@ -588,36 +624,47 @@ body {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding: 10px 14px 14px;
-    background: #1a1a2e;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: clamp(6px, 2.5cqw, 22px) clamp(10px, 3.5cqw, 28px) clamp(8px, 2.5cqw, 24px);
+    background: rgba(26, 26, 46, 0.92);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     flex-shrink: 0;
 }
 
 .end-screen__title {
-    font-size: clamp(1rem, 3.2vw, 1.4rem);
-    margin-bottom: 4px;
+    font-size: clamp(0.85rem, 5.5cqw, 2.2rem);
+    margin-bottom: clamp(2px, 1cqw, 10px);
     text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
     color: #fff;
     text-align: center;
+    line-height: 1.15;
 }
 
 .end-screen__message {
-    font-size: clamp(0.8rem, 2.6vw, 0.95rem);
-    margin-bottom: 10px;
+    font-size: clamp(0.7rem, 4cqw, 1.4rem);
+    margin-bottom: clamp(6px, 2cqw, 18px);
     text-align: center;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
     color: #fff;
-    padding: 0 8px;
+    padding: 0 clamp(4px, 1.5cqw, 16px);
+    line-height: 1.25;
 }
 
 .end-screen__content .btn {
-    font-size: clamp(0.85rem, 2.5vw, 1rem);
-    padding: clamp(8px, 2vw, 10px) clamp(14px, 4vw, 22px);
+    font-size: clamp(0.7rem, 3.8cqw, 1.15rem);
+    padding: clamp(6px, 2cqw, 14px) clamp(12px, 4.5cqw, 32px);
+    width: min(100%, 16rem);
+    text-align: center;
 }
 
 .end-screen__content .btn--secondary {
-    margin-top: 8px;
+    margin-top: clamp(4px, 1.5cqw, 12px);
+}
+
+.end-screen {
+    background: #0f0f1a;
+    justify-content: center;
+    align-items: center;
+    padding: var(--screen-padding);
 }
 
 .modal {
@@ -707,11 +754,17 @@ body {
 @media (orientation: landscape) and (hover: none) and (pointer: coarse) {
     :root {
         --hud-height: 36px;
-        --touch-height: clamp(72px, 16dvh, 100px);
+        --touch-height: clamp(56px, 14dvh, 88px);
+        --touch-btn-size: clamp(36px, 10vw, 56px);
+        --game-max-width: min(
+            calc(100vw - var(--screen-padding) * 2 - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)),
+            calc((100dvh - clamp(56px, 14dvh, 88px) - var(--screen-padding) * 2 - 8px) * 1.5),
+            720px
+        );
     }
 
     .touch-controls {
-        display: block;
+        display: flex;
     }
 
     .game-screen {
@@ -719,6 +772,16 @@ body {
         --game-stage-max-height: calc(
             100dvh - var(--touch-height) - var(--screen-padding) * 2 - 8px
         );
+    }
+
+    .home-screen__frame,
+    .end-screen__frame {
+        width: min(
+            100%,
+            var(--game-max-width),
+            calc((100dvh - var(--screen-padding) * 2) * 1.5)
+        );
+        max-height: calc(100dvh - var(--screen-padding) * 2);
     }
 }
 
@@ -739,7 +802,8 @@ body {
         --touch-height: 0px;
         --game-max-width: min(
             calc(100vw - var(--screen-padding) * 2),
-            calc((100dvh - var(--screen-padding) * 2 - 16px) * 1.5)
+            calc((100dvh - var(--screen-padding) * 2 - 16px) * 1.5),
+            720px
         );
     }
 
@@ -753,24 +817,6 @@ body {
         justify-content: center;
     }
 
-    .home-screen__frame {
-        width: min(
-            calc(100vw - var(--screen-padding) * 2),
-            var(--game-max-width),
-            calc((100dvh - var(--screen-padding) * 2) * 1.5)
-        );
-        max-height: calc(100dvh - var(--screen-padding) * 2);
-    }
-
-    .end-screen__frame {
-        width: min(
-            calc(100vw - var(--screen-padding) * 2),
-            var(--game-max-width),
-            calc((100dvh - var(--screen-padding) * 2 - 140px) * 1.5)
-        );
-        max-height: calc(100dvh - var(--screen-padding) * 2);
-    }
-
     .game-screen {
         --game-stage-max-height: calc(100dvh - var(--screen-padding) * 2 - 16px);
     }
@@ -780,28 +826,69 @@ html:fullscreen .screen {
     padding: 8px;
 }
 
-@media (max-width: 720px) {
-    .home-screen__actions {
-        gap: 8px;
+@media (max-height: 480px) and (orientation: landscape) {
+    .game-screen__stage {
+        --bar-icon-size: clamp(24px, 10cqw, 52px);
+        --bar-track-width: clamp(60px, 42cqw, 300px);
+        --bar-track-height: clamp(14px, 6.5cqw, 36px);
     }
 }
 
 @media (max-height: 420px) and (orientation: landscape) {
     :root {
-        --touch-height: 68px;
-        --hud-height: 32px;
+        --touch-height: clamp(44px, 11dvh, 60px);
+        --touch-btn-size: clamp(32px, 8.5vw, 48px);
+        --screen-padding: clamp(3px, 1vw, 8px);
     }
 
-    .status-bar__icon {
-        height: 20px;
+    .game-screen__stage {
+        --bar-icon-size: clamp(20px, 9cqw, 40px);
+        --bar-track-width: clamp(52px, 38cqw, 240px);
+        --bar-track-height: clamp(12px, 5.5cqw, 28px);
     }
 
-    .status-bar__img {
-        height: 14px;
-    }
-
-    .btn--icon {
+    .home-screen__actions .btn {
+        font-size: clamp(0.55rem, 2.6cqw, 0.8rem);
         padding: 4px 8px;
-        font-size: 1rem;
+        min-width: min(100%, 4.5rem);
+    }
+
+    .end-screen__banner {
+        max-height: min(
+            calc(100dvh - var(--screen-padding) * 2 - 5rem),
+            calc(var(--game-max-width) * 2 / 3)
+        );
+    }
+
+    .end-screen__content {
+        padding: clamp(4px, 2cqw, 10px) clamp(8px, 3cqw, 16px);
+    }
+
+    .end-screen__title {
+        font-size: clamp(0.7rem, 4.5cqw, 1rem);
+    }
+
+    .end-screen__message {
+        font-size: clamp(0.6rem, 3.5cqw, 0.85rem);
+        margin-bottom: clamp(4px, 1.5cqw, 8px);
+    }
+
+    .end-screen__content .btn {
+        font-size: clamp(0.6rem, 3.2cqw, 0.85rem);
+        padding: 5px 10px;
+    }
+}
+
+@media (max-width: 640px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+    .home-screen__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .home-screen__actions .btn {
+        width: 100%;
+        max-width: 14rem;
+        margin-left: auto;
+        margin-right: auto;
     }
 }

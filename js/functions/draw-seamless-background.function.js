@@ -21,7 +21,9 @@ function drawAspectBackgroundTile(ctx, img, screenX, h, srcWidth) {
     const scale = getBackgroundScale(h, img);
     const cropW = srcWidth ?? img.naturalWidth;
     const drawW = cropW * scale;
-    ctx.drawImage(img, 0, 0, cropW, img.naturalHeight, screenX, 0, drawW, h);
+    const destX = Math.floor(screenX);
+    const destW = Math.ceil(screenX + drawW) - destX + BACKGROUND_SEAM_OVERLAP;
+    ctx.drawImage(img, 0, 0, cropW, img.naturalHeight, destX, 0, destW, h);
 }
 
 
@@ -38,8 +40,8 @@ function drawSkyLayer(ctx, backgrounds, w, h) {
     if (!img?.complete || !img.naturalWidth) return;
     const scale = getBackgroundScale(h, img);
     const drawW = img.naturalWidth * scale;
-    const first = -1;
-    const last = Math.ceil(w / drawW) + 1;
+    const first = -2;
+    const last = Math.ceil(w / drawW) + 2;
     for (let i = first; i <= last; i++) {
         drawAspectBackgroundTile(ctx, img, i * drawW, h);
     }
@@ -64,8 +66,8 @@ function drawSeamlessParallaxLayer(ctx, tiles, cam, w, h) {
     const scale = getBackgroundScale(h, refImg);
     const tileScreenW = srcTileW * scale;
     const parallaxCam = cam * frameA.speedFactor;
-    const first = Math.floor(parallaxCam / tileScreenW) - 1;
-    const last = Math.ceil((parallaxCam + w) / tileScreenW) + 1;
+    const first = Math.floor(parallaxCam / tileScreenW) - 2;
+    const last = Math.ceil((parallaxCam + w) / tileScreenW) + 2;
     for (let i = first; i <= last; i++) {
         drawSeamlessParallaxTile(ctx, i, tileScreenW, parallaxCam, frameA, frameB, h, srcTileW);
     }
