@@ -56,7 +56,10 @@ class WorldCollisions {
     checkCharacterEnemyHits() {
         const now = Date.now();
         const char = this.world.character;
-        resolveBossJumpHit(this, char, this.world.endboss, now);
+        this.world.chickens.forEach((chicken) => {
+            resolveChickenStomp(this, char, chicken);
+        });
+        resolveBossBeakHit(this, char, this.world.endboss, now);
         if (now - this.world.lastEnemyHit < 800) return;
         this.world.chickens.forEach((chicken) => {
             if (chicken.isDead) return;

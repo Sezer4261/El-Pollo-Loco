@@ -78,19 +78,47 @@ function drawRoastedEndboss(ctx, boss) {
 
 
 /**
+ * Draws Pepe ducked by squashing the sprite from the feet upward.
+ * @param {CanvasRenderingContext2D} ctx - Canvas context.
+ * @param {Character} character - Player character.
+ */
+function drawDuckingCharacter(ctx, character) {
+    const img = character.img;
+    if (!img?.complete || !img.naturalHeight) return;
+    const scaleY = character.height / CHARACTER_HEIGHT;
+    const feetY = character.y + character.height;
+    ctx.save();
+    if (character.otherDirection) {
+        ctx.translate(character.x + character.width, feetY);
+        ctx.scale(-1, scaleY);
+        ctx.drawImage(img, 0, -CHARACTER_HEIGHT, character.width, CHARACTER_HEIGHT);
+    } else {
+        ctx.translate(character.x, feetY);
+        ctx.scale(1, scaleY);
+        ctx.drawImage(img, 0, -CHARACTER_HEIGHT, character.width, CHARACTER_HEIGHT);
+    }
+    ctx.restore();
+}
+
+
+/**
  * Draws Pepe with the hurt animation tinted red instead of gray.
  * @param {CanvasRenderingContext2D} ctx - Canvas context.
  * @param {Character} character - Player character.
  */
 function drawCharacterLayer(ctx, character) {
-    if (character.currentState !== "hurt") {
+    if (character.currentState === "hurt") {
+        ctx.save();
+        ctx.filter = "sepia(1) saturate(7) hue-rotate(-32deg) brightness(1.08)";
         drawFlippedObject(ctx, character);
+        ctx.restore();
         return;
     }
-    ctx.save();
-    ctx.filter = "sepia(1) saturate(7) hue-rotate(-32deg) brightness(1.08)";
+    if (character.isDucking) {
+        drawDuckingCharacter(ctx, character);
+        return;
+    }
     drawFlippedObject(ctx, character);
-    ctx.restore();
 }
 
 

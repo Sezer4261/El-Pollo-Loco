@@ -1,5 +1,23 @@
 /**
- * Resolves one chicken collision with the character.
+ * Defeats a chicken when Pepe stomps it from above.
+ * Works even while hurt or briefly after taking damage.
+ * @param {WorldCollisions} collisions - Collision handler.
+ * @param {Character} character - Player character.
+ * @param {Chicken} chicken - Target chicken.
+ * @returns {boolean} True when the chicken was stomped.
+ */
+function resolveChickenStomp(collisions, character, chicken) {
+    if (chicken.isDead || character.isDead) return false;
+    if (!collisions.manager.isStomp(character, chicken)) return false;
+    collisions.defeatChicken(chicken);
+    character.speedY = -8;
+    audioManager.playEffect("hit");
+    return true;
+}
+
+
+/**
+ * Resolves one chicken side collision with the character.
  * @param {WorldCollisions} collisions - Collision handler.
  * @param {Character} character - Player character.
  * @param {Chicken} chicken - Target chicken.
@@ -8,12 +26,6 @@
  */
 function resolveChickenCharacterHit(collisions, character, chicken, now) {
     if (chicken.isDead || character.isDead || character.currentState === "hurt") return false;
-    if (collisions.manager.isStomp(character, chicken)) {
-        collisions.defeatChicken(chicken);
-        character.speedY = -8;
-        audioManager.playEffect("hit");
-        return false;
-    }
     if (!collisions.manager.isSideHit(character, chicken)) return false;
     character.takeDamage(CHICKEN_CONTACT_DAMAGE);
     collisions.world.lastEnemyHit = now;
@@ -30,13 +42,15 @@ function separateBossFromPlayer(boss, character) {
     const bossCenter = boss.x + boss.width / 2;
     const playerCenter = character.x + character.width / 2;
     const dir = bossCenter < playerCenter ? -1 : 1;
-    boss.x += dir * 90;
+    boss.x += dir * 35;
     boss.speedX = 0;
     boss.isJumping = false;
     boss.jumpAttackStarted = false;
+    boss.retreatJumpStarted = false;
     clampEndbossLevelBounds(boss, character);
     if (boss.isAttacking) {
-        setEndbossAttackPhase(boss, "retreat");
+        setEndbossAttackPhase(boss, "chase");
+        boss.nextAttackTime = performance.now() + 150;
         return;
     }
     boss.isAttacking = false;
@@ -45,23 +59,22 @@ function separateBossFromPlayer(boss, character) {
 
 
 /**
- * Applies damage when the boss lands on the player during a jump attack.
+ * Applies damage when the boss pecks the player during an attack.
  * @param {WorldCollisions} collisions - Collision handler.
  * @param {Character} character - Player character.
  * @param {Endboss} boss - Endboss instance.
  * @param {number} now - Current timestamp.
  */
-function resolveBossJumpHit(collisions, character, boss, now) {
-    if (!boss.isAttacking || boss.attackPhase !== "jump") return;
-    if (boss.jumpHitDealt) return;
+function resolveBossBeakHit(collisions, character, boss, now) {
+    if (!boss.isAttacking || boss.attackPhase !== "peck") return;
+    if (boss.beakHitDealt) return;
+    if (boss.frameIndex < 3 || boss.frameIndex > 6) return;
     if (boss.isDead || character.isDead || character.currentState === "hurt") return;
-    if (!character.isColliding(boss)) return;
-    character.takeDamage(ENDBOSS_JUMP_DAMAGE);
+    if (!isPlayerInBeakRange(boss, character)) return;
+    character.takeDamage(ENDBOSS_BEAK_DAMAGE);
     collisions.world.lastEnemyHit = now;
-    boss.jumpHitDealt = true;
+    boss.beakHitDealt = true;
     audioManager.playEffect("bossHit");
-    separateBossFromPlayer(boss, character);
-    boss.nextAttackTime = performance.now() + 350;
 }
 
 
@@ -74,13 +87,13 @@ function resolveBossJumpHit(collisions, character, boss, now) {
  */
 function resolveBossCharacterHit(collisions, character, boss, now) {
     if (boss.isDead || character.isDead || character.currentState === "hurt") return;
-    if (boss.isAttacking && boss.attackPhase === "jump") return;
+    if (boss.isAttacking && (boss.attackPhase === "peck" || boss.attackPhase === "retreat")) return;
     const bossNow = performance.now();
     if (boss.contactCooldownUntil && bossNow < boss.contactCooldownUntil) return;
     if (!collisions.manager.isBossSideHit(character, boss)) return;
     character.takeDamage(ENDBOSS_CONTACT_DAMAGE);
     collisions.world.lastEnemyHit = now;
     separateBossFromPlayer(boss, character);
-    boss.contactCooldownUntil = bossNow + 900;
-    boss.nextAttackTime = bossNow + 350;
+    boss.contactCooldownUntil = bossNow + 600;
+    boss.nextAttackTime = bossNow + 150;
 }

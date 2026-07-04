@@ -88,8 +88,8 @@ class World {
     draw() {
         if (!this.isRunning) return;
         this.updateEntities();
-        this.clearAndDraw();
         this.updateGameState();
+        this.clearAndDraw();
         requestAnimationFrame(() => this.draw());
     }
 

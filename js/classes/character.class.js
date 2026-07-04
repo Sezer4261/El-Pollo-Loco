@@ -16,7 +16,9 @@ class Character extends MovableObject {
     frameIndex = 0;
     lastAnimTime = 0;
     idleStartTime = performance.now();
-    animationSpeeds = { idle: 120, longIdle: 150, walk: 90, jump: 80, hurt: 120, dead: 200 };
+    animationSpeeds = { idle: 120, longIdle: 150, walk: 90, jump: 80, duck: 200, hurt: 120, dead: 200 };
+    standingOffset = { top: 30, left: 20, right: 20, bottom: 10 };
+    duckOffset = { top: 8, left: 20, right: 20, bottom: 5 };
 
     /**
      * Creates Pepe at the start position.
@@ -27,7 +29,7 @@ class Character extends MovableObject {
         this.y = GROUND_Y;
         this.width = CHARACTER_WIDTH;
         this.height = CHARACTER_HEIGHT;
-        this.offset = { top: 30, left: 20, right: 20, bottom: 10 };
+        this.offset = { ...this.standingOffset };
         this.loadAnimations();
         this.img = this.frameLists.idle[0];
     }
@@ -40,6 +42,43 @@ class Character extends MovableObject {
         CHARACTER_FRAME_CONFIG.forEach((config) => {
             this.frameLists[config.key] = buildFrames(config.basePath, config.start, config.end);
         });
+    }
+
+
+    /**
+     * Returns the Y coordinate where this character stands on the ground.
+     * @returns {number} Ground Y for the current height.
+     */
+    getGroundY() {
+        return getGroundYForHeight(this.height);
+    }
+
+
+    /**
+     * Returns true when the character is above the ground line.
+     * @returns {boolean} Above ground state.
+     */
+    isAboveGround() {
+        return this.y < this.getGroundY() - 1;
+    }
+
+
+    /**
+     * Applies gravity using the ground line for the current pose.
+     */
+    applyGravity() {
+        const groundY = this.getGroundY();
+        if (!this.isAboveGround()) {
+            this.y = groundY;
+            this.speedY = 0;
+            return;
+        }
+        this.speedY += GRAVITY;
+        this.y += this.speedY;
+        if (this.y >= groundY && this.speedY >= 0) {
+            this.y = groundY;
+            this.speedY = 0;
+        }
     }
 
 
@@ -89,7 +128,26 @@ class Character extends MovableObject {
             this.setState("walk");
             return;
         }
-        this.setState("idle");
+        this.setState("duck");
+    }
+
+
+    /**
+     * Switches between standing and ducking size and hitbox.
+     * @param {boolean} ducking - Whether Pepe is ducking.
+     */
+    applyDuckPose(ducking) {
+        if (ducking) {
+            this.height = CHARACTER_DUCK_HEIGHT;
+            this.y = getGroundYForHeight(CHARACTER_DUCK_HEIGHT);
+            this.offset = this.duckOffset;
+            return;
+        }
+        this.height = CHARACTER_HEIGHT;
+        this.offset = this.standingOffset;
+        if (!this.isAboveGround()) {
+            this.y = this.getGroundY();
+        }
     }
 
 
@@ -158,8 +216,12 @@ class Character extends MovableObject {
      */
     jump() {
         if (this.isAboveGround()) return;
+        this.isDucking = false;
+        this.height = CHARACTER_HEIGHT;
+        this.offset = this.standingOffset;
         this.speedY = -22;
-        this.y -= 2;
+        this.y = this.getGroundY() + this.speedY;
+        this.setState("jump");
         this.resetIdleTimer();
     }
 
@@ -290,6 +352,9 @@ class Character extends MovableObject {
     takeDamage(amount) {
         if (this.isDead) return;
         this.health = Math.max(0, this.health - amount);
+        if (world?.isRunning) {
+            world.statusBar.setHealth(this.health, this.maxHealth);
+        }
         if (this.health <= 0) this.die();
         else this.playHurt();
     }
@@ -299,6 +364,8 @@ class Character extends MovableObject {
      * Plays hurt animation briefly.
      */
     playHurt() {
+        this.isDucking = false;
+        this.applyDuckPose(false);
         this.setState("hurt");
         setTimeout(() => this.resetFromHurt(), 800);
         audioManager.playEffect("hurt");

@@ -1,4 +1,4 @@
-let keyboard = new Keyboard();
+var keyboard = new Keyboard();
 let audioManager = new AudioManager();
 let rewardPopup = new RewardPopup();
 let fullscreenManager;

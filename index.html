@@ -77,7 +77,7 @@
                     </div>
                 </div>
             </div>
-            <canvas id="gameCanvas" width="720" height="480" aria-label="Spiel-Canvas"></canvas>
+            <canvas id="gameCanvas" width="720" height="480" tabindex="0" aria-label="Spiel-Canvas"></canvas>
             <div id="rewardPopup" class="reward-popup reward-popup--hidden" aria-hidden="true">
                 <span class="reward-popup__plus">+</span>
                 <img class="reward-popup__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
@@ -117,6 +117,7 @@
                 <li>Sammle Salsa-Flaschen, um sie zu werfen.</li>
                 <li>Springe auf kleine Hühner oder wirf Flaschen am Boden (↓ + Leertaste).</li>
                 <li>Wirf Flaschen im hohen Bogen auf große Gegner und den Endboss.</li>
+                <li>Am Handy: Halte <strong>▼</strong> und tippe auf die <strong>Flasche</strong>, um eine Salsa-Flasche von unten zu werfen.</li>
             </ul>
         </div>
     </div>
@@ -132,6 +133,14 @@
                 <li><strong>↓ + Leertaste</strong> – Flasche am Boden werfen (kleine Gegner)</li>
                 <li><strong>Leertaste</strong> – Flasche im hohen Bogen werfen (Endboss &amp; große Gegner)</li>
             </ul>
+            <h3 class="modal__subtitle">Touch (Handy &amp; Tablet)</h3>
+            <ul class="modal__list">
+                <li><strong>◀ ▶</strong> – Laufen</li>
+                <li><strong>▲</strong> – Springen</li>
+                <li><strong>▼</strong> – Ducken</li>
+                <li><strong>▼ + Flasche</strong> – Salsa-Flasche von unten werfen (kleine Gegner)</li>
+                <li><strong>Flasche</strong> – Flasche im hohen Bogen werfen (Endboss &amp; große Gegner)</li>
+            </ul>
         </div>
     </div>
 
@@ -141,28 +150,28 @@
     <script src="js/constants/keyboard-map.constant.js"></script>
     <script src="js/constants/game-scale.constant.js"></script>
     <script src="js/constants/background-layers.constant.js"></script>
-    <script src="js/functions/build-frames.function.js"></script>
-    <script src="js/functions/character-movement.function.js"></script>
-    <script src="js/functions/endboss-death.function.js"></script>
-    <script src="js/functions/endboss-states.function.js"></script>
-    <script src="js/functions/endboss-attack.function.js"></script>
-    <script src="js/functions/endboss-movement.function.js"></script>
-    <script src="js/functions/chicken-movement.function.js"></script>
-    <script src="js/functions/world-draw.function.js"></script>
-    <script src="js/functions/create-backgrounds.function.js"></script>
-    <script src="js/functions/draw-seamless-background.function.js"></script>
-    <script src="js/functions/collision-throwable.function.js"></script>
-    <script src="js/functions/collision-enemy.function.js"></script>
-    <script src="js/functions/collision-collectibles.function.js"></script>
-    <script src="js/functions/chicken-collision.function.js"></script>
-    <script src="js/functions/keyboard-events.function.js"></script>
-    <script src="js/functions/touch-events.function.js"></script>
-    <script src="js/functions/load-audio-sounds.function.js"></script>
-    <script src="js/functions/play-hurt-voice.function.js"></script>
-    <script src="js/functions/status-bar-helper.function.js"></script>
-    <script src="js/functions/endboss-bar-position.function.js"></script>
-    <script src="js/functions/audio-init.function.js"></script>
-    <script src="js/functions/init-app.function.js"></script>
+    <script src="js/build-frames.function.js"></script>
+    <script src="js/character-movement.function.js"></script>
+    <script src="js/endboss-death.function.js"></script>
+    <script src="js/endboss-states.function.js"></script>
+    <script src="js/endboss-attack.function.js"></script>
+    <script src="js/endboss-movement.function.js"></script>
+    <script src="js/chicken-movement.function.js"></script>
+    <script src="js/world-draw.function.js"></script>
+    <script src="js/create-backgrounds.function.js"></script>
+    <script src="js/draw-seamless-background.function.js"></script>
+    <script src="js/collision-throwable.function.js"></script>
+    <script src="js/collision-enemy.function.js"></script>
+    <script src="js/collision-collectibles.function.js"></script>
+    <script src="js/chicken-collision.function.js"></script>
+    <script src="js/keyboard-events.function.js"></script>
+    <script src="js/touch-events.function.js"></script>
+    <script src="js/load-audio-sounds.function.js"></script>
+    <script src="js/play-hurt-voice.function.js"></script>
+    <script src="js/status-bar-helper.function.js"></script>
+    <script src="js/endboss-bar-position.function.js"></script>
+    <script src="js/audio-init.function.js"></script>
+    <script src="js/init-app.function.js"></script>
     <script src="js/classes/drawable-object.class.js"></script>
     <script src="js/classes/movable-object.class.js"></script>
     <script src="js/classes/background-object.class.js"></script>

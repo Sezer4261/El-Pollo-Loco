@@ -16,7 +16,7 @@ function applyEndbossGravity(boss) {
     if (isEndbossOnGround(boss) && !boss.isJumping) {
         boss.y = boss.groundY;
         boss.speedY = 0;
-        if (!boss.isAttacking || boss.attackPhase !== "jump") boss.speedX = 0;
+        if (!boss.isAttacking || boss.attackPhase !== "retreat") boss.speedX = 0;
         boss.isLeapAttack = false;
         return;
     }
@@ -98,8 +98,8 @@ function updateEndbossPatrol(boss, character) {
     const chase = isPlayerInBossArena(character, boss);
     if (chase) {
         boss.direction = getEndbossTowardPlayer(boss, character);
-        if (dist > 240) boss.x += boss.direction * 3.8;
-        else tryStartEndbossAttack(boss, character);
+        boss.x += boss.direction * 5.5;
+        tryStartEndbossAttack(boss, character);
         return;
     }
     boss.x += boss.direction * 1.4;

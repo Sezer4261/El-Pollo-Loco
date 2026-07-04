@@ -44,9 +44,13 @@ class ScreenManager {
      * Starts a new game session from home screen.
      */
     startGame() {
+        keyboard = new Keyboard();
+        document.activeElement?.blur?.();
         this.hideScreen("homeScreen");
         this.showScreen("gameScreen");
-        world = new World(document.getElementById("gameCanvas"));
+        const canvas = document.getElementById("gameCanvas");
+        canvas?.focus();
+        world = new World(canvas);
         world.start();
     }
 
@@ -55,9 +59,11 @@ class ScreenManager {
      * Restarts without page reload.
      */
     restartGame() {
+        keyboard = new Keyboard();
         rewardPopup.hide();
         this.hideScreen("endScreen");
         this.showScreen("gameScreen");
+        document.getElementById("gameCanvas")?.focus();
         world.reset();
         world.start();
     }

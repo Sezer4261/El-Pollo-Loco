@@ -1,4 +1,17 @@
 /**
+ * Returns the visible health bar percentage from current HP.
+ * Uses linear scaling so the first hit is visible immediately.
+ * @param {number} current - Current health.
+ * @param {number} max - Maximum health.
+ * @returns {number} Bar fill percentage.
+ */
+function getHealthDisplayPercent(current, max) {
+    if (current <= 0 || max <= 0) return 0;
+    return Math.min(100, (current / max) * 100);
+}
+
+
+/**
  * Returns bar color based on fill percentage.
  * @param {number} percent - Fill percentage.
  * @returns {string} Bar color name.

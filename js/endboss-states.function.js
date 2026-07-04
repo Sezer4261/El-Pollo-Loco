@@ -33,6 +33,6 @@ function activateEndbossAlert(boss, character, now) {
     if (boss.hasAlerted) return;
     boss.isAlert = true;
     boss.hasAlerted = true;
-    boss.alertEndTime = now + 700;
+    boss.alertEndTime = now + 400;
     boss.setState("alert");
 }

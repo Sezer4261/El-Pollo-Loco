@@ -32,6 +32,8 @@ class Endboss extends MovableObject {
     attackAnimDone = false;
     jumpHitDealt = false;
     jumpAttackStarted = false;
+    retreatJumpStarted = false;
+    beakHitDealt = false;
     hasAlerted = false;
 
     static ROASTED_WIDTH = 210;
@@ -177,6 +179,7 @@ class Endboss extends MovableObject {
      * @param {number} now - Current timestamp.
      */
     updateAnimation(now) {
+        if (this.isAttacking && this.attackPhase === "peck") return;
         if (now - this.lastAnimTime < 150) return;
         const frames = this.frameLists[this.currentState] || this.frameLists.walk;
         this.frameIndex = (this.frameIndex + 1) % frames.length;
@@ -197,6 +200,7 @@ class Endboss extends MovableObject {
         this.attackPhase = null;
         this.isJumping = false;
         this.jumpAttackStarted = false;
+        this.retreatJumpStarted = false;
         this.speedX = 0;
         this.hurtEndTime = performance.now() + 600;
         this.setState("hurt");

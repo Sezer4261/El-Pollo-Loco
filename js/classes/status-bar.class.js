@@ -34,7 +34,7 @@ class StatusBar {
      * @param {number} max - Maximum health.
      */
     setHealth(current, max) {
-        const percent = current <= 0 ? 0 : Math.min(100, (current / max) * 100);
+        const percent = getHealthDisplayPercent(current, max);
         const critical = current > 0 && current <= StatusBar.HEALTH_CRITICAL_HP;
         this.setBarFill(this.healthElement, percent, critical ? "orange" : undefined);
         this.toggleHealthWarning(critical);
@@ -104,9 +104,12 @@ class StatusBar {
         if (!el) return;
         const clamped = Math.max(0, Math.min(100, percent));
         const color = colorOverride || getBarColor(clamped);
-        el.style.width = clamped + "%";
+        el.style.width = "100%";
         const fillImg = el.querySelector(".status-bar__fill-img");
-        if (fillImg) fillImg.src = StatusBar.FILL_PATHS[color] || StatusBar.FILL_PATHS.green;
+        if (fillImg) {
+            fillImg.style.width = clamped + "%";
+            fillImg.src = StatusBar.FILL_PATHS[color] || StatusBar.FILL_PATHS.green;
+        }
     }
 
 }

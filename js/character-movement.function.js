@@ -15,7 +15,11 @@ function clampCharacterLevelBounds(character) {
  * @param {Keyboard} kb - Keyboard state.
  */
 function handleCharacterAirMovement(character, kb) {
-    character.isDucking = false;
+    if (character.isDucking) {
+        character.isDucking = false;
+        character.height = CHARACTER_HEIGHT;
+        character.offset = character.standingOffset;
+    }
     character.resetIdleTimer();
     character.applyAirMovement(kb);
     character.setState("jump");
@@ -28,14 +32,19 @@ function handleCharacterAirMovement(character, kb) {
  * @param {Keyboard} kb - Keyboard state.
  */
 function handleCharacterGroundMovement(character, kb) {
+    if (kb.UP) {
+        character.jump();
+        return;
+    }
     if (kb.DOWN) {
         character.isDucking = true;
+        character.applyDuckPose(true);
         character.applyDuckMovement(kb);
         return;
     }
     character.isDucking = false;
+    character.applyDuckPose(false);
     if (kb.LEFT) character.moveLeft();
     else if (kb.RIGHT) character.moveRight();
     else character.handleIdleState();
-    if (kb.UP) character.jump();
 }

@@ -233,8 +233,10 @@ body {
 }
 
 .game-screen {
+    flex-direction: column;
     justify-content: center;
-    gap: clamp(4px, 1vw, 8px);
+    align-items: center;
+    gap: 0;
     min-height: 0;
     --game-stage-max-height: calc(100dvh - var(--screen-padding) * 2 - var(--touch-height) - 8px);
 }
@@ -271,9 +273,9 @@ body {
 .game-screen__stage {
     position: relative;
     container-type: inline-size;
-    --bar-icon-size: clamp(28px, 11cqw, 72px);
-    --bar-track-width: clamp(72px, 46cqw, 360px);
-    --bar-track-height: clamp(16px, 7.5cqw, 44px);
+    --bar-icon-size: clamp(18px, 5cqw, 28px);
+    --bar-track-width: clamp(52px, 15cqw, 110px);
+    --bar-track-height: clamp(10px, 2.5cqw, 16px);
     width: min(
         100%,
         var(--game-max-width),
@@ -294,6 +296,7 @@ body {
     border: 2px solid #3a3a5c;
     border-radius: 4px;
     touch-action: none;
+    outline: none;
 }
 
 .game-screen__hud-overlay {
@@ -356,25 +359,28 @@ body {
     max-width: calc(100cqw - var(--bar-icon-size) - 4px);
 }
 
+.game-screen__statusbars .status-bar__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
 .game-screen__statusbars .status-bar__bg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: fill;
-}
-
-.game-screen__statusbars .status-bar__fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    overflow: hidden;
+    z-index: 0;
 }
 
 .game-screen__statusbars .status-bar__fill-img {
     height: 100%;
-    width: var(--bar-track-width);
+    width: 100%;
     max-width: none;
     object-fit: fill;
     display: block;
@@ -443,13 +449,15 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
     height: 100%;
     overflow: hidden;
+    z-index: 1;
 }
 
 .status-bar--endboss .status-bar__fill-img {
     height: 100%;
-    width: var(--bar-track-width);
+    width: 100%;
     max-width: none;
     object-fit: fill;
     display: block;
@@ -523,19 +531,26 @@ body {
 .touch-controls {
     display: none;
     position: relative;
+    flex: 0 0 var(--touch-height);
+    flex-shrink: 0;
     width: min(
         100%,
         var(--game-max-width),
         calc(var(--game-stage-max-height) * 3 / 2)
     );
     height: var(--touch-height);
-    flex-shrink: 0;
-    margin-top: clamp(2px, 1vw, 4px);
     align-items: center;
     justify-content: space-between;
     gap: clamp(4px, 1.5vw, 10px);
     padding: 0 clamp(4px, 2vw, 12px);
+    padding-bottom: max(env(safe-area-inset-bottom), 4px);
     box-sizing: border-box;
+    background: #2a2a45;
+    border-top: 2px solid #3a3a5c;
+}
+
+.touch-controls .touch-btn {
+    pointer-events: auto;
 }
 
 .touch-btn {
@@ -712,6 +727,12 @@ body {
     padding-right: 28px;
 }
 
+.modal__subtitle {
+    font-size: clamp(1.1rem, 3.5vw, 1.35rem);
+    margin: 18px 0 10px;
+    padding-right: 28px;
+}
+
 .modal__list {
     padding-left: 20px;
     line-height: 1.8;
@@ -751,37 +772,98 @@ body {
     text-decoration: none;
 }
 
-@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+@media (orientation: landscape) and (max-width: 960px),
+       (orientation: landscape) and (max-height: 520px),
+       (orientation: landscape) and (hover: none) and (pointer: coarse) {
     :root {
         --hud-height: 36px;
-        --touch-height: clamp(56px, 14dvh, 88px);
+        --touch-height: clamp(48px, 12dvh, 72px);
         --touch-btn-size: clamp(36px, 10vw, 56px);
-        --game-max-width: min(
-            calc(100vw - var(--screen-padding) * 2 - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)),
-            calc((100dvh - clamp(56px, 14dvh, 88px) - var(--screen-padding) * 2 - 8px) * 1.5),
-            720px
-        );
+        --screen-padding: 0px;
+        --game-max-width: 100vw;
     }
 
-    .touch-controls {
-        display: flex;
+    .screen {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
+    .home-screen,
+    .end-screen,
     .game-screen {
-        padding: clamp(4px, 1vw, 8px);
-        --game-stage-max-height: calc(
-            100dvh - var(--touch-height) - var(--screen-padding) * 2 - 8px
-        );
+        padding: 0;
+        width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
     }
 
     .home-screen__frame,
     .end-screen__frame {
-        width: min(
-            100%,
-            var(--game-max-width),
-            calc((100dvh - var(--screen-padding) * 2) * 1.5)
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+
+    .game-screen {
+        justify-content: flex-start;
+        align-items: stretch;
+        gap: 0;
+        --game-stage-max-height: calc(
+            100dvh - var(--touch-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom)
         );
-        max-height: calc(100dvh - var(--screen-padding) * 2);
+    }
+
+    .game-screen__stage {
+        width: 100%;
+        flex: 1 1 0;
+        min-height: 0;
+        max-width: 100%;
+        max-height: none;
+        height: auto;
+        aspect-ratio: unset;
+        border-radius: 0;
+        --bar-icon-size: clamp(14px, 3.8cqw, 28px);
+        --bar-track-width: clamp(32px, 14cqw, 110px);
+        --bar-track-height: clamp(7px, 2.8cqw, 14px);
+    }
+
+    .game-screen__hud-overlay {
+        top: 2px;
+        left: max(env(safe-area-inset-left), 2px);
+        right: max(env(safe-area-inset-right), 2px);
+        gap: 3px;
+    }
+
+    .game-screen__statusbars {
+        gap: 0;
+        max-width: 50%;
+    }
+
+    .game-screen__hud-right {
+        gap: 2px;
+        max-width: 48%;
+    }
+
+    .game-screen__hud-actions .btn--icon {
+        font-size: clamp(0.7rem, 2.8cqw, 0.95rem);
+        padding: 3px 6px;
+    }
+
+    .status-bar--endboss .status-bar__track {
+        border-width: 1px;
+        border-radius: 3px;
+    }
+
+    #gameCanvas {
+        border-radius: 0;
+        border: none;
+    }
+
+    .touch-controls {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
     }
 }
 
@@ -820,6 +902,12 @@ body {
     .game-screen {
         --game-stage-max-height: calc(100dvh - var(--screen-padding) * 2 - 16px);
     }
+
+    .game-screen__stage {
+        --bar-icon-size: 24px;
+        --bar-track-width: 96px;
+        --bar-track-height: 14px;
+    }
 }
 
 html:fullscreen .screen {
@@ -828,9 +916,9 @@ html:fullscreen .screen {
 
 @media (max-height: 480px) and (orientation: landscape) {
     .game-screen__stage {
-        --bar-icon-size: clamp(24px, 10cqw, 52px);
-        --bar-track-width: clamp(60px, 42cqw, 300px);
-        --bar-track-height: clamp(14px, 6.5cqw, 36px);
+        --bar-icon-size: clamp(12px, 3.4cqw, 24px);
+        --bar-track-width: clamp(28px, 12cqw, 96px);
+        --bar-track-height: clamp(6px, 2.5cqw, 12px);
     }
 }
 
@@ -842,9 +930,9 @@ html:fullscreen .screen {
     }
 
     .game-screen__stage {
-        --bar-icon-size: clamp(20px, 9cqw, 40px);
-        --bar-track-width: clamp(52px, 38cqw, 240px);
-        --bar-track-height: clamp(12px, 5.5cqw, 28px);
+        --bar-icon-size: clamp(11px, 3cqw, 20px);
+        --bar-track-width: clamp(24px, 11cqw, 84px);
+        --bar-track-height: clamp(5px, 2.2cqw, 10px);
     }
 
     .home-screen__actions .btn {
@@ -879,7 +967,7 @@ html:fullscreen .screen {
     }
 }
 
-@media (max-width: 640px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+@media (max-width: 640px) and (orientation: landscape) {
     .home-screen__actions {
         flex-direction: column;
         align-items: stretch;

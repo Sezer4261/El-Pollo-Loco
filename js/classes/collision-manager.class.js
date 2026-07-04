@@ -12,10 +12,12 @@ class CollisionManager {
     isStomp(character, enemy) {
         if (enemy.isDead) return false;
         if (!character.isColliding(enemy)) return false;
-        if (!character.isAboveGround() || character.speedY <= 0) return false;
+        if (character.speedY <= 0) return false;
         const charBox = character.getHitBox();
         const enemyBox = enemy.getHitBox();
-        return charBox.y + charBox.h <= enemyBox.y + 15;
+        const charBottom = charBox.y + charBox.h;
+        const stompZone = enemyBox.y + Math.min(28, enemyBox.h * 0.45);
+        return charBottom <= stompZone;
     }
 
 
