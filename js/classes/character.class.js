@@ -364,11 +364,11 @@ class Character extends MovableObject {
      * Plays hurt animation briefly.
      */
     playHurt() {
+        audioManager.playEffect("hurt");
         this.isDucking = false;
         this.applyDuckPose(false);
         this.setState("hurt");
         setTimeout(() => this.resetFromHurt(), 800);
-        audioManager.playEffect("hurt");
     }
 
 

@@ -34,47 +34,30 @@ function resolveChickenCharacterHit(collisions, character, chicken, now) {
 
 
 /**
- * Pushes the endboss away and continues the retreat phase after a hit.
+ * Pushes the endboss away and keeps the attack loop running in the arena.
  * @param {Endboss} boss - Endboss instance.
  * @param {Character} character - Player character.
  */
 function separateBossFromPlayer(boss, character) {
+    if (boss.isAttacking) {
+        setEndbossAttackPhase(boss, "chase");
+        return;
+    }
     const bossCenter = boss.x + boss.width / 2;
     const playerCenter = character.x + character.width / 2;
     const dir = bossCenter < playerCenter ? -1 : 1;
-    boss.x += dir * 35;
+    boss.x += dir * 20;
     boss.speedX = 0;
     boss.isJumping = false;
-    boss.jumpAttackStarted = false;
-    boss.retreatJumpStarted = false;
     clampEndbossLevelBounds(boss, character);
-    if (boss.isAttacking) {
+    if (isPlayerInBossArena(character, boss)) {
+        boss.isAttacking = true;
         setEndbossAttackPhase(boss, "chase");
-        boss.nextAttackTime = performance.now();
+        boss.nextAttackTime = 0;
         return;
     }
     boss.isAttacking = false;
     boss.attackPhase = null;
-}
-
-
-/**
- * Applies damage when the boss pecks the player during an attack.
- * @param {WorldCollisions} collisions - Collision handler.
- * @param {Character} character - Player character.
- * @param {Endboss} boss - Endboss instance.
- * @param {number} now - Current timestamp.
- */
-function resolveBossBeakHit(collisions, character, boss, now) {
-    if (!boss.isAttacking || boss.attackPhase !== "peck") return;
-    if (boss.beakHitDealt) return;
-    if (boss.frameIndex < 2 || boss.frameIndex > 7) return;
-    if (boss.isDead || character.isDead || character.currentState === "hurt") return;
-    if (!isPlayerInBeakRange(boss, character)) return;
-    character.takeDamage(ENDBOSS_BEAK_DAMAGE);
-    collisions.world.lastEnemyHit = now;
-    boss.beakHitDealt = true;
-    audioManager.playEffect("bossHit");
 }
 
 
@@ -87,13 +70,20 @@ function resolveBossBeakHit(collisions, character, boss, now) {
  */
 function resolveBossCharacterHit(collisions, character, boss, now) {
     if (boss.isDead || character.isDead || character.currentState === "hurt") return;
-    if (boss.isAttacking && (boss.attackPhase === "peck" || boss.attackPhase === "retreat")) return;
     const bossNow = performance.now();
     if (boss.contactCooldownUntil && bossNow < boss.contactCooldownUntil) return;
-    if (!collisions.manager.isBossSideHit(character, boss)) return;
+    if (!character.isColliding(boss)) return;
     character.takeDamage(ENDBOSS_CONTACT_DAMAGE);
     collisions.world.lastEnemyHit = now;
+    audioManager.playEffect("bossHit");
+    boss.contactCooldownUntil = bossNow + ENDBOSS_CONTACT_COOLDOWN_MS;
+    if (boss.isAttacking) {
+        const away = -getEndbossTowardPlayer(boss, character);
+        boss.x += away * 28;
+        clampEndbossLevelBounds(boss, character);
+        setEndbossAttackPhase(boss, "chase");
+        return;
+    }
     separateBossFromPlayer(boss, character);
-    boss.contactCooldownUntil = bossNow + 450;
-    boss.nextAttackTime = bossNow;
+    boss.nextAttackTime = 0;
 }

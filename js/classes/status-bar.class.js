@@ -76,8 +76,11 @@ class StatusBar {
      * @param {number} max - Boss max health.
      * @param {boolean} visible - Whether bar is visible.
      */
-    setEndboss(current, max, visible) {
+    setEndboss(current, max, visible, hitPulse = false) {
         this.toggleEndbossVisibility(visible);
+        if (this.endbossContainer) {
+            this.endbossContainer.classList.toggle("status-bar--endboss-hit", hitPulse);
+        }
         if (!visible) return;
         const percent = Math.max(0, (current / max) * 100);
         this.setBarFill(this.endbossElement, percent, getBarColor(percent));

@@ -16,8 +16,7 @@ function applyEndbossGravity(boss) {
     if (isEndbossOnGround(boss) && !boss.isJumping) {
         boss.y = boss.groundY;
         boss.speedY = 0;
-        if (!boss.isAttacking || boss.attackPhase !== "retreat") boss.speedX = 0;
-        boss.isLeapAttack = false;
+        if (!boss.isAttacking || boss.attackPhase !== "jump") boss.speedX = 0;
         return;
     }
     boss.speedY += GRAVITY;
@@ -26,7 +25,6 @@ function applyEndbossGravity(boss) {
     boss.y = boss.groundY;
     boss.speedY = 0;
     boss.isJumping = false;
-    boss.isLeapAttack = false;
 }
 
 
@@ -38,7 +36,7 @@ function applyEndbossGravity(boss) {
 function clampEndbossLevelBounds(boss, character) {
     const minX = boss.patrolLeft;
     const maxX = boss.patrolRight - boss.width;
-    const chase = character && isPlayerInBossArena(character, boss);
+    const chase = character && (boss.isAttacking || isPlayerInBossArena(character, boss));
     if (boss.x < minX) {
         boss.x = minX;
         if (boss.speedX < 0) boss.speedX = 0;
@@ -59,7 +57,8 @@ function clampEndbossLevelBounds(boss, character) {
  * @returns {boolean} Arena entry state.
  */
 function isPlayerInBossArena(character, boss) {
-    return character.x >= boss.patrolLeft - 320;
+    if (character.x >= boss.patrolLeft - 320) return true;
+    return getEndbossPlayerDistance(boss, character) <= ENDBOSS_ENGAGE_DISTANCE;
 }
 
 
@@ -68,10 +67,10 @@ function isPlayerInBossArena(character, boss) {
  * @param {Endboss} boss - Endboss instance.
  * @param {Character} character - Player character.
  */
-function updateEndbossMovement(boss, character) {
+function updateEndbossMovement(boss, character, cameraX, canvasWidth) {
     if (boss.isHurt && !boss.isAttacking) return;
+    ensureEndbossEngagement(boss, character, cameraX, canvasWidth);
     if (updateEndbossAttack(boss, character)) {
-        if (!isEndbossOnGround(boss) || boss.isJumping) boss.x += boss.speedX;
         clampEndbossLevelBounds(boss, character);
         updateEndbossFacing(boss);
         return;

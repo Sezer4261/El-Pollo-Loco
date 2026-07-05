@@ -266,7 +266,7 @@ body {
 }
 
 .status-bar__icon {
-    height: clamp(22px, 5vw, 32px);
+    height: clamp(26px, 5.5vw, 38px);
     width: auto;
     flex-shrink: 0;
 }
@@ -281,9 +281,9 @@ body {
 .game-screen__stage {
     position: relative;
     container-type: inline-size;
-    --bar-icon-size: clamp(20px, calc(100cqw * 0.058), 30px);
-    --bar-track-width: clamp(66px, calc(100cqw * 0.17), 126px);
-    --bar-track-height: clamp(12px, calc(100cqw * 0.024), 19px);
+    --bar-icon-size: clamp(24px, calc(100cqw * 0.068), 36px);
+    --bar-track-width: clamp(78px, calc(100cqw * 0.20), 148px);
+    --bar-track-height: clamp(14px, calc(100cqw * 0.028), 22px);
     width: var(--stage-width);
     height: var(--stage-height);
     max-width: 100%;
@@ -433,7 +433,7 @@ body {
 
 .status-bar--endboss {
     pointer-events: none;
-    gap: 0;
+    gap: 4px;
     flex: 0 1 auto;
     min-width: 0;
     max-width: 100%;
@@ -466,10 +466,31 @@ body {
 
 .status-bar--endboss .status-bar__fill-img {
     height: 100%;
-    width: 100%;
     max-width: none;
     object-fit: fill;
     display: block;
+}
+
+.status-bar--endboss.status-bar--endboss-hit {
+    animation: endboss-bar-hit 0.55s ease;
+}
+
+.status-bar--endboss.status-bar--endboss-hit .status-bar__fill-img {
+    filter: brightness(1.45) saturate(1.35);
+}
+
+@keyframes endboss-bar-hit {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    25% {
+        transform: scale(1.1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 .reward-popup {
@@ -828,9 +849,9 @@ body {
         flex: 0 0 auto;
         min-height: 0;
         border-radius: 0;
-        --bar-icon-size: clamp(19px, calc(100cqw * 0.056), 28px);
-        --bar-track-width: clamp(62px, calc(100cqw * 0.165), 120px);
-        --bar-track-height: clamp(11px, calc(100cqw * 0.023), 18px);
+        --bar-icon-size: clamp(22px, calc(100cqw * 0.066), 32px);
+        --bar-track-width: clamp(74px, calc(100cqw * 0.195), 140px);
+        --bar-track-height: clamp(13px, calc(100cqw * 0.027), 21px);
     }
 
     .game-screen__hud-overlay {
@@ -950,9 +971,9 @@ body {
     }
 
     .game-screen__stage {
-        --bar-icon-size: 28px;
-        --bar-track-width: 114px;
-        --bar-track-height: 16px;
+        --bar-icon-size: 34px;
+        --bar-track-width: 136px;
+        --bar-track-height: 19px;
     }
 }
 
@@ -962,9 +983,9 @@ html:fullscreen .screen {
 
 @media (max-height: 480px) and (orientation: landscape) {
     .game-screen__stage {
-        --bar-icon-size: clamp(18px, calc(100cqw * 0.054), 26px);
-        --bar-track-width: clamp(58px, calc(100cqw * 0.158), 108px);
-        --bar-track-height: clamp(10px, calc(100cqw * 0.022), 16px);
+        --bar-icon-size: clamp(21px, calc(100cqw * 0.064), 30px);
+        --bar-track-width: clamp(68px, calc(100cqw * 0.186), 126px);
+        --bar-track-height: clamp(12px, calc(100cqw * 0.026), 19px);
     }
 }
 
@@ -976,9 +997,9 @@ html:fullscreen .screen {
     }
 
     .game-screen__stage {
-        --bar-icon-size: clamp(17px, calc(100cqw * 0.052), 24px);
-        --bar-track-width: clamp(56px, calc(100cqw * 0.152), 104px);
-        --bar-track-height: clamp(10px, calc(100cqw * 0.021), 15px);
+        --bar-icon-size: clamp(20px, calc(100cqw * 0.062), 28px);
+        --bar-track-width: clamp(66px, calc(100cqw * 0.178), 122px);
+        --bar-track-height: clamp(12px, calc(100cqw * 0.025), 18px);
     }
 
     .home-screen__actions .btn {

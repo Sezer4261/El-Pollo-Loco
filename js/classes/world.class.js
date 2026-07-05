@@ -99,9 +99,10 @@ class World {
      */
     updateEntities() {
         this.character.update();
+        this.updateCamera();
         this.chickens.forEach((c) => c.update());
         this.chickens = this.chickens.filter((c) => !hasChickenLeftLevel(c));
-        this.endboss.update(this.character);
+        this.endboss.update(this.character, this.cameraX, this.canvas.width);
         this.coins.forEach((c) => c.animate(performance.now()));
         this.throwables.forEach((t) => t.update());
     }
@@ -171,11 +172,14 @@ class World {
         this.statusBar.setHealth(char.health, char.maxHealth);
         this.statusBar.setCoins(char.coinBar);
         this.statusBar.setBottles(char.bottleBar);
-        const bossVisible = this.character.x > this.endboss.x - 500 && !this.endboss.isDead;
+        const bossVisible = isEndbossOnScreen(this.endboss, this.cameraX, this.canvas.width) && !this.endboss.isDead;
+        const hitPulse = this.endboss.lastHitTime &&
+            performance.now() - this.endboss.lastHitTime < 600;
         this.statusBar.setEndboss(
             this.endboss.health,
             this.endboss.maxHealth,
-            bossVisible
+            bossVisible,
+            hitPulse
         );
     }
 

@@ -33,9 +33,9 @@ class Endboss extends MovableObject {
     attackAnimDone = false;
     jumpHitDealt = false;
     jumpAttackStarted = false;
-    retreatJumpStarted = false;
-    beakHitDealt = false;
     hasAlerted = false;
+    hitFlashUntil = 0;
+    lastHitTime = 0;
 
     static ROASTED_WIDTH = 210;
     static ROASTED_HEIGHT = 115;
@@ -78,13 +78,13 @@ class Endboss extends MovableObject {
      * Updates boss movement and animation.
      * @param {Character} character - Player character reference.
      */
-    update(character) {
+    update(character, cameraX, canvasWidth) {
         if (this.isDead) {
             this.updateDeath(performance.now());
             return;
         }
-        this.updateStates(character);
-        updateEndbossMovement(this, character);
+        this.updateStates(character, cameraX, canvasWidth);
+        updateEndbossMovement(this, character, cameraX, canvasWidth);
         applyEndbossGravity(this);
         this.updateAnimation(performance.now());
     }
@@ -157,10 +157,11 @@ class Endboss extends MovableObject {
      * Switches alert state when character is near.
      * @param {Character} character - Player character.
      */
-    updateStates(character) {
+    updateStates(character, cameraX, canvasWidth) {
         const now = performance.now();
-        clearEndbossTimedStates(this, character, now);
-        activateEndbossAlert(this, character, now);
+        clearEndbossTimedStates(this, character, now, cameraX, canvasWidth);
+        ensureEndbossEngagement(this, character, cameraX, canvasWidth);
+        activateEndbossAlert(this, character, now, cameraX, canvasWidth);
     }
 
 
@@ -180,7 +181,6 @@ class Endboss extends MovableObject {
      * @param {number} now - Current timestamp.
      */
     updateAnimation(now) {
-        if (this.isAttacking && this.attackPhase === "peck") return;
         if (now - this.lastAnimTime < 150) return;
         const frames = this.frameLists[this.currentState] || this.frameLists.walk;
         this.frameIndex = (this.frameIndex + 1) % frames.length;
@@ -195,21 +195,23 @@ class Endboss extends MovableObject {
      */
     takeDamage(amount) {
         if (this.isDead) return;
+        const now = performance.now();
         this.health = Math.max(0, this.health - amount);
+        this.hitFlashUntil = now + ENDBOSS_HIT_FLASH_MS;
+        this.lastHitTime = now;
         if (this.health <= 0) {
             this.die();
             return;
         }
         if (this.isAttacking) return;
-        const now = performance.now();
         if (now < this.staggerCooldownUntil) return;
         this.staggerCooldownUntil = now + ENDBOSS_STAGGER_COOLDOWN_MS;
         this.isHurt = true;
         this.isAttacking = false;
         this.attackPhase = null;
         this.isJumping = false;
+        this.isLeapAttack = false;
         this.jumpAttackStarted = false;
-        this.retreatJumpStarted = false;
         this.speedX = 0;
         this.hurtEndTime = now + ENDBOSS_HURT_MS;
         this.setState("hurt");

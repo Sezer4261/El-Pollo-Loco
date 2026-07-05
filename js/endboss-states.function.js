@@ -1,14 +1,17 @@
 /**
  * Clears expired hurt and alert states on the endboss.
  * @param {Endboss} boss - Endboss instance.
+ * @param {Character} character - Player character.
  * @param {number} now - Current timestamp.
+ * @param {number} cameraX - Camera X offset.
+ * @param {number} canvasWidth - Canvas width.
  */
-function clearEndbossTimedStates(boss, character, now) {
+function clearEndbossTimedStates(boss, character, now, cameraX, canvasWidth) {
     if (boss.isHurt && now > boss.hurtEndTime) {
         boss.isHurt = false;
         boss.setState("walk");
-        boss.nextAttackTime = now;
-        if (character && isPlayerInBossArena(character, boss)) {
+        boss.nextAttackTime = 0;
+        if (character && shouldEndbossEngage(boss, character, cameraX, canvasWidth)) {
             boss.isAttacking = true;
             setEndbossAttackPhase(boss, "chase");
         }
@@ -22,14 +25,19 @@ function clearEndbossTimedStates(boss, character, now) {
 
 
 /**
- * Plays a short alert once when the player enters boss range.
+ * Plays a short alert once when the player approaches from far away.
  * @param {Endboss} boss - Endboss instance.
  * @param {Character} character - Player character.
  * @param {number} now - Current timestamp.
+ * @param {number} cameraX - Camera X offset.
+ * @param {number} canvasWidth - Canvas width.
  */
-function activateEndbossAlert(boss, character, now) {
+function activateEndbossAlert(boss, character, now, cameraX, canvasWidth) {
     if (boss.isHurt || boss.isAttacking) return;
-    if (isPlayerInBossArena(character, boss)) return;
+    if (shouldEndbossEngage(boss, character, cameraX, canvasWidth)) {
+        boss.isAlert = false;
+        return;
+    }
     const dist = getEndbossPlayerDistance(boss, character);
     if (dist >= 720) {
         boss.hasAlerted = false;

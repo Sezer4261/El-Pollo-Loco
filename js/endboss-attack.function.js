@@ -1,4 +1,49 @@
 /**
+ * Returns true when the endboss is visible on the canvas.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {number} cameraX - Camera X offset.
+ * @param {number} canvasWidth - Canvas width.
+ * @returns {boolean} On-screen state.
+ */
+function isEndbossOnScreen(boss, cameraX, canvasWidth) {
+    const screenX = boss.x - cameraX;
+    return screenX + boss.width >= 0 && screenX <= canvasWidth;
+}
+
+
+/**
+ * Returns true when the boss should actively fight the player.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {Character} character - Player character.
+ * @param {number} cameraX - Camera X offset.
+ * @param {number} canvasWidth - Canvas width.
+ * @returns {boolean} Engagement state.
+ */
+function shouldEndbossEngage(boss, character, cameraX, canvasWidth) {
+    if (boss.isDead) return false;
+    return isEndbossOnScreen(boss, cameraX, canvasWidth);
+}
+
+
+/**
+ * Forces the boss into the chase when visible on screen.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {Character} character - Player character.
+ * @param {number} cameraX - Camera X offset.
+ * @param {number} canvasWidth - Canvas width.
+ */
+function ensureEndbossEngagement(boss, character, cameraX, canvasWidth) {
+    if (boss.isDead || boss.isHurt) return;
+    if (!shouldEndbossEngage(boss, character, cameraX, canvasWidth)) return;
+    boss.isAlert = false;
+    boss.nextAttackTime = 0;
+    if (boss.isAttacking) return;
+    boss.isAttacking = true;
+    setEndbossAttackPhase(boss, "chase");
+}
+
+
+/**
  * Starts the attack loop when the player enters the boss arena.
  * @param {Endboss} boss - Endboss instance.
  * @param {Character} character - Player character.
@@ -6,9 +51,8 @@
 function tryStartEndbossAttack(boss, character) {
     if (boss.isAttacking || boss.isHurt || boss.isDead) return;
     if (!isPlayerInBossArena(character, boss)) return;
-    const now = performance.now();
-    if (now < boss.nextAttackTime) return;
     boss.isAlert = false;
+    boss.nextAttackTime = 0;
     boss.isAttacking = true;
     setEndbossAttackPhase(boss, "chase");
 }
@@ -28,134 +72,40 @@ function getEndbossPlayerDistance(boss, character) {
 
 
 /**
- * Switches the boss into a new attack phase.
+ * Returns the horizontal gap between boss and player hitboxes.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {Character} character - Player character.
+ * @returns {number} Edge gap in pixels, 0 when overlapping.
+ */
+function getEndbossEdgeDistance(boss, character) {
+    const bossBox = boss.getHitBox();
+    const playerBox = character.getHitBox();
+    if (playerBox.x + playerBox.w <= bossBox.x) {
+        return bossBox.x - (playerBox.x + playerBox.w);
+    }
+    if (playerBox.x >= bossBox.x + bossBox.w) {
+        return playerBox.x - (bossBox.x + bossBox.w);
+    }
+    return 0;
+}
+
+
+/**
+ * Switches the boss into chase mode on the ground.
  * @param {Endboss} boss - Endboss instance.
  * @param {string} phase - Attack phase name.
  */
 function setEndbossAttackPhase(boss, phase) {
     boss.attackPhase = phase;
     boss.attackPhaseStart = performance.now();
-    boss.retreatJumpStarted = false;
-    boss.beakHitDealt = false;
-    boss.attackAnimDone = false;
-    if (phase === "peck") {
-        boss.setState("attack");
-        boss.frameIndex = 0;
-        boss.img = boss.frameLists.attack[0];
-        boss.lastAnimTime = performance.now();
-        return;
-    }
-    boss.setState("walk");
-}
-
-
-/**
- * Launches the boss away from the player after an attack.
- * @param {Endboss} boss - Endboss instance.
- * @param {Character} character - Player character.
- */
-function launchEndbossRetreatJump(boss, character) {
-    const away = -getEndbossTowardPlayer(boss, character);
-    const dist = getEndbossPlayerDistance(boss, character);
-    boss.speedY = -17 - Math.min(8, dist / 75);
-    boss.speedX = away * Math.min(15, 9 + dist / 48);
-    boss.isJumping = true;
-    boss.retreatJumpStarted = true;
-    boss.direction = away;
-}
-
-
-/**
- * Plays the grain-peck attack animation with a forward lunge.
- * @param {Endboss} boss - Endboss instance.
- * @param {number} now - Current timestamp.
- * @param {Function} onComplete - Callback when peck finishes.
- */
-function updateEndbossPeck(boss, now, onComplete) {
+    boss.jumpAttackStarted = false;
+    boss.jumpHitDealt = false;
+    boss.isJumping = false;
+    boss.isLeapAttack = false;
     boss.speedX = 0;
-    const frames = boss.frameLists.attack;
-    if (!frames?.length) {
-        onComplete();
-        return;
-    }
-    if (boss.currentState !== "attack") boss.setState("attack");
-    if (now - boss.lastAnimTime >= 45) {
-        if (boss.frameIndex < frames.length - 1) {
-            boss.frameIndex++;
-            boss.img = frames[boss.frameIndex];
-        } else {
-            boss.attackAnimDone = true;
-        }
-        boss.lastAnimTime = now;
-    }
-    if (boss.frameIndex >= 2 && boss.frameIndex <= 6) {
-        const dir = boss.otherDirection ? 1 : -1;
-        boss.x += dir * 4.4;
-    }
-    if (boss.beakHitDealt && boss.frameIndex >= 3) {
-        onComplete();
-        return;
-    }
-    if (boss.attackAnimDone || now - boss.attackPhaseStart > 460) onComplete();
-}
-
-
-/**
- * Returns true when the player is within the boss beak hitbox.
- * @param {Endboss} boss - Endboss instance.
- * @param {Character} character - Player character.
- * @returns {boolean} Beak range state.
- */
-function isPlayerInBeakRange(boss, character) {
-    const dir = boss.otherDirection ? 1 : -1;
-    const beak = {
-        x: dir > 0 ? boss.x + boss.width * 0.42 : boss.x,
-        y: boss.y + boss.height * 0.48,
-        w: boss.width * 0.52,
-        h: boss.height * 0.34
-    };
-    const player = character.getHitBox();
-    return player.x < beak.x + beak.w && player.x + player.w > beak.x &&
-        player.y < beak.y + beak.h && player.y + player.h > beak.y;
-}
-
-
-/**
- * Runs chase, peck and retreat jumps in a repeating attack loop.
- * @param {Endboss} boss - Endboss instance.
- * @param {Character} character - Player character.
- * @returns {boolean} True when attack logic handled movement.
- */
-function updateEndbossAttack(boss, character) {
-    if (!boss.isAttacking) return false;
-    const now = performance.now();
-    const dist = getEndbossPlayerDistance(boss, character);
-    const toward = getEndbossTowardPlayer(boss, character);
-    switch (boss.attackPhase) {
-        case "chase":
-            boss.direction = toward;
-            boss.x += toward * ENDBOSS_CHASE_SPEED;
-            if (dist < ENDBOSS_PECK_RANGE && isEndbossOnGround(boss) && !boss.isJumping) {
-                setEndbossAttackPhase(boss, "peck");
-            }
-            break;
-        case "peck":
-            boss.direction = toward;
-            updateEndbossPeck(boss, now, () => setEndbossAttackPhase(boss, "retreat"));
-            break;
-        case "retreat":
-            if (!boss.retreatJumpStarted && isEndbossOnGround(boss) && !boss.isJumping) {
-                launchEndbossRetreatJump(boss, character);
-            } else if (boss.retreatJumpStarted && isEndbossOnGround(boss) && !boss.isJumping) {
-                setEndbossAttackPhase(boss, "chase");
-            }
-            break;
-        default:
-            setEndbossAttackPhase(boss, "chase");
-            break;
-    }
-    updateEndbossFacing(boss);
-    return true;
+    boss.speedY = 0;
+    if (boss.y > boss.groundY) boss.y = boss.groundY;
+    boss.setState("walk");
 }
 
 
@@ -169,4 +119,22 @@ function getEndbossTowardPlayer(boss, character) {
     const playerCenter = character.x + character.width / 2;
     const bossCenter = boss.x + boss.width / 2;
     return playerCenter < bossCenter ? -1 : 1;
+}
+
+
+/**
+ * Runs toward the player and deals contact damage on touch.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {Character} character - Player character.
+ * @returns {boolean} True when attack logic handled movement.
+ */
+function updateEndbossAttack(boss, character) {
+    if (!boss.isAttacking) return false;
+    const toward = getEndbossTowardPlayer(boss, character);
+    boss.direction = toward;
+    if (isEndbossOnGround(boss) && !boss.isJumping) {
+        boss.x += toward * ENDBOSS_CHASE_SPEED;
+    }
+    updateEndbossFacing(boss);
+    return true;
 }

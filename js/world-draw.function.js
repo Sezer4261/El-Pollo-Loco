@@ -153,6 +153,16 @@ function drawObjectsLayer(ctx, objects) {
  * @param {Endboss} boss - Endboss instance.
  */
 function drawEndbossLayer(ctx, boss) {
-    if (boss.isRoasted) drawRoastedEndboss(ctx, boss);
-    else drawFlippedObject(ctx, boss);
+    if (boss.isRoasted) {
+        drawRoastedEndboss(ctx, boss);
+        return;
+    }
+    const flash = boss.hitFlashUntil && performance.now() < boss.hitFlashUntil;
+    if (flash) {
+        ctx.save();
+        ctx.globalAlpha = 0.9;
+        ctx.filter = "sepia(1) saturate(12) hue-rotate(-45deg) brightness(1.35)";
+    }
+    drawFlippedObject(ctx, boss);
+    if (flash) ctx.restore();
 }
