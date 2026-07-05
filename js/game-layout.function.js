@@ -11,8 +11,9 @@ function syncGameStageLayout() {
 
     const touchVisible = touchControls && getComputedStyle(touchControls).display !== "none";
     const touchHeight = touchVisible ? touchControls.offsetHeight : 0;
-    const availableWidth = gameScreen.clientWidth;
-    const availableHeight = Math.max(0, gameScreen.clientHeight - touchHeight);
+    const bounds = gameScreen.getBoundingClientRect();
+    const availableWidth = bounds.width;
+    const availableHeight = Math.max(0, bounds.height - touchHeight);
     if (availableWidth <= 0 || availableHeight <= 0) return;
 
     let width = Math.min(availableWidth, availableHeight * GAME_LAYOUT_ASPECT, GAME_LAYOUT_MAX_WIDTH);

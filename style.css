@@ -814,9 +814,11 @@ body {
     }
 
     .game-screen {
-        justify-content: flex-end;
+        justify-content: center;
         align-items: center;
         gap: 0;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        box-sizing: border-box;
         --game-stage-max-height: calc(
             100dvh - var(--touch-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom)
         );
@@ -869,6 +871,45 @@ body {
         max-width: 100%;
         align-self: center;
         flex-shrink: 0;
+    }
+}
+
+@media (orientation: landscape) and (min-width: 961px) and (hover: none) and (pointer: coarse) {
+    :root {
+        --touch-height: 0px;
+        --screen-padding: clamp(8px, 1.5vw, 16px);
+        --game-max-width: min(
+            calc(100vw - var(--screen-padding) * 2 - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)),
+            calc((100dvh - var(--screen-padding) * 2 - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 16px) * 1.5),
+            720px
+        );
+    }
+
+    .screen {
+        padding: max(var(--screen-padding), env(safe-area-inset-top))
+            max(var(--screen-padding), env(safe-area-inset-right))
+            max(var(--screen-padding), env(safe-area-inset-bottom))
+            max(var(--screen-padding), env(safe-area-inset-left));
+    }
+
+    .home-screen,
+    .end-screen,
+    .game-screen {
+        padding: 0;
+    }
+
+    .game-screen {
+        justify-content: center;
+        --game-stage-max-height: calc(
+            100dvh - var(--screen-padding) * 2
+            - env(safe-area-inset-top, 0px)
+            - env(safe-area-inset-bottom, 0px)
+            - 16px
+        );
+    }
+
+    .touch-controls {
+        display: none !important;
     }
 }
 
