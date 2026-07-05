@@ -10,6 +10,7 @@ function initializeApp() {
     fullscreenManager.bindButtons();
     bindKeyboardEvents();
     bindTouchEvents();
+    initGameLayoutSync();
     applySavedMuteState();
     audioManager.startMenuMusic();
     bindMenuMusicUnlock();

@@ -69,7 +69,7 @@ function isPlayerInBossArena(character, boss) {
  * @param {Character} character - Player character.
  */
 function updateEndbossMovement(boss, character) {
-    if (boss.isHurt) return;
+    if (boss.isHurt && !boss.isAttacking) return;
     if (updateEndbossAttack(boss, character)) {
         if (!isEndbossOnGround(boss) || boss.isJumping) boss.x += boss.speedX;
         clampEndbossLevelBounds(boss, character);

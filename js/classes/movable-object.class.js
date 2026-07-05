@@ -1,6 +1,5 @@
 const GRAVITY = 1.8;
 const LOW_THROW_Y = GROUND_Y + Math.round(CHARACTER_HEIGHT * 0.85);
-const BOSS_BOTTLE_DAMAGE = 20;
 
 /**
  * Base class for all movable game objects with physics.

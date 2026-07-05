@@ -57,8 +57,8 @@ function setEndbossAttackPhase(boss, phase) {
 function launchEndbossRetreatJump(boss, character) {
     const away = -getEndbossTowardPlayer(boss, character);
     const dist = getEndbossPlayerDistance(boss, character);
-    boss.speedY = -22 - Math.min(10, dist / 70);
-    boss.speedX = away * Math.min(16, 9 + dist / 45);
+    boss.speedY = -17 - Math.min(8, dist / 75);
+    boss.speedX = away * Math.min(15, 9 + dist / 48);
     boss.isJumping = true;
     boss.retreatJumpStarted = true;
     boss.direction = away;
@@ -79,7 +79,7 @@ function updateEndbossPeck(boss, now, onComplete) {
         return;
     }
     if (boss.currentState !== "attack") boss.setState("attack");
-    if (now - boss.lastAnimTime >= 55) {
+    if (now - boss.lastAnimTime >= 45) {
         if (boss.frameIndex < frames.length - 1) {
             boss.frameIndex++;
             boss.img = frames[boss.frameIndex];
@@ -90,13 +90,13 @@ function updateEndbossPeck(boss, now, onComplete) {
     }
     if (boss.frameIndex >= 2 && boss.frameIndex <= 6) {
         const dir = boss.otherDirection ? 1 : -1;
-        boss.x += dir * 3.6;
+        boss.x += dir * 4.4;
     }
-    if (boss.beakHitDealt && boss.frameIndex >= 4) {
+    if (boss.beakHitDealt && boss.frameIndex >= 3) {
         onComplete();
         return;
     }
-    if (boss.attackAnimDone || now - boss.attackPhaseStart > 580) onComplete();
+    if (boss.attackAnimDone || now - boss.attackPhaseStart > 460) onComplete();
 }
 
 

@@ -1,7 +1,3 @@
-const COIN_GROUND_Y = CANVAS_GROUND_Y - 60;
-const COIN_JUMP_Y = CANVAS_GROUND_Y - 260;
-const BOTTLE_GROUND_Y = CANVAS_GROUND_Y - 80;
-
 const level1Data = {
     width: LEVEL_WIDTH,
     endX: LEVEL_END,

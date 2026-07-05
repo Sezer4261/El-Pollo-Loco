@@ -48,6 +48,7 @@ class ScreenManager {
         document.activeElement?.blur?.();
         this.hideScreen("homeScreen");
         this.showScreen("gameScreen");
+        scheduleGameStageLayoutSync();
         const canvas = document.getElementById("gameCanvas");
         canvas?.focus();
         world = new World(canvas);
@@ -63,6 +64,7 @@ class ScreenManager {
         rewardPopup.hide();
         this.hideScreen("endScreen");
         this.showScreen("gameScreen");
+        scheduleGameStageLayoutSync();
         document.getElementById("gameCanvas")?.focus();
         world.reset();
         world.start();

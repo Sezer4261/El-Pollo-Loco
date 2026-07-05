@@ -6,7 +6,9 @@
  */
 function filterCollectedCoins(character, coins) {
     return coins.filter((coin) => {
-        if (coin.collected || !character.isColliding(coin)) return !coin.collected;
+        if (coin.collected) return false;
+        if (!character.isColliding(coin)) return true;
+        if (coin.requiresJump && !character.isAboveGround()) return true;
         const pickedUp = character.collectCoin();
         if (!pickedUp) return true;
         coin.collected = true;

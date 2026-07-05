@@ -21,6 +21,7 @@ class Coin extends MovableObject {
         this.width = 72;
         this.height = 72;
         this.offset = { top: 10, left: 10, right: 10, bottom: 10 };
+        this.requiresJump = y < COIN_JUMP_COLLECT_MAX_Y;
         this.frames = this.loadImages(Coin.FRAMES);
         this.img = this.frames[0];
         this.frameIndex = 0;
