@@ -246,7 +246,7 @@ class Character extends MovableObject {
         if (this.isDead || !this.canThrow || this.bottleBar < 20) return null;
         this.bottleBar = Math.max(0, this.bottleBar - 20);
         this.canThrow = false;
-        setTimeout(() => { this.canThrow = true; }, 500);
+        setTimeout(() => { this.canThrow = true; }, BOTTLE_THROW_COOLDOWN_MS);
         return this.createThrownBottle();
     }
 

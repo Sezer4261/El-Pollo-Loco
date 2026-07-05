@@ -50,7 +50,7 @@ function separateBossFromPlayer(boss, character) {
     clampEndbossLevelBounds(boss, character);
     if (boss.isAttacking) {
         setEndbossAttackPhase(boss, "chase");
-        boss.nextAttackTime = performance.now() + 150;
+        boss.nextAttackTime = performance.now();
         return;
     }
     boss.isAttacking = false;
@@ -68,7 +68,7 @@ function separateBossFromPlayer(boss, character) {
 function resolveBossBeakHit(collisions, character, boss, now) {
     if (!boss.isAttacking || boss.attackPhase !== "peck") return;
     if (boss.beakHitDealt) return;
-    if (boss.frameIndex < 3 || boss.frameIndex > 6) return;
+    if (boss.frameIndex < 2 || boss.frameIndex > 7) return;
     if (boss.isDead || character.isDead || character.currentState === "hurt") return;
     if (!isPlayerInBeakRange(boss, character)) return;
     character.takeDamage(ENDBOSS_BEAK_DAMAGE);
@@ -94,6 +94,6 @@ function resolveBossCharacterHit(collisions, character, boss, now) {
     character.takeDamage(ENDBOSS_CONTACT_DAMAGE);
     collisions.world.lastEnemyHit = now;
     separateBossFromPlayer(boss, character);
-    boss.contactCooldownUntil = bossNow + 600;
-    boss.nextAttackTime = bossNow + 150;
+    boss.contactCooldownUntil = bossNow + 450;
+    boss.nextAttackTime = bossNow;
 }

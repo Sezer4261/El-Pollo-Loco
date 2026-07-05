@@ -4,10 +4,11 @@
  * @param {Character} character - Player character.
  */
 function tryStartEndbossAttack(boss, character) {
-    if (boss.isAttacking || boss.isHurt || boss.isDead || boss.isAlert) return;
+    if (boss.isAttacking || boss.isHurt || boss.isDead) return;
     if (!isPlayerInBossArena(character, boss)) return;
     const now = performance.now();
     if (now < boss.nextAttackTime) return;
+    boss.isAlert = false;
     boss.isAttacking = true;
     setEndbossAttackPhase(boss, "chase");
 }
@@ -56,8 +57,8 @@ function setEndbossAttackPhase(boss, phase) {
 function launchEndbossRetreatJump(boss, character) {
     const away = -getEndbossTowardPlayer(boss, character);
     const dist = getEndbossPlayerDistance(boss, character);
-    boss.speedY = -18 - Math.min(8, dist / 80);
-    boss.speedX = away * Math.min(13, 7 + dist / 60);
+    boss.speedY = -22 - Math.min(10, dist / 70);
+    boss.speedX = away * Math.min(16, 9 + dist / 45);
     boss.isJumping = true;
     boss.retreatJumpStarted = true;
     boss.direction = away;
@@ -78,7 +79,7 @@ function updateEndbossPeck(boss, now, onComplete) {
         return;
     }
     if (boss.currentState !== "attack") boss.setState("attack");
-    if (now - boss.lastAnimTime >= 70) {
+    if (now - boss.lastAnimTime >= 55) {
         if (boss.frameIndex < frames.length - 1) {
             boss.frameIndex++;
             boss.img = frames[boss.frameIndex];
@@ -87,11 +88,15 @@ function updateEndbossPeck(boss, now, onComplete) {
         }
         boss.lastAnimTime = now;
     }
-    if (boss.frameIndex >= 2 && boss.frameIndex <= 5) {
+    if (boss.frameIndex >= 2 && boss.frameIndex <= 6) {
         const dir = boss.otherDirection ? 1 : -1;
-        boss.x += dir * 2.4;
+        boss.x += dir * 3.6;
     }
-    if (boss.attackAnimDone || now - boss.attackPhaseStart > 720) onComplete();
+    if (boss.beakHitDealt && boss.frameIndex >= 4) {
+        onComplete();
+        return;
+    }
+    if (boss.attackAnimDone || now - boss.attackPhaseStart > 580) onComplete();
 }
 
 
@@ -104,10 +109,10 @@ function updateEndbossPeck(boss, now, onComplete) {
 function isPlayerInBeakRange(boss, character) {
     const dir = boss.otherDirection ? 1 : -1;
     const beak = {
-        x: dir > 0 ? boss.x + boss.width * 0.5 : boss.x + boss.width * 0.06,
-        y: boss.y + boss.height * 0.55,
-        w: boss.width * 0.4,
-        h: boss.height * 0.3
+        x: dir > 0 ? boss.x + boss.width * 0.42 : boss.x,
+        y: boss.y + boss.height * 0.48,
+        w: boss.width * 0.52,
+        h: boss.height * 0.34
     };
     const player = character.getHitBox();
     return player.x < beak.x + beak.w && player.x + player.w > beak.x &&
@@ -129,8 +134,8 @@ function updateEndbossAttack(boss, character) {
     switch (boss.attackPhase) {
         case "chase":
             boss.direction = toward;
-            boss.x += toward * 7.4;
-            if (dist < 230 && isEndbossOnGround(boss) && !boss.isJumping) {
+            boss.x += toward * ENDBOSS_CHASE_SPEED;
+            if (dist < ENDBOSS_PECK_RANGE && isEndbossOnGround(boss) && !boss.isJumping) {
                 setEndbossAttackPhase(boss, "peck");
             }
             break;

@@ -9,6 +9,7 @@ class WorldCollisions {
     constructor(world) {
         this.world = world;
         this.manager = world.collisionManager;
+        this.spaceWasDown = false;
     }
 
 
@@ -28,7 +29,13 @@ class WorldCollisions {
      */
     checkThrowInput() {
         const char = this.world.character;
-        if (!keyboard.SPACE || char.isDead) return;
+        const spaceDown = keyboard.SPACE;
+        if (!spaceDown) {
+            this.spaceWasDown = false;
+            return;
+        }
+        if (this.spaceWasDown || char.isDead) return;
+        this.spaceWasDown = true;
         const bottle = char.throwBottle();
         if (!bottle) return;
         this.world.throwables.push(bottle);

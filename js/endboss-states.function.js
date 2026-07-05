@@ -3,11 +3,15 @@
  * @param {Endboss} boss - Endboss instance.
  * @param {number} now - Current timestamp.
  */
-function clearEndbossTimedStates(boss, now) {
+function clearEndbossTimedStates(boss, character, now) {
     if (boss.isHurt && now > boss.hurtEndTime) {
         boss.isHurt = false;
         boss.setState("walk");
         boss.nextAttackTime = now;
+        if (character && isPlayerInBossArena(character, boss)) {
+            boss.isAttacking = true;
+            setEndbossAttackPhase(boss, "chase");
+        }
     }
     if (boss.isAlert && now > boss.alertEndTime) {
         boss.isAlert = false;
@@ -25,6 +29,7 @@ function clearEndbossTimedStates(boss, now) {
  */
 function activateEndbossAlert(boss, character, now) {
     if (boss.isHurt || boss.isAttacking) return;
+    if (isPlayerInBossArena(character, boss)) return;
     const dist = getEndbossPlayerDistance(boss, character);
     if (dist >= 720) {
         boss.hasAlerted = false;
@@ -33,6 +38,6 @@ function activateEndbossAlert(boss, character, now) {
     if (boss.hasAlerted) return;
     boss.isAlert = true;
     boss.hasAlerted = true;
-    boss.alertEndTime = now + 400;
+    boss.alertEndTime = now + 250;
     boss.setState("alert");
 }

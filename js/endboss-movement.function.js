@@ -98,7 +98,7 @@ function updateEndbossPatrol(boss, character) {
     const chase = isPlayerInBossArena(character, boss);
     if (chase) {
         boss.direction = getEndbossTowardPlayer(boss, character);
-        boss.x += boss.direction * 5.5;
+        boss.x += boss.direction * ENDBOSS_PATROL_CHASE_SPEED;
         tryStartEndbossAttack(boss, character);
         return;
     }

@@ -2,8 +2,8 @@
  * Endboss chicken with alert, attack and hurt states.
  */
 class Endboss extends MovableObject {
-    health = 120;
-    maxHealth = 120;
+    health = 140;
+    maxHealth = 140;
     isDead = false;
     isHurt = false;
     isAlert = false;
@@ -25,6 +25,7 @@ class Endboss extends MovableObject {
     nextJumpTime = 0;
     nextAttackTime = 0;
     contactCooldownUntil = 0;
+    staggerCooldownUntil = 0;
     direction = -1;
     isAttacking = false;
     attackPhase = null;
@@ -158,7 +159,7 @@ class Endboss extends MovableObject {
      */
     updateStates(character) {
         const now = performance.now();
-        clearEndbossTimedStates(this, now);
+        clearEndbossTimedStates(this, character, now);
         activateEndbossAlert(this, character, now);
     }
 
@@ -195,14 +196,20 @@ class Endboss extends MovableObject {
     takeDamage(amount) {
         if (this.isDead) return;
         this.health = Math.max(0, this.health - amount);
+        const now = performance.now();
+        if (now < this.staggerCooldownUntil) {
+            if (this.health <= 0) this.die();
+            return;
+        }
+        this.staggerCooldownUntil = now + ENDBOSS_STAGGER_COOLDOWN_MS;
         this.isHurt = true;
-        this.isAttacking = false;
-        this.attackPhase = null;
+        if (!this.isAttacking) this.isAttacking = true;
+        this.attackPhase = "chase";
         this.isJumping = false;
         this.jumpAttackStarted = false;
         this.retreatJumpStarted = false;
         this.speedX = 0;
-        this.hurtEndTime = performance.now() + 600;
+        this.hurtEndTime = now + ENDBOSS_HURT_MS;
         this.setState("hurt");
         if (this.health <= 0) this.die();
     }

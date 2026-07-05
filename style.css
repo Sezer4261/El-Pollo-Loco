@@ -273,9 +273,9 @@ body {
 .game-screen__stage {
     position: relative;
     container-type: inline-size;
-    --bar-icon-size: clamp(18px, 5cqw, 28px);
-    --bar-track-width: clamp(52px, 15cqw, 110px);
-    --bar-track-height: clamp(10px, 2.5cqw, 16px);
+    --bar-icon-size: clamp(18px, calc(100cqw * 0.052), 28px);
+    --bar-track-width: clamp(58px, calc(100cqw * 0.155), 118px);
+    --bar-track-height: clamp(10px, calc(100cqw * 0.021), 17px);
     width: min(
         100%,
         var(--game-max-width),
@@ -806,8 +806,8 @@ body {
     }
 
     .game-screen {
-        justify-content: flex-start;
-        align-items: stretch;
+        justify-content: flex-end;
+        align-items: center;
         gap: 0;
         --game-stage-max-height: calc(
             100dvh - var(--touch-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom)
@@ -815,17 +815,17 @@ body {
     }
 
     .game-screen__stage {
-        width: 100%;
-        flex: 1 1 0;
+        width: min(100%, calc(var(--game-stage-max-height) * 3 / 2));
+        flex: 0 0 auto;
         min-height: 0;
         max-width: 100%;
-        max-height: none;
+        max-height: var(--game-stage-max-height);
         height: auto;
-        aspect-ratio: unset;
+        aspect-ratio: var(--game-aspect);
         border-radius: 0;
-        --bar-icon-size: clamp(14px, 3.8cqw, 28px);
-        --bar-track-width: clamp(32px, 14cqw, 110px);
-        --bar-track-height: clamp(7px, 2.8cqw, 14px);
+        --bar-icon-size: clamp(17px, calc(100cqw * 0.05), 26px);
+        --bar-track-width: clamp(54px, calc(100cqw * 0.148), 112px);
+        --bar-track-height: clamp(9px, calc(100cqw * 0.02), 16px);
     }
 
     .game-screen__hud-overlay {
@@ -858,12 +858,16 @@ body {
     #gameCanvas {
         border-radius: 0;
         border: none;
+        width: 100%;
+        height: 100%;
+        aspect-ratio: var(--game-aspect);
     }
 
     .touch-controls {
         display: flex;
-        width: 100%;
+        width: min(100%, calc(var(--game-stage-max-height) * 3 / 2));
         max-width: 100%;
+        align-self: center;
     }
 }
 
@@ -904,9 +908,9 @@ body {
     }
 
     .game-screen__stage {
-        --bar-icon-size: 24px;
-        --bar-track-width: 96px;
-        --bar-track-height: 14px;
+        --bar-icon-size: 26px;
+        --bar-track-width: 106px;
+        --bar-track-height: 15px;
     }
 }
 
@@ -916,9 +920,9 @@ html:fullscreen .screen {
 
 @media (max-height: 480px) and (orientation: landscape) {
     .game-screen__stage {
-        --bar-icon-size: clamp(12px, 3.4cqw, 24px);
-        --bar-track-width: clamp(28px, 12cqw, 96px);
-        --bar-track-height: clamp(6px, 2.5cqw, 12px);
+        --bar-icon-size: clamp(16px, calc(100cqw * 0.048), 24px);
+        --bar-track-width: clamp(50px, calc(100cqw * 0.142), 100px);
+        --bar-track-height: clamp(8px, calc(100cqw * 0.019), 14px);
     }
 }
 
@@ -930,9 +934,9 @@ html:fullscreen .screen {
     }
 
     .game-screen__stage {
-        --bar-icon-size: clamp(11px, 3cqw, 20px);
-        --bar-track-width: clamp(24px, 11cqw, 84px);
-        --bar-track-height: clamp(5px, 2.2cqw, 10px);
+        --bar-icon-size: clamp(15px, calc(100cqw * 0.046), 22px);
+        --bar-track-width: clamp(48px, calc(100cqw * 0.138), 96px);
+        --bar-track-height: clamp(8px, calc(100cqw * 0.018), 13px);
     }
 
     .home-screen__actions .btn {
