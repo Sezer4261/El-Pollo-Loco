@@ -1,4 +1,26 @@
 /**
+ * Checks close contact between Pepe and a collectible.
+ * Uses a tighter player box so pickups need a real touch.
+ * @param {Character} character - Player character.
+ * @param {MovableObject} item - Collectible item.
+ * @returns {boolean} True when they truly overlap.
+ */
+function isTouchingCollectible(character, item) {
+    const c = character.getHitBox();
+    const insetX = c.w * 0.24;
+    const box = {
+        x: c.x + insetX,
+        y: c.y + c.h * 0.08,
+        w: c.w - insetX * 2,
+        h: c.h - c.h * 0.12
+    };
+    const b = item.getHitBox();
+    return box.x < b.x + b.w && box.x + box.w > b.x &&
+        box.y < b.y + b.h && box.y + box.h > b.y;
+}
+
+
+/**
  * Filters collected coins and updates the character bar.
  * @param {Character} character - Player character.
  * @param {Coin[]} coins - Coin list.
@@ -7,7 +29,7 @@
 function filterCollectedCoins(character, coins) {
     return coins.filter((coin) => {
         if (coin.collected) return false;
-        if (!character.isColliding(coin)) return true;
+        if (!isTouchingCollectible(character, coin)) return true;
         if (coin.requiresJump && !character.isAboveGround()) return true;
         const pickedUp = character.collectCoin();
         if (!pickedUp) return true;
@@ -25,7 +47,7 @@ function filterCollectedCoins(character, coins) {
  */
 function filterCollectedBottles(character, bottles) {
     return bottles.filter((bottle) => {
-        if (bottle.collected || !character.isColliding(bottle)) return !bottle.collected;
+        if (bottle.collected || !isTouchingCollectible(character, bottle)) return !bottle.collected;
         const pickedUp = character.collectBottle();
         if (!pickedUp) return true;
         bottle.collected = true;

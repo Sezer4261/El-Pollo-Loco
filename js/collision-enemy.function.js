@@ -34,34 +34,6 @@ function resolveChickenCharacterHit(collisions, character, chicken, now) {
 
 
 /**
- * Pushes the endboss away and keeps the attack loop running in the arena.
- * @param {Endboss} boss - Endboss instance.
- * @param {Character} character - Player character.
- */
-function separateBossFromPlayer(boss, character) {
-    if (boss.isAttacking) {
-        setEndbossAttackPhase(boss, "chase");
-        return;
-    }
-    const bossCenter = boss.x + boss.width / 2;
-    const playerCenter = character.x + character.width / 2;
-    const dir = bossCenter < playerCenter ? -1 : 1;
-    boss.x += dir * 20;
-    boss.speedX = 0;
-    boss.isJumping = false;
-    clampEndbossLevelBounds(boss, character);
-    if (isPlayerInBossArena(character, boss)) {
-        boss.isAttacking = true;
-        setEndbossAttackPhase(boss, "chase");
-        boss.nextAttackTime = 0;
-        return;
-    }
-    boss.isAttacking = false;
-    boss.attackPhase = null;
-}
-
-
-/**
  * Resolves endboss side collision with the character.
  * @param {WorldCollisions} collisions - Collision handler.
  * @param {Character} character - Player character.
@@ -77,13 +49,8 @@ function resolveBossCharacterHit(collisions, character, boss, now) {
     collisions.world.lastEnemyHit = now;
     audioManager.playEffect("bossHit");
     boss.contactCooldownUntil = bossNow + ENDBOSS_CONTACT_COOLDOWN_MS;
-    if (boss.isAttacking) {
-        const away = -getEndbossTowardPlayer(boss, character);
-        boss.x += away * 28;
-        clampEndbossLevelBounds(boss, character);
-        setEndbossAttackPhase(boss, "chase");
-        return;
-    }
-    separateBossFromPlayer(boss, character);
+    boss.recoverUntil = bossNow + ENDBOSS_RECOVER_MS;
+    boss.isAttacking = true;
+    setEndbossAttackPhase(boss, "chase");
     boss.nextAttackTime = 0;
 }

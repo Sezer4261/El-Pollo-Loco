@@ -26,6 +26,7 @@ class Endboss extends MovableObject {
     nextAttackTime = 0;
     contactCooldownUntil = 0;
     staggerCooldownUntil = 0;
+    recoverUntil = 0;
     direction = -1;
     isAttacking = false;
     attackPhase = null;

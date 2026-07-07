@@ -34,9 +34,12 @@ function applyEndbossGravity(boss) {
  * @param {Character} [character] - Player character for chase-aware clamping.
  */
 function clampEndbossLevelBounds(boss, character) {
-    const minX = boss.patrolLeft;
-    const maxX = boss.patrolRight - boss.width;
     const chase = character && (boss.isAttacking || isPlayerInBossArena(character, boss));
+    const reachFloor = boss.patrolLeft - ENDBOSS_CHASE_REACH;
+    const minX = chase && character
+        ? Math.max(reachFloor, Math.min(boss.patrolLeft, character.x - boss.width * 0.35))
+        : boss.patrolLeft;
+    const maxX = boss.patrolRight - boss.width;
     if (boss.x < minX) {
         boss.x = minX;
         if (boss.speedX < 0) boss.speedX = 0;

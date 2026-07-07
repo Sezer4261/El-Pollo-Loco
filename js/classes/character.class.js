@@ -219,7 +219,7 @@ class Character extends MovableObject {
         this.isDucking = false;
         this.height = CHARACTER_HEIGHT;
         this.offset = this.standingOffset;
-        this.speedY = -22;
+        this.speedY = -CHARACTER_JUMP_SPEED;
         this.y = this.getGroundY() + this.speedY;
         this.setState("jump");
         this.resetIdleTimer();
@@ -324,10 +324,27 @@ class Character extends MovableObject {
      * @param {number} now - Current timestamp.
      */
     updateAnimation(now) {
+        if (this.currentState === "jump") {
+            this.updateJumpFrame();
+            return;
+        }
         const speed = this.animationSpeeds[this.currentState] || 120;
         if (now - this.lastAnimTime < speed) return;
         this.advanceAnimationFrame();
         this.lastAnimTime = now;
+    }
+
+
+    /**
+     * Maps all jump frames to the jump arc (rise, apex, fall).
+     */
+    updateJumpFrame() {
+        const frames = this.frameLists.jump;
+        if (!frames?.length) return;
+        const progress = (this.speedY + CHARACTER_JUMP_SPEED) / (CHARACTER_JUMP_SPEED * 2);
+        const clamped = Math.max(0, Math.min(1, progress));
+        this.frameIndex = Math.round(clamped * (frames.length - 1));
+        this.img = frames[this.frameIndex];
     }
 
 

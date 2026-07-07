@@ -123,6 +123,22 @@ function getEndbossTowardPlayer(boss, character) {
 
 
 /**
+ * Runs the boss backwards away from the player during hit recovery.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {number} toward - Direction from boss to player (-1 or 1).
+ */
+function retreatEndboss(boss, toward) {
+    const away = -toward;
+    boss.direction = away;
+    boss.setState("walk");
+    if (isEndbossOnGround(boss) && !boss.isJumping) {
+        boss.x += away * ENDBOSS_RETREAT_SPEED;
+    }
+    updateEndbossFacing(boss);
+}
+
+
+/**
  * Runs toward the player and deals contact damage on touch.
  * @param {Endboss} boss - Endboss instance.
  * @param {Character} character - Player character.
@@ -131,9 +147,17 @@ function getEndbossTowardPlayer(boss, character) {
 function updateEndbossAttack(boss, character) {
     if (!boss.isAttacking) return false;
     const toward = getEndbossTowardPlayer(boss, character);
+    if (boss.recoverUntil && performance.now() < boss.recoverUntil) {
+        retreatEndboss(boss, toward);
+        return true;
+    }
     boss.direction = toward;
+    const edgeGap = getEndbossEdgeDistance(boss, character);
+    const inStrikeRange = edgeGap <= ENDBOSS_STRIKE_RANGE;
+    boss.setState(inStrikeRange ? "attack" : "walk");
     if (isEndbossOnGround(boss) && !boss.isJumping) {
-        boss.x += toward * ENDBOSS_CHASE_SPEED;
+        const speed = inStrikeRange ? ENDBOSS_STRIKE_SPEED : ENDBOSS_CHASE_SPEED;
+        boss.x += toward * speed;
     }
     updateEndbossFacing(boss);
     return true;

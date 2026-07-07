@@ -13,9 +13,9 @@ class Bottle extends MovableObject {
         super();
         this.x = x;
         this.y = y;
-        this.width = 60;
-        this.height = 60;
-        this.offset = { top: 5, left: 5, right: 5, bottom: 5 };
+        this.width = 76;
+        this.height = 76;
+        this.offset = { top: 13, left: 18, right: 18, bottom: 10 };
         this.loadImage("img/6_salsa_bottle/1_salsa_bottle_on_ground.png");
     }
 
