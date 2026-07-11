@@ -283,9 +283,19 @@ body {
 .game-screen__stage {
     position: relative;
     container-type: inline-size;
-    --bar-icon-size: clamp(30px, calc(100cqw * 0.082), 46px);
-    --bar-track-width: clamp(94px, calc(100cqw * 0.235), 178px);
-    --bar-track-height: clamp(17px, calc(100cqw * 0.034), 27px);
+    --bar-icon-size: clamp(28px, calc(100cqw * 0.072), 42px);
+    --bar-ref-h: 158;
+    --bar-sprite-w: 595;
+    --bar-sprite-pad: 35;
+    --bar-sprite-visible-w: 524;
+    --bar-sprite-top: 49;
+    --bar-sprite-h: 59;
+    --bar-track-height: calc(var(--bar-icon-size) * var(--bar-sprite-h) / var(--bar-ref-h));
+    --bar-track-width: calc(var(--bar-icon-size) * var(--bar-sprite-visible-w) / var(--bar-ref-h));
+    --bar-unified-track-left: calc(var(--bar-icon-size) * (124 - var(--bar-sprite-pad)) / var(--bar-ref-h));
+    --bar-row-width: calc(var(--bar-unified-track-left) + var(--bar-track-width));
+    --bar-sprite-shift: calc(var(--bar-icon-size) * var(--bar-sprite-pad) / var(--bar-ref-h) * -1);
+    --bar-sprite-render-w: calc(var(--bar-icon-size) * var(--bar-sprite-w) / var(--bar-ref-h));
     width: var(--stage-width);
     height: var(--stage-height);
     max-width: 100%;
@@ -359,22 +369,60 @@ body {
     max-width: 100%;
 }
 
-.game-screen__statusbars .status-bar__icon {
+.game-screen__statusbars .status-bar {
+    position: relative;
     height: var(--bar-icon-size);
+    width: var(--bar-row-width);
+    min-width: var(--bar-row-width);
+    max-width: var(--bar-row-width);
+    flex-shrink: 0;
+}
+
+.game-screen__statusbars .status-bar--health {
+    --bar-image-width: 157;
+    --bar-icon-shift: calc(var(--bar-icon-size) * (123 - 124) / var(--bar-ref-h));
+}
+
+.game-screen__statusbars .status-bar--coin {
+    --bar-image-width: 158;
+    --bar-icon-shift: 0px;
+}
+
+.game-screen__statusbars .status-bar--bottle {
+    --bar-image-width: 162;
+    --bar-icon-shift: calc(var(--bar-icon-size) * (124 - 99) / var(--bar-ref-h));
+}
+
+.game-screen__statusbars .status-bar__icon {
+    position: absolute;
+    left: var(--bar-icon-shift);
+    top: 0;
+    display: block;
+    height: var(--bar-icon-size);
+    width: calc(var(--bar-icon-size) * var(--bar-image-width) / var(--bar-ref-h));
+    object-fit: contain;
+    object-position: left top;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .game-screen__statusbars .status-bar__track {
-    position: relative;
+    position: absolute;
+    left: var(--bar-unified-track-left);
+    top: calc(var(--bar-icon-size) * var(--bar-sprite-top) / var(--bar-ref-h));
     height: var(--bar-track-height);
     width: var(--bar-track-width);
-    max-width: calc(100cqw - var(--bar-icon-size) - 4px);
+    min-width: var(--bar-track-width);
+    max-width: var(--bar-track-width);
+    overflow: hidden;
+    z-index: 1;
+    flex-shrink: 0;
 }
 
 .game-screen__statusbars .status-bar__fill {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
     height: 100%;
     overflow: hidden;
     z-index: 1;
@@ -382,44 +430,30 @@ body {
 
 .game-screen__statusbars .status-bar__bg {
     position: absolute;
-    inset: 0;
-    width: 100%;
+    top: 0;
+    left: var(--bar-sprite-shift);
+    width: var(--bar-sprite-render-w);
     height: 100%;
+    max-width: none;
+    display: block;
     object-fit: fill;
     z-index: 0;
 }
 
 .game-screen__statusbars .status-bar__fill-img {
+    position: absolute;
+    top: 0;
+    left: var(--bar-sprite-shift);
+    width: var(--bar-sprite-render-w);
     height: 100%;
-    width: 100%;
     max-width: none;
-    object-fit: fill;
     display: block;
-}
-
-.game-screen__statusbars .status-bar {
-    position: relative;
-    gap: 0;
-    width: 100%;
+    object-fit: fill;
 }
 
 .game-screen__statusbars .status-bar--health-critical .status-bar__icon {
     animation: healthIconBlink 0.6s ease-in-out infinite;
-}
-
-.game-screen__statusbars .status-bar--health-critical .status-bar__fill-img {
-    animation: healthBarRedPulse 0.6s ease-in-out infinite;
-}
-
-@keyframes healthBarRedPulse {
-    0%, 100% {
-        opacity: 1;
-        filter: sepia(1) saturate(14) hue-rotate(-38deg) brightness(1.2);
-    }
-    50% {
-        opacity: 0.35;
-        filter: sepia(1) saturate(20) hue-rotate(-45deg) brightness(1.55);
-    }
+    will-change: opacity, filter;
 }
 
 @keyframes healthIconBlink {
@@ -428,49 +462,70 @@ body {
         filter: sepia(1) saturate(12) hue-rotate(-35deg) brightness(1.1);
     }
     50% {
-        opacity: 0.35;
-        filter: sepia(1) saturate(16) hue-rotate(-42deg) brightness(1.35);
+        opacity: 0.45;
+        filter: sepia(1) saturate(16) hue-rotate(-42deg) brightness(1.25);
     }
 }
 
 .status-bar--endboss {
     pointer-events: none;
-    gap: 4px;
+    --bar-image-width: 158;
+    --bar-attach: 135;
+    --bar-track-left: calc(var(--bar-icon-size) * (var(--bar-attach) - var(--bar-sprite-pad)) / var(--bar-ref-h));
+    position: relative;
+    height: var(--bar-icon-size);
+    width: calc(var(--bar-track-left) + var(--bar-track-width));
+    max-width: 100%;
     flex: 0 1 auto;
     min-width: 0;
-    max-width: 100%;
 }
 
 .status-bar--endboss .status-bar__icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
     height: var(--bar-icon-size);
+    width: calc(var(--bar-icon-size) * var(--bar-image-width) / var(--bar-ref-h));
+    object-fit: contain;
+    object-position: left top;
+    z-index: 2;
 }
 
 .status-bar--endboss .status-bar__track {
-    position: relative;
+    position: absolute;
+    left: var(--bar-track-left);
+    top: calc(var(--bar-icon-size) * var(--bar-sprite-top) / var(--bar-ref-h));
     width: var(--bar-track-width);
-    max-width: calc(100cqw - var(--bar-icon-size) - 4px);
+    min-width: var(--bar-track-width);
+    max-width: var(--bar-track-width);
     height: var(--bar-track-height);
     overflow: hidden;
     border: 2px solid rgba(255, 255, 255, 0.85);
-    border-radius: 6px;
+    border-radius: 999px;
     background: rgba(0, 0, 0, 0.35);
+    z-index: 1;
 }
 
 .status-bar--endboss .status-bar__fill {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
     height: 100%;
     overflow: hidden;
     z-index: 1;
 }
 
+.status-bar--endboss .status-bar__bg,
 .status-bar--endboss .status-bar__fill-img {
+    position: absolute;
+    top: 0;
+    left: var(--bar-sprite-shift);
+    width: var(--bar-sprite-render-w);
     height: 100%;
     max-width: none;
-    object-fit: fill;
     display: block;
+    object-fit: fill;
 }
 
 .status-bar--endboss.status-bar--endboss-hit {
@@ -854,8 +909,8 @@ body {
         min-height: 0;
         border-radius: 0;
         --bar-icon-size: clamp(27px, calc(100cqw * 0.079), 40px);
-        --bar-track-width: clamp(88px, calc(100cqw * 0.225), 166px);
-        --bar-track-height: clamp(16px, calc(100cqw * 0.032), 25px);
+        --bar-track-height: calc(var(--bar-icon-size) * var(--bar-sprite-h) / var(--bar-ref-h));
+        --bar-track-width: calc(var(--bar-icon-size) * var(--bar-sprite-visible-w) / var(--bar-ref-h));
     }
 
     .game-screen__hud-overlay {
@@ -1027,8 +1082,8 @@ body {
 
     .game-screen__stage {
         --bar-icon-size: 42px;
-        --bar-track-width: 164px;
-        --bar-track-height: 24px;
+        --bar-track-width: calc(var(--bar-icon-size) * var(--bar-sprite-visible-w) / var(--bar-ref-h));
+        --bar-track-height: calc(var(--bar-icon-size) * var(--bar-sprite-h) / var(--bar-ref-h));
     }
 }
 
@@ -1039,8 +1094,8 @@ html:fullscreen .screen {
 @media (max-height: 480px) and (orientation: landscape) {
     .game-screen__stage {
         --bar-icon-size: clamp(25px, calc(100cqw * 0.075), 37px);
-        --bar-track-width: clamp(82px, calc(100cqw * 0.215), 152px);
-        --bar-track-height: clamp(15px, calc(100cqw * 0.031), 23px);
+        --bar-track-width: calc(var(--bar-icon-size) * var(--bar-sprite-visible-w) / var(--bar-ref-h));
+        --bar-track-height: calc(var(--bar-icon-size) * var(--bar-sprite-h) / var(--bar-ref-h));
     }
 }
 
@@ -1053,8 +1108,8 @@ html:fullscreen .screen {
 
     .game-screen__stage {
         --bar-icon-size: clamp(24px, calc(100cqw * 0.072), 34px);
-        --bar-track-width: clamp(80px, calc(100cqw * 0.205), 148px);
-        --bar-track-height: clamp(14px, calc(100cqw * 0.03), 22px);
+        --bar-track-width: calc(var(--bar-icon-size) * var(--bar-sprite-visible-w) / var(--bar-ref-h));
+        --bar-track-height: calc(var(--bar-icon-size) * var(--bar-sprite-h) / var(--bar-ref-h));
     }
 
     .home-screen__actions .btn {

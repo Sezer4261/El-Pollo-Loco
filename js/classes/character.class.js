@@ -16,7 +16,7 @@ class Character extends MovableObject {
     frameIndex = 0;
     lastAnimTime = 0;
     idleStartTime = performance.now();
-    animationSpeeds = { idle: 120, longIdle: 150, walk: 90, jump: 80, duck: 200, hurt: 120, dead: 200 };
+    animationSpeeds = { idle: 120, longIdle: 150, walk: 90, jump: 130, duck: 200, hurt: 120, dead: 200 };
     standingOffset = { top: 30, left: 20, right: 20, bottom: 10 };
     duckOffset = { top: 8, left: 20, right: 20, bottom: 5 };
 
@@ -235,6 +235,7 @@ class Character extends MovableObject {
         if (this.currentState === state) return;
         this.currentState = state;
         this.frameIndex = 0;
+        if (state === "jump") this.lastAnimTime = performance.now();
     }
 
 
@@ -325,7 +326,7 @@ class Character extends MovableObject {
      */
     updateAnimation(now) {
         if (this.currentState === "jump") {
-            this.updateJumpFrame();
+            this.updateJumpFrame(now);
             return;
         }
         const speed = this.animationSpeeds[this.currentState] || 120;
@@ -336,14 +337,22 @@ class Character extends MovableObject {
 
 
     /**
-     * Maps all jump frames to the jump arc (rise, apex, fall).
+     * Maps jump frames to the arc with eased, rate-limited transitions.
+     * @param {number} now - Current timestamp.
      */
-    updateJumpFrame() {
+    updateJumpFrame(now) {
         const frames = this.frameLists.jump;
         if (!frames?.length) return;
-        const progress = (this.speedY + CHARACTER_JUMP_SPEED) / (CHARACTER_JUMP_SPEED * 2);
-        const clamped = Math.max(0, Math.min(1, progress));
-        this.frameIndex = Math.round(clamped * (frames.length - 1));
+        const physicsProgress = (this.speedY + CHARACTER_JUMP_SPEED) / (CHARACTER_JUMP_SPEED * 2);
+        const clamped = Math.max(0, Math.min(1, physicsProgress));
+        const eased = clamped * clamped * (3 - 2 * clamped);
+        const targetIndex = Math.round(eased * (frames.length - 1));
+        const frameHold = this.animationSpeeds.jump;
+        if (now - this.lastAnimTime >= frameHold) {
+            if (this.frameIndex < targetIndex) this.frameIndex++;
+            else if (this.frameIndex > targetIndex) this.frameIndex--;
+            this.lastAnimTime = now;
+        }
         this.img = frames[this.frameIndex];
     }
 

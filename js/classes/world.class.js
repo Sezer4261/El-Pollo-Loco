@@ -19,6 +19,8 @@ class World {
     isRunning = false;
     gameEnded = false;
     lastEnemyHit = 0;
+    layerDriftOffsets = {};
+    backgroundsReady = false;
 
     /**
      * Creates the game world on the given canvas.
@@ -49,17 +51,54 @@ class World {
         this.cameraX = 0;
         this.lastEnemyHit = 0;
         this.gameEnded = false;
+        this.initLayerDriftOffsets();
+        this.backgroundsReady = false;
     }
 
 
     /**
-     * Starts the game loop and music.
+     * Resets auto-scroll offsets for drifting background layers.
+     */
+    initLayerDriftOffsets() {
+        this.layerDriftOffsets = {};
+        BACKGROUND_LAYER_GROUPS.forEach((group, layerId) => {
+            if (group.driftSpeed) this.layerDriftOffsets[layerId] = 0;
+        });
+    }
+
+
+    /**
+     * Advances endless background drifts such as moving clouds.
+     */
+    updateBackgroundDrift() {
+        const h = this.canvas.height;
+        BACKGROUND_LAYER_GROUPS.forEach((group, layerId) => {
+            if (!group.driftSpeed) return;
+            const refImg = this.backgrounds.find((tile) => tile.layerId === layerId)?.img;
+            const tileWorldW = group.tileWidth || refImg?.naturalWidth || 1920;
+            const scale = refImg?.naturalHeight ? h / refImg.naturalHeight : 1;
+            const wrap = tileWorldW * scale;
+            let next = (this.layerDriftOffsets[layerId] || 0) + group.driftSpeed;
+            if (wrap > 0) next %= wrap;
+            this.layerDriftOffsets[layerId] = next;
+        });
+    }
+
+
+    /**
+     * Starts the game loop and music after backgrounds are ready.
      */
     start() {
         this.isRunning = true;
         this.gameEnded = false;
-        audioManager.startGameMusic();
+        this.backgroundsReady = false;
+        this.clearCanvas();
         this.draw();
+        preloadGameAssets(this.backgrounds, this.endboss).then(() => {
+            if (!this.isRunning) return;
+            this.backgroundsReady = true;
+            audioManager.startGameMusic();
+        });
     }
 
 
@@ -87,6 +126,11 @@ class World {
      */
     draw() {
         if (!this.isRunning) return;
+        if (!this.backgroundsReady) {
+            this.clearCanvas();
+            requestAnimationFrame(() => this.draw());
+            return;
+        }
         this.updateEntities();
         this.updateGameState();
         this.clearAndDraw();
@@ -98,10 +142,19 @@ class World {
      * Updates all entities each frame.
      */
     updateEntities() {
+        this.updateBackgroundDrift();
         this.character.update();
         this.updateCamera();
-        this.chickens.forEach((c) => c.update());
-        this.chickens = this.chickens.filter((c) => !hasChickenLeftLevel(c));
+        if (shouldClearChickensForBoss(this.character, this.endboss)) {
+            this.chickens = [];
+        } else {
+            this.chickens.forEach((c) => c.update());
+            this.chickens = this.chickens.filter((c) => {
+                if (hasChickenLeftLevel(c)) return false;
+                if (shouldRemoveChickenBeforeBoss(c, this.level.endbossLeft, !this.endboss.isDead)) return false;
+                return true;
+            });
+        }
         this.endboss.update(this.character, this.cameraX, this.canvas.width);
         this.coins.forEach((c) => c.animate(performance.now()));
         this.throwables.forEach((t) => t.update());
@@ -137,7 +190,7 @@ class World {
     drawBackgroundScreenSpace() {
         const w = this.canvas.width;
         const h = this.canvas.height;
-        drawBackgroundLayers(this.ctx, this.backgrounds, this.cameraX, w, h);
+        drawBackgroundLayers(this.ctx, this.backgrounds, this.cameraX, w, h, this.layerDriftOffsets);
     }
 
 

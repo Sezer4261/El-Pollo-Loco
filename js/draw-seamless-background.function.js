@@ -16,14 +16,16 @@ function getBackgroundScale(h, img) {
  * @param {number} screenX - Destination X position.
  * @param {number} h - Canvas height.
  * @param {number} [srcWidth] - Source crop width in image pixels.
+ * @param {number} [srcY] - Source crop top in image pixels.
+ * @param {number} [srcCropH] - Source crop height in image pixels.
+ * @param {number} [seamOverlap] - Extra destination width to hide tile seams.
  */
-function drawAspectBackgroundTile(ctx, img, screenX, h, srcWidth) {
+function drawAspectBackgroundTile(ctx, img, screenX, h, srcWidth, srcY = 0, srcCropH = 0, seamOverlap = 0) {
     const scale = getBackgroundScale(h, img);
     const cropW = srcWidth ?? img.naturalWidth;
-    const drawW = cropW * scale;
-    const destX = Math.floor(screenX);
-    const destW = Math.ceil(screenX + drawW) - destX + BACKGROUND_SEAM_OVERLAP;
-    ctx.drawImage(img, 0, 0, cropW, img.naturalHeight, destX, 0, destW, h);
+    const cropH = srcCropH > 0 ? srcCropH : img.naturalHeight - srcY;
+    const destW = cropW * scale + seamOverlap;
+    ctx.drawImage(img, 0, srcY, cropW, cropH, screenX, srcY * scale, destW, cropH * scale);
 }
 
 
@@ -39,11 +41,11 @@ function drawSkyLayer(ctx, backgrounds, w, h) {
     const img = sky?.img;
     if (!img?.complete || !img.naturalWidth) return;
     const scale = getBackgroundScale(h, img);
-    const drawW = img.naturalWidth * scale;
+    const tileScreenW = img.naturalWidth * scale;
     const first = -2;
-    const last = Math.ceil(w / drawW) + 2;
+    const last = Math.ceil(w / tileScreenW) + 2;
     for (let i = first; i <= last; i++) {
-        drawAspectBackgroundTile(ctx, img, i * drawW, h);
+        drawAspectBackgroundTile(ctx, img, i * tileScreenW, h);
     }
 }
 
@@ -55,8 +57,9 @@ function drawSkyLayer(ctx, backgrounds, w, h) {
  * @param {number} cam - Camera X offset.
  * @param {number} w - Canvas width.
  * @param {number} h - Canvas height.
+ * @param {number} [driftOffset] - Auto-scroll offset for drifting layers.
  */
-function drawSeamlessParallaxLayer(ctx, tiles, cam, w, h) {
+function drawSeamlessParallaxLayer(ctx, tiles, cam, w, h, driftOffset = 0) {
     if (!tiles.length) return;
     const frameA = tiles[0];
     const frameB = tiles[1] || tiles[0];
@@ -65,32 +68,22 @@ function drawSeamlessParallaxLayer(ctx, tiles, cam, w, h) {
     const srcTileW = frameA.tileWorldWidth || refImg.naturalWidth;
     const scale = getBackgroundScale(h, refImg);
     const tileScreenW = srcTileW * scale;
-    const parallaxCam = cam * frameA.speedFactor;
-    const first = Math.floor(parallaxCam / tileScreenW) - 2;
-    const last = Math.ceil((parallaxCam + w) / tileScreenW) + 2;
+    const speed = frameA.speedFactor ?? 1;
+    const parallaxScroll = cam * speed * scale;
+    const driftScroll = driftOffset;
+    const scrollX = parallaxScroll + driftScroll;
+    const usesAlternatingFrames = frameB.img !== frameA.img;
+    if (usesAlternatingFrames && (!frameB.img?.complete || !frameB.img.naturalWidth)) return;
+    const first = Math.floor(scrollX / tileScreenW) - 3;
+    const last = Math.ceil((scrollX + w) / tileScreenW) + 3;
     for (let i = first; i <= last; i++) {
-        drawSeamlessParallaxTile(ctx, i, tileScreenW, parallaxCam, frameA, frameB, h, srcTileW);
+        const tileIndex = ((i % 2) + 2) % 2;
+        const frame = usesAlternatingFrames && tileIndex === 1 ? frameB : frameA;
+        const img = frame.img;
+        if (!img?.complete || !img.naturalWidth) continue;
+        const screenX = i * tileScreenW - scrollX;
+        drawAspectBackgroundTile(ctx, img, screenX, h, srcTileW, frame.srcY ?? 0, frame.srcCropH ?? 0, BACKGROUND_SEAM_OVERLAP);
     }
-}
-
-
-/**
- * Draws a single tiled parallax frame.
- * @param {CanvasRenderingContext2D} ctx - Canvas context.
- * @param {number} index - Tile index.
- * @param {number} tileScreenW - Tile width on screen.
- * @param {number} parallaxCam - Parallax camera offset.
- * @param {BackgroundObject} frameA - First frame tile.
- * @param {BackgroundObject} frameB - Second frame tile.
- * @param {number} h - Canvas height.
- * @param {number} srcTileW - Source crop width in image pixels.
- */
-function drawSeamlessParallaxTile(ctx, index, tileScreenW, parallaxCam, frameA, frameB, h, srcTileW) {
-    const frame = index % 2 === 0 ? frameA : frameB;
-    const img = frame.img;
-    if (!img?.complete) return;
-    const screenX = index * tileScreenW - parallaxCam;
-    drawAspectBackgroundTile(ctx, img, screenX, h, srcTileW);
 }
 
 
@@ -101,12 +94,16 @@ function drawSeamlessParallaxTile(ctx, index, tileScreenW, parallaxCam, frameA, 
  * @param {number} cam - Camera X offset.
  * @param {number} w - Canvas width.
  * @param {number} h - Canvas height.
+ * @param {Record<number, number>} [layerDrifts] - Auto-scroll offsets per layer.
  */
-function drawBackgroundLayers(ctx, backgrounds, cam, w, h) {
+function drawBackgroundLayers(ctx, backgrounds, cam, w, h, layerDrifts = {}) {
     drawSkyLayer(ctx, backgrounds, w, h);
-    BACKGROUND_LAYER_GROUPS.forEach((group, layerId) => {
-        if (group.isSky) return;
+    const parallaxDrawOrder = [2, 1];
+    parallaxDrawOrder.forEach((layerId) => {
+        const group = BACKGROUND_LAYER_GROUPS[layerId];
+        if (!group || group.isSky) return;
         const tiles = backgrounds.filter((tile) => tile.layerId === layerId);
-        drawSeamlessParallaxLayer(ctx, tiles, cam, w, h);
+        const drift = group.driftSpeed ? (layerDrifts[layerId] || 0) : 0;
+        drawSeamlessParallaxLayer(ctx, tiles, cam, w, h, drift);
     });
 }

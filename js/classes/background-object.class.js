@@ -7,6 +7,8 @@ class BackgroundObject extends DrawableObject {
     isSky = false;
     layerId = 0;
     tileWorldWidth = 0;
+    srcY = 0;
+    srcCropH = 0;
 
     /**
      * Creates a background tile.
@@ -22,5 +24,7 @@ class BackgroundObject extends DrawableObject {
         this.isSky = config.isSky ?? false;
         this.layerId = config.layerId ?? 0;
         this.tileWorldWidth = config.tileWidth ?? 0;
+        this.srcY = config.srcY ?? 0;
+        this.srcCropH = config.srcCropH ?? 0;
     }
 }

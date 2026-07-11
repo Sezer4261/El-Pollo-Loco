@@ -34,31 +34,31 @@
         <div class="game-screen__stage">
             <div class="game-screen__hud-overlay" aria-hidden="false">
                 <div class="game-screen__statusbars">
-                    <div class="status-bar">
-                        <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
+                <div class="status-bar status-bar--health">
+                    <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health.png" alt="">
                         <div class="status-bar__track" role="img" aria-label="Leben">
                             <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
-                            <div id="healthBar" class="status-bar__fill" style="width: 100%;">
-                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
-                            </div>
+                        <div id="healthBar" class="status-bar__fill">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
                         </div>
                     </div>
-                    <div class="status-bar">
-                        <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
+                <div class="status-bar status-bar--coin">
+                    <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_coin.png" alt="">
                         <div class="status-bar__track" role="img" aria-label="Münzen">
                             <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
-                            <div id="coinBar" class="status-bar__fill" style="width: 0%;">
-                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
-                            </div>
+                        <div id="coinBar" class="status-bar__fill" style="width: 0%;">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
                         </div>
                     </div>
-                    <div class="status-bar">
-                        <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+                <div class="status-bar status-bar--bottle">
+                    <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
                         <div class="status-bar__track" role="img" aria-label="Flaschen">
                             <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
-                            <div id="bottleBar" class="status-bar__fill" style="width: 0%;">
-                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
-                            </div>
+                        <div id="bottleBar" class="status-bar__fill" style="width: 0%;">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -67,9 +67,9 @@
                         <img class="status-bar__icon" src="img/7_statusbars/3_icons/icon_health_endboss.png" alt="">
                         <div class="status-bar__track" role="img" aria-label="Endboss Leben">
                             <img class="status-bar__bg" src="img/7_statusbars/4_bar_elements/statusbar_empty.png" alt="">
-                            <div id="endbossBar" class="status-bar__fill" style="width: 100%;">
-                                <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
-                            </div>
+                        <div id="endbossBar" class="status-bar__fill">
+                            <img class="status-bar__fill-img" src="img/7_statusbars/4_bar_elements/statusbar_green.png" alt="">
+                        </div>
                         </div>
                     </div>
                     <div class="game-screen__hud-actions">
@@ -161,6 +161,7 @@
     <script src="js/world-draw.function.js"></script>
     <script src="js/create-backgrounds.function.js"></script>
     <script src="js/draw-seamless-background.function.js"></script>
+    <script src="js/preload-background-images.function.js"></script>
     <script src="js/collision-throwable.function.js"></script>
     <script src="js/collision-enemy.function.js"></script>
     <script src="js/collision-collectibles.function.js"></script>

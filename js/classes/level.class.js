@@ -35,9 +35,11 @@ class Level {
      * @returns {Chicken[]} Chicken array.
      */
     createChickens() {
-        return this.enemyData.map(
-            (e) => new Chicken(e.x, e.direction, e.small)
-        );
+        return this.enemyData.map((enemy) => {
+            const chicken = new Chicken(enemy.x, enemy.direction, enemy.small);
+            chicken.marchMaxX = this.endbossLeft;
+            return chicken;
+        });
     }
 
 

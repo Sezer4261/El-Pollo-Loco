@@ -107,10 +107,11 @@ class StatusBar {
         if (!el) return;
         const clamped = Math.max(0, Math.min(100, percent));
         const color = colorOverride || getBarColor(clamped);
-        el.style.width = "100%";
+        el.style.width = clamped + "%";
+        el.style.left = "0";
         const fillImg = el.querySelector(".status-bar__fill-img");
         if (fillImg) {
-            fillImg.style.width = clamped + "%";
+            fillImg.style.width = "";
             fillImg.src = StatusBar.FILL_PATHS[color] || StatusBar.FILL_PATHS.green;
         }
     }
