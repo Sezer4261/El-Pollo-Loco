@@ -25,7 +25,7 @@ class Chicken extends MovableObject {
         this.width = small ? 66 : 98;
         this.height = small ? 64 : 96;
         this.y = getGroundYForHeight(this.height);
-        this.speed = small ? 2.8 : 2.4;
+        this.speed = small ? CHICKEN_SPEED_SMALL : CHICKEN_SPEED_NORMAL;
         this.offset = { top: 5, left: 5, right: 5, bottom: 5 };
         this.loadFrames();
     }

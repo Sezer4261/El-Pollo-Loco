@@ -125,7 +125,7 @@ function updateEndbossPatrol(boss, character) {
         tryStartEndbossAttack(boss, character);
         return;
     }
-    boss.x += boss.direction * 1.4;
+    boss.x += boss.direction * ENDBOSS_PATROL_SPEED;
     if (boss.x <= boss.patrolLeft) boss.direction = 1;
     if (boss.x + boss.width >= boss.patrolRight) boss.direction = -1;
 }

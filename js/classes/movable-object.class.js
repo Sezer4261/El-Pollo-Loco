@@ -1,4 +1,3 @@
-const GRAVITY = 1.8;
 const LOW_THROW_Y = GROUND_Y + Math.round(CHARACTER_HEIGHT * 0.85);
 
 /**

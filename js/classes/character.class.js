@@ -15,6 +15,7 @@ class Character extends MovableObject {
     frameLists = {};
     frameIndex = 0;
     lastAnimTime = 0;
+    prevSpeedY = 0;
     idleStartTime = performance.now();
     animationSpeeds = { idle: 120, longIdle: 150, walk: 90, jump: 130, duck: 200, hurt: 120, dead: 200 };
     standingOffset = { top: 30, left: 20, right: 20, bottom: 10 };
@@ -90,6 +91,7 @@ class Character extends MovableObject {
             this.updateAnimation(performance.now());
             return;
         }
+        this.prevSpeedY = this.speedY;
         this.applyGravity();
         if (this.currentState !== "hurt") this.handleMovement();
         clampCharacterLevelBounds(this);
@@ -117,13 +119,13 @@ class Character extends MovableObject {
     applyDuckMovement(kb) {
         this.resetIdleTimer();
         if (kb.LEFT) {
-            this.x -= 3;
+            this.x -= CHARACTER_DUCK_SPEED;
             this.otherDirection = true;
             this.setState("walk");
             return;
         }
         if (kb.RIGHT) {
-            this.x += 3;
+            this.x += CHARACTER_DUCK_SPEED;
             this.otherDirection = false;
             this.setState("walk");
             return;
@@ -157,12 +159,12 @@ class Character extends MovableObject {
      */
     applyAirMovement(kb) {
         if (kb.LEFT) {
-            this.x -= 5;
+            this.x -= CHARACTER_WALK_SPEED;
             this.otherDirection = true;
             return;
         }
         if (kb.RIGHT) {
-            this.x += 5;
+            this.x += CHARACTER_WALK_SPEED;
             this.otherDirection = false;
         }
     }
@@ -193,7 +195,7 @@ class Character extends MovableObject {
      * Moves Pepe left.
      */
     moveLeft() {
-        this.x -= 5;
+        this.x -= CHARACTER_WALK_SPEED;
         this.otherDirection = true;
         this.resetIdleTimer();
         this.setState("walk");
@@ -204,7 +206,7 @@ class Character extends MovableObject {
      * Moves Pepe right.
      */
     moveRight() {
-        this.x += 5;
+        this.x += CHARACTER_WALK_SPEED;
         this.otherDirection = false;
         this.resetIdleTimer();
         this.setState("walk");
@@ -221,8 +223,21 @@ class Character extends MovableObject {
         this.offset = this.standingOffset;
         this.speedY = -CHARACTER_JUMP_SPEED;
         this.y = this.getGroundY() + this.speedY;
-        this.setState("jump");
+        this.currentState = "jump";
+        this.beginJumpAnimation();
         this.resetIdleTimer();
+    }
+
+
+    /**
+     * Starts the jump sprite sequence from the first frame.
+     */
+    beginJumpAnimation() {
+        const now = performance.now();
+        this.lastAnimTime = now;
+        this.frameIndex = 0;
+        const jumpFrames = this.frameLists.jump;
+        if (jumpFrames?.length) this.img = jumpFrames[0];
     }
 
 
@@ -235,7 +250,7 @@ class Character extends MovableObject {
         if (this.currentState === state) return;
         this.currentState = state;
         this.frameIndex = 0;
-        if (state === "jump") this.lastAnimTime = performance.now();
+        if (state === "jump") this.beginJumpAnimation();
     }
 
 
@@ -337,23 +352,17 @@ class Character extends MovableObject {
 
 
     /**
-     * Maps jump frames to the arc with eased, rate-limited transitions.
-     * @param {number} now - Current timestamp.
+     * Plays all jump frames in order over the current jump duration.
      */
     updateJumpFrame(now) {
         const frames = this.frameLists.jump;
         if (!frames?.length) return;
-        const physicsProgress = (this.speedY + CHARACTER_JUMP_SPEED) / (CHARACTER_JUMP_SPEED * 2);
-        const clamped = Math.max(0, Math.min(1, physicsProgress));
-        const eased = clamped * clamped * (3 - 2 * clamped);
-        const targetIndex = Math.round(eased * (frames.length - 1));
-        const frameHold = this.animationSpeeds.jump;
-        if (now - this.lastAnimTime >= frameHold) {
-            if (this.frameIndex < targetIndex) this.frameIndex++;
-            else if (this.frameIndex > targetIndex) this.frameIndex--;
-            this.lastAnimTime = now;
+        if (now - this.lastAnimTime < CHARACTER_JUMP_FRAME_MS) return;
+        if (this.frameIndex < frames.length - 1) {
+            this.frameIndex++;
+            this.img = frames[this.frameIndex];
         }
-        this.img = frames[this.frameIndex];
+        this.lastAnimTime = now;
     }
 
 

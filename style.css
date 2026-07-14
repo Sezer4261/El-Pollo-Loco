@@ -170,6 +170,13 @@ body {
     cursor: pointer;
 }
 
+.home-screen__mute {
+    position: absolute;
+    top: clamp(4px, 1.5cqw, 12px);
+    right: clamp(44px, 8cqw, 56px);
+    z-index: 2;
+}
+
 .home-screen__fullscreen {
     position: absolute;
     top: clamp(4px, 1.5cqw, 12px);

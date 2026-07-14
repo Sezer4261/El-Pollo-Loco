@@ -1,9 +1,21 @@
 /**
+ * Updates mute button icons across home and game screens.
+ * @param {boolean} muted - Whether audio is muted.
+ */
+function updateMuteButtonIcons(muted) {
+    const icon = muted ? "🔇" : "🔊";
+    document.querySelectorAll("#muteButton, #homeMuteButton").forEach((button) => {
+        button.textContent = icon;
+        button.setAttribute("aria-pressed", String(muted));
+    });
+}
+
+
+/**
  * Restores mute button icon from local storage.
  */
 function applySavedMuteState() {
-    const muted = localStorage.getItem("gameMuted") === "true";
-    document.getElementById("muteButton").textContent = muted ? "🔇" : "🔊";
+    updateMuteButtonIcons(localStorage.getItem("gameMuted") === "true");
 }
 
 

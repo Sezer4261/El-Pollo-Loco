@@ -19,6 +19,9 @@ class ScreenManager {
         document.getElementById("muteButton").addEventListener("click", () => {
             this.toggleMute();
         });
+        document.getElementById("homeMuteButton").addEventListener("click", () => {
+            this.toggleMute();
+        });
     }
 
 
@@ -106,8 +109,7 @@ class ScreenManager {
      * Toggles mute and updates button icon.
      */
     toggleMute() {
-        const muted = audioManager.toggleMute();
-        document.getElementById("muteButton").textContent = muted ? "🔇" : "🔊";
+        updateMuteButtonIcons(audioManager.toggleMute());
     }
 
 }

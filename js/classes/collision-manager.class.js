@@ -12,7 +12,9 @@ class CollisionManager {
     isStomp(character, enemy) {
         if (enemy.isDead) return false;
         if (!character.isColliding(enemy)) return false;
-        if (character.speedY <= 0) return false;
+        const isFalling = character.speedY > 0;
+        const justLanded = character.speedY === 0 && character.prevSpeedY > 0;
+        if (!isFalling && !justLanded) return false;
         const charBox = character.getHitBox();
         const enemyBox = enemy.getHitBox();
         const charBottom = charBox.y + charBox.h;

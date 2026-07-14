@@ -174,6 +174,9 @@ class Endboss extends MovableObject {
         if (this.currentState === state) return;
         this.currentState = state;
         this.frameIndex = 0;
+        this.lastAnimTime = performance.now();
+        const frames = this.frameLists[state];
+        if (frames?.length) this.img = frames[0];
     }
 
 
@@ -184,6 +187,7 @@ class Endboss extends MovableObject {
     updateAnimation(now) {
         if (now - this.lastAnimTime < 150) return;
         const frames = this.frameLists[this.currentState] || this.frameLists.walk;
+        if (!frames?.length) return;
         this.frameIndex = (this.frameIndex + 1) % frames.length;
         this.img = frames[this.frameIndex];
         this.lastAnimTime = now;
@@ -233,6 +237,18 @@ class Endboss extends MovableObject {
         this.currentState = "dead";
         this.img = this.frameLists.dead[0];
         this.lastAnimTime = performance.now();
+    }
+
+
+    /**
+     * Returns no hitbox when the endboss is defeated.
+     * @returns {{x: number, y: number, w: number, h: number}} Hitbox.
+     */
+    getHitBox() {
+        if (this.isDead) {
+            return { x: this.x, y: this.y, w: 0, h: 0 };
+        }
+        return super.getHitBox();
     }
 
 

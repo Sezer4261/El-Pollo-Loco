@@ -139,6 +139,21 @@ function retreatEndboss(boss, toward) {
 
 
 /**
+ * Returns whether the endboss should use the attack animation.
+ * Hysteresis prevents walk/attack flicker near the strike boundary.
+ * @param {Endboss} boss - Endboss instance.
+ * @param {number} edgeGap - Horizontal gap to the player.
+ * @returns {boolean} True when attack animation should play.
+ */
+function isEndbossInStrikeRange(boss, edgeGap) {
+    if (boss.currentState === "attack") {
+        return edgeGap <= ENDBOSS_STRIKE_RANGE_EXIT;
+    }
+    return edgeGap <= ENDBOSS_STRIKE_RANGE;
+}
+
+
+/**
  * Runs toward the player and deals contact damage on touch.
  * @param {Endboss} boss - Endboss instance.
  * @param {Character} character - Player character.
@@ -153,7 +168,7 @@ function updateEndbossAttack(boss, character) {
     }
     boss.direction = toward;
     const edgeGap = getEndbossEdgeDistance(boss, character);
-    const inStrikeRange = edgeGap <= ENDBOSS_STRIKE_RANGE;
+    const inStrikeRange = isEndbossInStrikeRange(boss, edgeGap);
     boss.setState(inStrikeRange ? "attack" : "walk");
     if (isEndbossOnGround(boss) && !boss.isJumping) {
         const speed = inStrikeRange ? ENDBOSS_STRIKE_SPEED : ENDBOSS_CHASE_SPEED;

@@ -44,12 +44,12 @@ class ThrowableObject extends MovableObject {
     applyThrowSpeed(facingLeft, throwType) {
         const dir = facingLeft ? -1 : 1;
         if (throwType === "low") {
-            this.speedX = dir * 18;
+            this.speedX = dir * BOTTLE_THROW_SPEED_X_LOW;
             this.speedY = 0;
             return;
         }
-        this.speedX = dir * 11;
-        this.speedY = -20;
+        this.speedX = dir * BOTTLE_THROW_SPEED_X;
+        this.speedY = BOTTLE_THROW_SPEED_Y;
     }
 
 

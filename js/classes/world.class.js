@@ -21,6 +21,7 @@ class World {
     lastEnemyHit = 0;
     layerDriftOffsets = {};
     backgroundsReady = false;
+    lastLogicUpdate = 0;
 
     /**
      * Creates the game world on the given canvas.
@@ -92,8 +93,9 @@ class World {
         this.isRunning = true;
         this.gameEnded = false;
         this.backgroundsReady = false;
+        this.lastLogicUpdate = 0;
         this.clearCanvas();
-        this.draw();
+        requestAnimationFrame((time) => this.draw(time));
         preloadGameAssets(this.backgrounds, this.endboss).then(() => {
             if (!this.isRunning) return;
             this.backgroundsReady = true;
@@ -124,17 +126,22 @@ class World {
     /**
      * Main draw loop.
      */
-    draw() {
+    draw(now = 0) {
         if (!this.isRunning) return;
+        if (!now) now = performance.now();
         if (!this.backgroundsReady) {
             this.clearCanvas();
-            requestAnimationFrame(() => this.draw());
+            requestAnimationFrame((time) => this.draw(time));
             return;
         }
-        this.updateEntities();
-        this.updateGameState();
+        const logicInterval = 1000 / TARGET_FPS;
+        if (!this.lastLogicUpdate || now - this.lastLogicUpdate >= logicInterval) {
+            this.lastLogicUpdate = now;
+            this.updateEntities();
+            this.updateGameState();
+        }
         this.clearAndDraw();
-        requestAnimationFrame(() => this.draw());
+        requestAnimationFrame((time) => this.draw(time));
     }
 
 

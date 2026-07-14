@@ -10,7 +10,10 @@ function resolveChickenStomp(collisions, character, chicken) {
     if (chicken.isDead || character.isDead) return false;
     if (!collisions.manager.isStomp(character, chicken)) return false;
     collisions.defeatChicken(chicken);
-    character.speedY = -8;
+    character.speedY = -STOMP_BOUNCE_SPEED;
+    character.currentState = "jump";
+    character.beginJumpAnimation();
+    collisions.world.lastEnemyHit = Date.now();
     audioManager.playEffect("hit");
     return true;
 }
@@ -44,7 +47,7 @@ function resolveBossCharacterHit(collisions, character, boss, now) {
     if (boss.isDead || character.isDead || character.currentState === "hurt") return;
     const bossNow = performance.now();
     if (boss.contactCooldownUntil && bossNow < boss.contactCooldownUntil) return;
-    if (!character.isColliding(boss)) return;
+    if (!collisions.manager.isSideHit(character, boss)) return;
     character.takeDamage(ENDBOSS_CONTACT_DAMAGE);
     collisions.world.lastEnemyHit = now;
     audioManager.playEffect("bossHit");
