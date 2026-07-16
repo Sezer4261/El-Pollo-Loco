@@ -397,7 +397,7 @@ body {
 
 .game-screen__statusbars .status-bar--bottle {
     --bar-image-width: 162;
-    --bar-icon-shift: calc(var(--bar-icon-size) * (124 - 99) / var(--bar-ref-h));
+    --bar-icon-shift: calc(var(--bar-icon-size) * (99 - 124) / var(--bar-ref-h));
 }
 
 .game-screen__statusbars .status-bar__icon {
@@ -1094,8 +1094,25 @@ body {
     }
 }
 
+html:fullscreen {
+    --screen-padding: 8px;
+    --game-max-width: min(
+        calc(100vw - var(--screen-padding) * 2 - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)),
+        calc((100dvh - var(--screen-padding) * 2) * 1.5)
+    );
+}
+
 html:fullscreen .screen {
-    padding: 8px;
+    padding: var(--screen-padding);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    html:fullscreen {
+        --game-max-width: min(
+            calc(100vw - var(--screen-padding) * 2),
+            calc((100dvh - var(--screen-padding) * 2) * 1.5)
+        );
+    }
 }
 
 @media (max-height: 480px) and (orientation: landscape) {
