@@ -20,9 +20,7 @@ class Character extends MovableObject {
     animationSpeeds = { idle: 120, longIdle: 150, walk: 90, jump: 130, duck: 200, hurt: 120, dead: 200 };
     standingOffset = { top: 30, left: 20, right: 20, bottom: 10 };
     duckOffset = { top: 8, left: 20, right: 20, bottom: 5 };
-    /**
-     * Creates Pepe at the start position.
-     */
+    /** Creates Pepe at the start position. */
     constructor() {
         super();
         this.x = 80;
@@ -33,31 +31,15 @@ class Character extends MovableObject {
         this.loadAnimations();
         this.img = this.frameLists.idle[0];
     }
-    /**
-     * Loads all Pepe animation frame lists.
-     */
+    /** Loads all Pepe animation frame lists. */
     loadAnimations() {
-        CHARACTER_FRAME_CONFIG.forEach((config) => {
-            this.frameLists[config.key] = buildFrames(config.basePath, config.start, config.end);
-        });
+        CHARACTER_FRAME_CONFIG.forEach((config) => this.frameLists[config.key] = buildFrames(config.basePath, config.start, config.end));
     }
-    /**
-     * Returns the Y coordinate where this character stands.
-     * @returns {number} Ground Y for the current height.
-     */
-    getGroundY() {
-        return getGroundYForHeight(this.height);
-    }
-    /**
-     * Returns true when the character is above the ground line.
-     * @returns {boolean} Above ground state.
-     */
-    isAboveGround() {
-        return this.y < this.getGroundY() - 1;
-    }
-    /**
-     * Applies gravity using the ground line for the current pose.
-     */
+    /** @returns {number} Ground Y for the current height. */
+    getGroundY() { return getGroundYForHeight(this.height); }
+    /** @returns {boolean} Above ground state. */
+    isAboveGround() { return this.y < this.getGroundY() - 1; }
+    /** Applies gravity using the ground line for the current pose. */
     applyGravity() {
         const groundY = this.getGroundY();
         if (!this.isAboveGround()) return this.landOnGround(groundY);
@@ -65,17 +47,12 @@ class Character extends MovableObject {
         this.y += this.speedY;
         if (this.y >= groundY && this.speedY >= 0) this.landOnGround(groundY);
     }
-    /**
-     * Snaps Pepe back to the ground line.
-     * @param {number} groundY - Ground Y position.
-     */
+    /** @param {number} groundY - Ground Y position. */
     landOnGround(groundY) {
         this.y = groundY;
         this.speedY = 0;
     }
-    /**
-     * Updates physics, movement, and animation.
-     */
+    /** Updates physics, movement, and animation. */
     update() {
         if (this.isDead) return this.updateAnimation(performance.now());
         this.prevSpeedY = this.speedY;
@@ -84,47 +61,31 @@ class Character extends MovableObject {
         clampCharacterLevelBounds(this);
         this.updateAnimation(performance.now());
     }
-    /**
-     * Handles keyboard movement and idle timer.
-     */
+    /** Handles keyboard movement and idle timer. */
     handleMovement() {
         const kb = keyboard;
         if (this.isAboveGround()) return handleCharacterAirMovement(this, kb);
         handleCharacterGroundMovement(this, kb);
     }
-    /**
-     * Applies duck walk left or right.
-     * @param {Keyboard} kb - Keyboard state.
-     * @returns {boolean} True when movement happened.
-     */
+    /** @param {Keyboard} kb - Keyboard state. @returns {boolean} True when movement happened. */
     tryDuckWalk(kb) {
         if (kb.LEFT) return this.stepDuckWalk(-1);
         if (kb.RIGHT) return this.stepDuckWalk(1);
         return false;
     }
-    /**
-     * Moves Pepe while duck-walking.
-     * @param {number} direction - Horizontal direction.
-     * @returns {boolean} Always true after moving.
-     */
+    /** @param {number} direction - Horizontal direction. @returns {boolean} Always true after moving. */
     stepDuckWalk(direction) {
         this.x += direction * CHARACTER_DUCK_SPEED;
         this.otherDirection = direction < 0;
         this.setState("walk");
         return true;
     }
-    /**
-     * Moves Pepe while ducking on the ground.
-     * @param {Keyboard} kb - Keyboard state.
-     */
+    /** @param {Keyboard} kb - Keyboard state. */
     applyDuckMovement(kb) {
         this.resetIdleTimer();
         if (!this.tryDuckWalk(kb)) this.setState("duck");
     }
-    /**
-     * Applies the proper size and hitbox for ducking.
-     * @param {boolean} ducking - Whether Pepe is ducking.
-     */
+    /** @param {boolean} ducking - Whether Pepe is ducking. */
     applyDuckSize(ducking) {
         if (ducking) {
             this.height = CHARACTER_DUCK_HEIGHT;
@@ -134,68 +95,45 @@ class Character extends MovableObject {
         this.height = CHARACTER_HEIGHT;
         this.offset = this.standingOffset;
     }
-    /**
-     * Switches between standing and ducking size and hitbox.
-     * @param {boolean} ducking - Whether Pepe is ducking.
-     */
+    /** @param {boolean} ducking - Whether Pepe is ducking. */
     applyDuckPose(ducking) {
         this.applyDuckSize(ducking);
         if (!ducking && !this.isAboveGround()) this.y = this.getGroundY();
     }
-    /**
-     * Allows left or right movement while jumping.
-     * @param {Keyboard} kb - Keyboard state.
-     */
+    /** @param {Keyboard} kb - Keyboard state. */
     applyAirMovement(kb) {
         if (kb.LEFT) return this.moveAir(-1);
         if (kb.RIGHT) this.moveAir(1);
     }
-    /**
-     * Moves Pepe horizontally in the air.
-     * @param {number} direction - Horizontal direction.
-     */
+    /** @param {number} direction - Horizontal direction. */
     moveAir(direction) {
         this.x += direction * CHARACTER_WALK_SPEED;
         this.otherDirection = direction < 0;
     }
-    /**
-     * Sets idle or long idle after 15 seconds.
-     */
+    /** Sets idle or long idle after 15 seconds. */
     handleIdleState() {
         const idleMs = performance.now() - this.idleStartTime;
         const nextState = idleMs >= 15000 ? "longIdle" : "idle";
-        if (nextState === "longIdle" && this.currentState !== "longIdle") {
-            audioManager.playEffect("snore");
-        }
+        if (nextState === "longIdle" && this.currentState !== "longIdle") audioManager.playEffect("snore");
         this.setState(nextState);
     }
-    /**
-     * Resets the idle sleep timer.
-     */
-    resetIdleTimer() {
-        this.idleStartTime = performance.now();
-    }
-    /**
-     * Moves Pepe left.
-     */
+    /** Resets the idle sleep timer. */
+    resetIdleTimer() { this.idleStartTime = performance.now(); }
+    /** Moves Pepe left. */
     moveLeft() {
         this.x -= CHARACTER_WALK_SPEED;
         this.otherDirection = true;
         this.resetIdleTimer();
         this.setState("walk");
     }
-    /**
-     * Moves Pepe right.
-     */
+    /** Moves Pepe right. */
     moveRight() {
         this.x += CHARACTER_WALK_SPEED;
         this.otherDirection = false;
         this.resetIdleTimer();
         this.setState("walk");
     }
-    /**
-     * Makes Pepe jump.
-     */
+    /** Makes Pepe jump. */
     jump() {
         if (this.isAboveGround()) return;
         this.isDucking = false;
@@ -207,9 +145,7 @@ class Character extends MovableObject {
         this.beginJumpAnimation();
         this.resetIdleTimer();
     }
-    /**
-     * Starts the jump sprite sequence from the first frame.
-     */
+    /** Starts the jump sprite sequence from the first frame. */
     beginJumpAnimation() {
         const now = performance.now();
         this.lastAnimTime = now;
@@ -217,10 +153,7 @@ class Character extends MovableObject {
         const jumpFrames = this.frameLists.jump;
         if (jumpFrames?.length) this.img = jumpFrames[0];
     }
-    /**
-     * Switches animation state.
-     * @param {string} state - State name.
-     */
+    /** @param {string} state - State name. */
     setState(state) {
         if (this.isDead && state !== "dead") return;
         if (this.currentState === state) return;
@@ -228,10 +161,7 @@ class Character extends MovableObject {
         this.frameIndex = 0;
         if (state === "jump") this.beginJumpAnimation();
     }
-    /**
-     * Advances animation frames.
-     * @param {number} now - Current timestamp.
-     */
+    /** @param {number} now - Current timestamp. */
     updateAnimation(now) {
         if (this.currentState === "jump") return this.updateJumpFrame(now);
         const speed = this.animationSpeeds[this.currentState] || 120;
@@ -239,10 +169,7 @@ class Character extends MovableObject {
         this.advanceAnimationFrame();
         this.lastAnimTime = now;
     }
-    /**
-     * Plays all jump frames in order over the jump duration.
-     * @param {number} now - Current timestamp.
-     */
+    /** @param {number} now - Current timestamp. */
     updateJumpFrame(now) {
         const frames = this.frameLists.jump;
         if (!frames?.length || now - this.lastAnimTime < CHARACTER_JUMP_FRAME_MS) return;
@@ -252,9 +179,7 @@ class Character extends MovableObject {
         }
         this.lastAnimTime = now;
     }
-    /**
-     * Moves to the next animation frame.
-     */
+    /** Moves to the next animation frame. */
     advanceAnimationFrame() {
         const frames = this.frameLists[this.currentState];
         if (!frames?.length) return;
@@ -262,19 +187,12 @@ class Character extends MovableObject {
         this.frameIndex = this.getNextFrameIndex(frames.length);
         this.img = frames[this.frameIndex];
     }
-    /**
-     * Returns the next animation frame index.
-     * @param {number} frameCount - Number of frames.
-     * @returns {number} Next frame index.
-     */
+    /** @param {number} frameCount - Number of frames. @returns {number} Next frame index. */
     getNextFrameIndex(frameCount) {
         if (this.currentState === "dead") return Math.min(this.frameIndex + 1, frameCount - 1);
         return (this.frameIndex + 1) % frameCount;
     }
-    /**
-     * Throws a bottle if available.
-     * @returns {ThrowableObject|null} Thrown bottle or null.
-     */
+    /** @returns {ThrowableObject|null} Thrown bottle or null. */
     throwBottle() {
         if (this.isDead || !this.canThrow || this.bottleBar < 20) return null;
         this.bottleBar = Math.max(0, this.bottleBar - 20);
@@ -282,20 +200,14 @@ class Character extends MovableObject {
         setTimeout(() => { this.canThrow = true; }, BOTTLE_THROW_COOLDOWN_MS);
         return this.createThrownBottle();
     }
-    /**
-     * Creates a thrown bottle at the correct position.
-     * @returns {ThrowableObject} Thrown bottle instance.
-     */
+    /** @returns {ThrowableObject} Thrown bottle instance. */
     createThrownBottle() {
         const throwType = getCharacterThrowType(this);
         const x = getCharacterThrowX(this);
         const y = getCharacterThrowY(this);
         return new ThrowableObject(x, y, this.otherDirection, throwType);
     }
-    /**
-     * Grants one bonus bottle and shows the reward popup.
-     * @returns {boolean} True when a bottle was granted.
-     */
+    /** @returns {boolean} True when a bottle was granted. */
     grantBonusBottle() {
         if (this.bottleBar >= 100) return false;
         this.bottleBar = Math.min(100, this.bottleBar + 20);
@@ -303,10 +215,7 @@ class Character extends MovableObject {
         rewardPopup.show();
         return true;
     }
-    /**
-     * Collects a coin and updates the coin bar.
-     * @returns {boolean} True when the coin was collected.
-     */
+    /** @returns {boolean} True when the coin was collected. */
     collectCoin() {
         if (this.coinBar >= 100) return false;
         const wasFull = this.coinBar >= 90;
@@ -317,34 +226,24 @@ class Character extends MovableObject {
         audioManager.playEffect("coin");
         return true;
     }
-    /**
-     * Applies health bonus when the coin bar is full.
-     */
+    /** Applies health bonus when the coin bar is full. */
     applyCoinHealthBonus() {
         if (this.coinBar < 100) return;
         this.health = Math.min(this.maxHealth, this.health + 20);
     }
-    /**
-     * Registers a defeated enemy and grants a bottle every 5 kills.
-     */
+    /** Registers a defeated enemy and grants a bottle every 5 kills. */
     registerEnemyDefeated() {
         this.enemiesDefeated++;
         if (this.enemiesDefeated % 5 === 0) this.grantBonusBottle();
     }
-    /**
-     * Collects a ground bottle.
-     * @returns {boolean} True when the bottle was collected.
-     */
+    /** @returns {boolean} True when the bottle was collected. */
     collectBottle() {
         if (this.bottleBar >= 100) return false;
         this.bottleBar = Math.min(100, this.bottleBar + 20);
         audioManager.playEffect("bottle");
         return true;
     }
-    /**
-     * Applies damage to Pepe.
-     * @param {number} amount - Damage amount.
-     */
+    /** @param {number} amount - Damage amount. */
     takeDamage(amount) {
         if (this.isDead) return;
         this.health = Math.max(0, this.health - amount);
@@ -352,9 +251,7 @@ class Character extends MovableObject {
         if (this.health <= 0) this.die();
         else this.playHurt();
     }
-    /**
-     * Plays hurt animation briefly.
-     */
+    /** Plays hurt animation briefly. */
     playHurt() {
         audioManager.playEffect("hurt");
         this.isDucking = false;
@@ -362,19 +259,67 @@ class Character extends MovableObject {
         this.setState("hurt");
         setTimeout(() => this.resetFromHurt(), 800);
     }
-    /**
-     * Resets Pepe after the hurt animation.
-     */
+    /** Resets Pepe after the hurt animation. */
     resetFromHurt() {
         if (this.isDead || this.currentState !== "hurt") return;
         this.setState("idle");
         this.img = this.frameLists.idle[0];
     }
-    /**
-     * Marks Pepe as dead.
-     */
+    /** Marks Pepe as dead. */
     die() {
         this.isDead = true;
         this.setState("dead");
     }
+}
+/** Clamps Pepe inside the level bounds. @param {Character} character - Player character. */
+function clampCharacterLevelBounds(character) {
+    if (character.x < LEVEL_MIN_X) character.x = LEVEL_MIN_X;
+    const maxX = LEVEL_WIDTH - character.width;
+    if (character.x > maxX) character.x = maxX;
+}
+/** @param {number} entityHeight - Entity height. @returns {number} Top Y coordinate. */
+function getGroundYForHeight(entityHeight) { return CANVAS_GROUND_Y - entityHeight; }
+/** Clears duck pose when Pepe leaves the ground. @param {Character} character - Player character. */
+function clearCharacterDuckInAir(character) {
+    if (!character.isDucking) return;
+    character.isDucking = false;
+    character.height = CHARACTER_HEIGHT;
+    character.offset = character.standingOffset;
+}
+/** Handles Pepe movement while jumping. @param {Character} character - Player character. @param {Keyboard} kb - Keyboard state. */
+function handleCharacterAirMovement(character, kb) {
+    clearCharacterDuckInAir(character);
+    character.resetIdleTimer();
+    character.applyAirMovement(kb);
+    character.setState("jump");
+}
+/** Applies standing walk or idle on the ground. @param {Character} character - Player character. @param {Keyboard} kb - Keyboard state. */
+function applyCharacterStandingMove(character, kb) {
+    character.isDucking = false;
+    character.applyDuckPose(false);
+    if (kb.LEFT) character.moveLeft();
+    else if (kb.RIGHT) character.moveRight();
+    else character.handleIdleState();
+}
+/** Handles Pepe movement on the ground. @param {Character} character - Player character. @param {Keyboard} kb - Keyboard state. */
+function handleCharacterGroundMovement(character, kb) {
+    if (kb.UP) return character.jump();
+    if (kb.DOWN) {
+        character.isDucking = true;
+        character.applyDuckPose(true);
+        return character.applyDuckMovement(kb);
+    }
+    applyCharacterStandingMove(character, kb);
+}
+/** @param {Character} character - Player character. @returns {string} Throw type. */
+function getCharacterThrowType(character) { return character.isDucking ? "low" : "high"; }
+/** @param {Character} character - Player character. @returns {number} Throw start Y position. */
+function getCharacterThrowY(character) {
+    if (character.isDucking) return ThrowableObject.getLowThrowY();
+    return character.y + 25;
+}
+/** @param {Character} character - Player character. @returns {number} Throw start X position. */
+function getCharacterThrowX(character) {
+    if (character.otherDirection) return character.x + 10;
+    return character.x + character.width - 10;
 }

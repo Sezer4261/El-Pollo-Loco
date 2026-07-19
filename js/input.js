@@ -1,4 +1,15 @@
 /**
+ * Handles keyboard input state for the game.
+ */
+class Keyboard {
+    LEFT = false;
+    RIGHT = false;
+    UP = false;
+    DOWN = false;
+    SPACE = false;
+}
+
+/**
  * Resolves a keyboard event to a game action name.
  * @param {KeyboardEvent} event - Keyboard event.
  * @returns {string|undefined} Action name or undefined.

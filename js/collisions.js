@@ -195,3 +195,125 @@ function registerThrownBottle(collisions, bottle) {
     collisions.world.throwables.push(bottle);
     audioManager.playEffect("throw");
 }
+
+/**
+ * Handles collision detection with offset hitboxes.
+ */
+class CollisionManager {
+    /**
+     * Checks if character stomps enemy from above.
+     * @param {Character} character - Player character.
+     * @param {MovableObject} enemy - Enemy object.
+     * @returns {boolean} True when stomp is valid.
+     */
+    isStomp(character, enemy) {
+        if (enemy.isDead || !character.isColliding(enemy)) return false;
+        const isFalling = character.speedY > 0;
+        const justLanded = character.speedY === 0 && character.prevSpeedY > 0;
+        if (!isFalling && !justLanded) return false;
+        const charBottom = character.getHitBox().y + character.getHitBox().h;
+        const enemyBox = enemy.getHitBox();
+        const stompZone = enemyBox.y + Math.min(28, enemyBox.h * 0.45);
+        return charBottom <= stompZone;
+    }
+
+    /**
+     * Checks side collision causing character damage.
+     * @param {Character} character - Player character.
+     * @param {MovableObject} enemy - Enemy object.
+     * @returns {boolean} True when side hit occurs.
+     */
+    isSideHit(character, enemy) {
+        return !enemy.isDead && character.isColliding(enemy) && !this.isStomp(character, enemy);
+    }
+
+    /**
+     * Checks side collision with endboss.
+     * @param {Character} character - Player character.
+     * @param {Endboss} boss - Endboss instance.
+     * @returns {boolean} True when boss damages character.
+     */
+    isBossSideHit(character, boss) {
+        return this.isSideHit(character, boss);
+    }
+}
+
+/**
+ * Handles all collision checks for the game world.
+ */
+class WorldCollisions {
+    /**
+     * Creates collision handler for a world instance.
+     * @param {World} world - Game world reference.
+     */
+    constructor(world) {
+        this.world = world;
+        this.manager = world.collisionManager;
+        this.spaceWasDown = false;
+    }
+
+    /**
+     * Runs all collision checks each frame.
+     */
+    processAll() {
+        this.checkThrowInput();
+        this.checkThrowableHits();
+        this.checkCharacterEnemyHits();
+        this.checkCollectibles();
+    }
+
+    /**
+     * Handles bottle throw input.
+     */
+    checkThrowInput() {
+        const char = this.world.character;
+        if (!keyboard.SPACE) return resetThrowLatch(this);
+        if (this.spaceWasDown || char.isDead) return;
+        this.spaceWasDown = true;
+        const bottle = char.throwBottle();
+        if (!bottle) return;
+        registerThrownBottle(this, bottle);
+    }
+
+    /**
+     * Resolves thrown bottle collisions.
+     */
+    checkThrowableHits() {
+        this.world.throwables.forEach((obj) => {
+            if (!obj.isActive) return;
+            this.world.chickens.forEach((chicken) => resolveBottleChickenHit(this, obj, chicken));
+            resolveBottleBossHit(obj, this.world.endboss);
+        });
+    }
+
+    /**
+     * Resolves character and enemy collisions.
+     */
+    checkCharacterEnemyHits() {
+        const now = Date.now();
+        const char = this.world.character;
+        this.world.chickens.forEach((chicken) => resolveChickenStomp(this, char, chicken));
+        if (now - this.world.lastEnemyHit < 800) return;
+        this.world.chickens.forEach((chicken) => resolveChickenCharacterHit(this, char, chicken, now));
+        resolveBossCharacterHit(this, char, this.world.endboss, now);
+    }
+
+    /**
+     * Defeats a chicken and tracks kill milestones.
+     * @param {Chicken} chicken - Chicken to defeat.
+     */
+    defeatChicken(chicken) {
+        if (chicken.isDead) return;
+        chicken.die();
+        this.world.character.registerEnemyDefeated();
+    }
+
+    /**
+     * Checks coin and bottle collection.
+     */
+    checkCollectibles() {
+        const char = this.world.character;
+        this.world.coins = filterCollectedCoins(char, this.world.coins);
+        this.world.bottles = filterCollectedBottles(char, this.world.bottles);
+    }
+}
