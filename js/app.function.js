@@ -2,9 +2,9 @@ const GAME_LAYOUT_MAX_WIDTH = 720;
 const GAME_LAYOUT_ASPECT = 3 / 2;
 
 /**
- * Returns the usable content box of the game screen (without padding).
+ * Returns the usable content box of the game screen.
  * @param {HTMLElement} gameScreen - Game screen container.
- * @returns {{width: number, height: number}} Content box size in pixels.
+ * @returns {{width:number,height:number}} Content box size.
  */
 function getGameScreenContentBox(gameScreen) {
     const styles = getComputedStyle(gameScreen);
@@ -16,22 +16,20 @@ function getGameScreenContentBox(gameScreen) {
     };
 }
 
-
 /**
- * Max stage width: uncapped in fullscreen so the game fills the display.
+ * Returns the maximum stage width.
  * @returns {number} Max width in pixels.
  */
 function getGameLayoutMaxWidth() {
     return document.fullscreenElement ? Number.POSITIVE_INFINITY : GAME_LAYOUT_MAX_WIDTH;
 }
 
-
 /**
- * Fits a 3:2 stage inside the available box without overflowing either axis.
+ * Fits a 3:2 stage inside the available box.
  * @param {number} availableWidth - Usable width in pixels.
  * @param {number} availableHeight - Usable height in pixels.
- * @param {number} [maxWidth] - Optional width cap (defaults via getGameLayoutMaxWidth).
- * @returns {{width: number, height: number}} Stage size in pixels.
+ * @param {number} [maxWidth] - Optional width cap.
+ * @returns {{width:number,height:number}} Stage size in pixels.
  */
 function fitStageSize(availableWidth, availableHeight, maxWidth = getGameLayoutMaxWidth()) {
     let width = Math.min(availableWidth, availableHeight * GAME_LAYOUT_ASPECT, maxWidth);
@@ -45,10 +43,8 @@ function fitStageSize(availableWidth, availableHeight, maxWidth = getGameLayoutM
     return { width, height };
 }
 
-
 /**
- * Returns the vertical space the touch bar reserves in normal flow.
- * Overlay controls (absolute/fixed) reserve no space.
+ * Returns the vertical space reserved by touch controls.
  * @param {HTMLElement|null} touchControls - Touch controls element.
  * @returns {number} Reserved height in pixels.
  */
@@ -60,9 +56,8 @@ function getReservedTouchHeight(touchControls) {
     return touchControls.offsetHeight;
 }
 
-
 /**
- * Syncs the game stage to a uniform 3:2 size across browsers and devices.
+ * Syncs the game stage to a uniform 3:2 size.
  */
 function syncGameStageLayout() {
     const gameScreen = document.getElementById("gameScreen");
@@ -74,7 +69,6 @@ function syncGameStageLayout() {
     applyStageSize(gameScreen, fitStageSize(box.width, availableHeight));
 }
 
-
 /**
  * Returns true when the game screen exists and is visible.
  * @param {HTMLElement|null} gameScreen - Game screen element.
@@ -84,17 +78,15 @@ function isVisibleGameScreen(gameScreen) {
     return !!gameScreen && !gameScreen.classList.contains("screen--hidden");
 }
 
-
 /**
  * Applies the computed stage size to CSS variables.
  * @param {HTMLElement} gameScreen - Game screen container.
- * @param {{width: number, height: number}} size - Stage size.
+ * @param {{width:number,height:number}} size - Stage size.
  */
 function applyStageSize(gameScreen, size) {
     gameScreen.style.setProperty("--stage-width", `${size.width}px`);
     gameScreen.style.setProperty("--stage-height", `${size.height}px`);
 }
-
 
 /**
  * Schedules a layout sync on the next animation frames.
@@ -106,9 +98,8 @@ function scheduleGameStageLayoutSync() {
     });
 }
 
-
 /**
- * Binds resize handlers so the game stage keeps its aspect ratio everywhere.
+ * Binds resize handlers so the game stage keeps its aspect ratio.
  */
 function initGameLayoutSync() {
     const sync = () => scheduleGameStageLayoutSync();
@@ -119,7 +110,6 @@ function initGameLayoutSync() {
     document.addEventListener("fullscreenchange", sync);
     bindOrientationLayoutSync(sync);
 }
-
 
 /**
  * Adds delayed syncs for mobile orientation changes.
@@ -132,7 +122,6 @@ function bindOrientationLayoutSync(sync) {
     });
 }
 
-
 /**
  * Initializes managers and binds all application events.
  */
@@ -142,7 +131,6 @@ function initializeApp() {
     startAppAudio();
 }
 
-
 /**
  * Creates shared application managers.
  */
@@ -151,7 +139,6 @@ function initializeManagers() {
     modalManager = new ModalManager();
     fullscreenManager = new FullscreenManager();
 }
-
 
 /**
  * Binds global UI, input, and layout events.
@@ -164,7 +151,6 @@ function bindAppEvents() {
     bindTouchEvents();
     initGameLayoutSync();
 }
-
 
 /**
  * Applies saved audio state and starts menu music.

@@ -2,6 +2,7 @@ let cachedSpanishVoice = null;
 
 /**
  * Preloads browser voices for Spanish speech output.
+ * @returns {void}
  */
 function preloadSpeechVoices() {
     if (!window.speechSynthesis) return;
@@ -13,8 +14,9 @@ function preloadSpeechVoices() {
 }
 
 /**
- * Plays Pepe's pain reaction: instant grunt plus spoken "ùAy!".
+ * Plays Pepe's pain reaction with a grunt and a spoken pain word.
  * @param {AudioManager} manager - Audio manager instance.
+ * @returns {void}
  */
 function playHurtVoice(manager) {
     if (manager.isMuted) return;
@@ -24,13 +26,12 @@ function playHurtVoice(manager) {
 
 /**
  * Speaks a short Mexican Spanish pain exclamation.
+ * @returns {void}
  */
 function trySpeakPainWord() {
     if (!window.speechSynthesis) return;
-    if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-    }
-    const utterance = new SpeechSynthesisUtterance("°Ay!");
+    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+    const utterance = new SpeechSynthesisUtterance("\u00A1Ay!");
     utterance.lang = "es-MX";
     utterance.rate = 1.55;
     utterance.pitch = 1.15;
@@ -63,6 +64,7 @@ function findSpanishVoiceUncached() {
 /**
  * Plays a short grunt when speech synthesis is unavailable.
  * @param {AudioManager} manager - Audio manager instance.
+ * @returns {void}
  */
 function playHurtGrunt(manager) {
     const ctx = manager.getAudioContext();
@@ -73,8 +75,9 @@ function playHurtGrunt(manager) {
 }
 
 /**
- * Fallback to the file-based hurt sound.
+ * Falls back to the file-based hurt sound.
  * @param {AudioManager} manager - Audio manager instance.
+ * @returns {void}
  */
 function playFallbackHurt(manager) {
     if (!manager.sounds.hurt) return;

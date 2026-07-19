@@ -1,5 +1,5 @@
 /**
- * Endboss chicken with alert, attack and hurt states.
+ * Endboss chicken with alert, attack, hurt, and death states.
  */
 class Endboss extends MovableObject {
     health = ENDBOSS_HEALTH;
@@ -64,6 +64,7 @@ class Endboss extends MovableObject {
 
     /**
      * Loads all endboss animation frames.
+     * @returns {void}
      */
     loadAnimations() {
         this.frameLists.walk = this.loadImages(ENDBOSS_FRAME_PATHS.walk);
@@ -76,6 +77,9 @@ class Endboss extends MovableObject {
     /**
      * Updates boss movement and animation.
      * @param {Character} character - Player character reference.
+     * @param {number} cameraX - Camera X offset.
+     * @param {number} canvasWidth - Canvas width.
+     * @returns {void}
      */
     update(character, cameraX, canvasWidth) {
         if (this.isDead) return this.updateDeath(performance.now());
@@ -88,6 +92,7 @@ class Endboss extends MovableObject {
     /**
      * Plays roast transformation and fall after defeat.
      * @param {number} now - Current timestamp.
+     * @returns {void}
      */
     updateDeath(now) {
         if (this.deathPhase === "animating") return this.updateDeathAnimation(now);
@@ -99,10 +104,11 @@ class Endboss extends MovableObject {
     /**
      * Advances the roast transformation frames.
      * @param {number} now - Current timestamp.
+     * @returns {void}
      */
     updateDeathAnimation(now) {
-        if (now - this.lastAnimTime < 180) return;
         const frames = this.frameLists.dead;
+        if (now - this.lastAnimTime < 180) return;
         if (this.frameIndex < frames.length - 1) {
             this.frameIndex++;
             this.img = frames[this.frameIndex];
@@ -116,6 +122,7 @@ class Endboss extends MovableObject {
     /**
      * Switches to the roasted turkey sprite and starts falling.
      * @param {HTMLImageElement} roastedImg - Final roast frame.
+     * @returns {void}
      */
     startRoastFall(roastedImg) {
         this.deathPhase = "falling";
@@ -130,8 +137,9 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Applies gravity and rotation while the roast falls to the ground.
+     * Applies gravity and rotation while the roast falls.
      * @param {number} now - Current timestamp.
+     * @returns {void}
      */
     updateRoastFall(now) {
         if (this.deathPhase === "landed") return checkRoastLandDelay(this, now);
@@ -139,8 +147,11 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Switches alert state when character is near.
+     * Updates timed hurt and alert states.
      * @param {Character} character - Player character.
+     * @param {number} cameraX - Camera X offset.
+     * @param {number} canvasWidth - Canvas width.
+     * @returns {void}
      */
     updateStates(character, cameraX, canvasWidth) {
         const now = performance.now();
@@ -152,24 +163,25 @@ class Endboss extends MovableObject {
     /**
      * Sets the current animation state.
      * @param {string} state - State name.
+     * @returns {void}
      */
     setState(state) {
+        const frames = this.frameLists[state];
         if (this.currentState === state) return;
         this.currentState = state;
         this.frameIndex = 0;
         this.lastAnimTime = performance.now();
-        const frames = this.frameLists[state];
         if (frames?.length) this.img = frames[0];
     }
 
     /**
      * Advances animation frames.
      * @param {number} now - Current timestamp.
+     * @returns {void}
      */
     updateAnimation(now) {
-        if (now - this.lastAnimTime < 150) return;
         const frames = this.frameLists[this.currentState] || this.frameLists.walk;
-        if (!frames?.length) return;
+        if (now - this.lastAnimTime < 150 || !frames?.length) return;
         this.frameIndex = (this.frameIndex + 1) % frames.length;
         this.img = frames[this.frameIndex];
         this.lastAnimTime = now;
@@ -178,10 +190,11 @@ class Endboss extends MovableObject {
     /**
      * Applies bottle damage to the boss.
      * @param {number} amount - Damage amount.
+     * @returns {void}
      */
     takeDamage(amount) {
-        if (this.isDead) return;
         const now = performance.now();
+        if (this.isDead) return;
         applyEndbossDamage(this, amount, now);
         if (this.health <= 0) return this.die();
         if (shouldSkipEndbossHurt(this, now)) return;
@@ -190,6 +203,7 @@ class Endboss extends MovableObject {
 
     /**
      * Starts the roast transformation death sequence.
+     * @returns {void}
      */
     die() {
         this.isDead = true;
@@ -237,128 +251,4 @@ class Endboss extends MovableObject {
             h: this.height - 5
         };
     }
-}
-
-/**
- * Checks whether the roast delay after landing has finished.
- * @param {Endboss} boss - Endboss instance.
- * @param {number} now - Current timestamp.
- */
-function checkRoastLandDelay(boss, now) {
-    if (now - boss.landedAt >= Endboss.END_DELAY_MS) boss.deathComplete = true;
-}
-
-/**
- * Applies fall physics to the roasted endboss.
- * @param {Endboss} boss - Endboss instance.
- * @param {number} now - Current timestamp.
- */
-function applyRoastFallPhysics(boss, now) {
-    boss.speedY += GRAVITY * 1.15;
-    boss.y += boss.speedY;
-    boss.rotation += (boss.targetRotation - boss.rotation) * 0.12;
-    if (boss.y < boss.groundY) return;
-    boss.y = boss.groundY;
-    boss.speedY = 0;
-    boss.rotation = boss.targetRotation;
-    boss.deathPhase = "landed";
-    boss.landedAt = now;
-}
-
-/**
- * Clears expired hurt and alert states on the endboss.
- * @param {Endboss} boss - Endboss instance.
- * @param {Character} character - Player character.
- * @param {number} now - Current timestamp.
- * @param {number} cameraX - Camera X offset.
- * @param {number} canvasWidth - Canvas width.
- */
-function clearEndbossTimedStates(boss, character, now, cameraX, canvasWidth) {
-    handleEndbossHurtTimeout(boss, character, now, cameraX, canvasWidth);
-    handleEndbossAlertTimeout(boss, now);
-}
-
-function handleEndbossHurtTimeout(boss, character, now, cameraX, canvasWidth) {
-    if (!boss.isHurt || now <= boss.hurtEndTime) return;
-    boss.isHurt = false;
-    boss.setState("walk");
-    boss.nextAttackTime = 0;
-    if (shouldEndbossEngage(boss, character, cameraX, canvasWidth)) {
-        reengageEndbossAfterHurt(boss);
-    }
-}
-
-function reengageEndbossAfterHurt(boss) {
-    boss.isAttacking = true;
-    setEndbossAttackPhase(boss, "chase");
-}
-
-function handleEndbossAlertTimeout(boss, now) {
-    if (!boss.isAlert || now <= boss.alertEndTime) return;
-    boss.isAlert = false;
-    boss.setState("walk");
-    boss.nextAttackTime = now;
-}
-
-/**
- * Plays a short alert once when the player approaches from far away.
- * @param {Endboss} boss - Endboss instance.
- * @param {Character} character - Player character.
- * @param {number} now - Current timestamp.
- * @param {number} cameraX - Camera X offset.
- * @param {number} canvasWidth - Canvas width.
- */
-function activateEndbossAlert(boss, character, now, cameraX, canvasWidth) {
-    if (shouldSkipEndbossAlert(boss, character, cameraX, canvasWidth)) return;
-    if (isEndbossTooFarForAlert(boss, character)) {
-        boss.hasAlerted = false;
-        return;
-    }
-    if (boss.hasAlerted) return;
-    enterEndbossAlert(boss, now);
-}
-
-function shouldSkipEndbossAlert(boss, character, cameraX, canvasWidth) {
-    if (boss.isHurt || boss.isAttacking) return true;
-    if (!shouldEndbossEngage(boss, character, cameraX, canvasWidth)) return false;
-    boss.isAlert = false;
-    return true;
-}
-
-function isEndbossTooFarForAlert(boss, character) {
-    return getEndbossPlayerDistance(boss, character) >= 720;
-}
-
-function enterEndbossAlert(boss, now) {
-    boss.isAlert = true;
-    boss.hasAlerted = true;
-    boss.alertEndTime = now + 250;
-    boss.setState("alert");
-}
-
-function applyEndbossDamage(boss, amount, now) {
-    boss.health = Math.max(0, boss.health - amount);
-    boss.hitFlashUntil = now + ENDBOSS_HIT_FLASH_MS;
-    boss.lastHitTime = now;
-}
-
-function shouldSkipEndbossHurt(boss, now) {
-    return boss.isAttacking || now < boss.staggerCooldownUntil;
-}
-
-function applyEndbossHurtState(boss, now) {
-    boss.staggerCooldownUntil = now + ENDBOSS_STAGGER_COOLDOWN_MS;
-    boss.isHurt = true;
-    resetEndbossCombatState(boss);
-    boss.hurtEndTime = now + ENDBOSS_HURT_MS;
-    boss.setState("hurt");
-}
-
-function resetEndbossCombatState(boss) {
-    boss.isAttacking = false;
-    boss.attackPhase = null;
-    boss.isJumping = false;
-    boss.isLeapAttack = false;
-    boss.jumpAttackStarted = false;
-    boss.speedX = 0;
 }

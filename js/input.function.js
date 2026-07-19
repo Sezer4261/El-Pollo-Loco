@@ -1,12 +1,10 @@
 /**
- * Handles keyboard input state for the game.
+ * Resolves a keyboard event to a game action name.
+ * @param {KeyboardEvent} event - Keyboard event.
+ * @returns {string|undefined} Action name or undefined.
  */
-class Keyboard {
-    LEFT = false;
-    RIGHT = false;
-    UP = false;
-    DOWN = false;
-    SPACE = false;
+function resolveKeyboardAction(event) {
+    return KEY_CODE_MAP[event.code] || KEYBOARD_MAP[event.key];
 }
 
 /**
@@ -20,7 +18,6 @@ function isGameInputActive() {
         && !!world?.isRunning;
 }
 
-
 /**
  * Clears all pressed keys on the global keyboard state.
  */
@@ -32,9 +29,8 @@ function resetKeyboardState() {
     keyboard.SPACE = false;
 }
 
-
 /**
- * Sets keyboard flag based on key event.
+ * Sets keyboard flag based on a key event.
  * @param {KeyboardEvent} event - Keyboard event.
  * @param {boolean} isPressed - Pressed or released.
  */
@@ -48,9 +44,8 @@ function setKeyState(event, isPressed) {
     keyboard[action] = isPressed;
 }
 
-
 /**
- * Binds keyboard events to global keyboard state.
+ * Binds keyboard events to the global keyboard state.
  */
 function bindKeyboardEvents() {
     bindKeyboardListeners();
@@ -58,15 +53,13 @@ function bindKeyboardEvents() {
     bindGameScreenFocus();
 }
 
-
 /**
  * Registers keydown and keyup listeners.
  */
 function bindKeyboardListeners() {
-    document.addEventListener("keydown", (e) => setKeyState(e, true), true);
-    document.addEventListener("keyup", (e) => setKeyState(e, false), true);
+    document.addEventListener("keydown", (event) => setKeyState(event, true), true);
+    document.addEventListener("keyup", (event) => setKeyState(event, false), true);
 }
-
 
 /**
  * Resets input when the page becomes hidden.
@@ -77,7 +70,6 @@ function bindKeyboardVisibilityReset() {
     });
 }
 
-
 /**
  * Focuses the canvas after interaction with the game screen.
  */
@@ -87,21 +79,19 @@ function bindGameScreenFocus() {
     });
 }
 
-
 /**
  * Binds a touch button to a keyboard action.
  * @param {string} id - Button element id.
  * @param {string} action - Keyboard property name.
  */
 function bindTouchButton(id, action) {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    btn.addEventListener("touchstart", (e) => handleTouchButtonPress(e, action, true));
-    btn.addEventListener("touchend", (e) => handleTouchButtonPress(e, action, false));
-    btn.addEventListener("mousedown", () => { keyboard[action] = true; });
-    btn.addEventListener("mouseup", () => { keyboard[action] = false; });
+    const button = document.getElementById(id);
+    if (!button) return;
+    button.addEventListener("touchstart", (event) => handleTouchButtonPress(event, action, true));
+    button.addEventListener("touchend", (event) => handleTouchButtonPress(event, action, false));
+    button.addEventListener("mousedown", () => { keyboard[action] = true; });
+    button.addEventListener("mouseup", () => { keyboard[action] = false; });
 }
-
 
 /**
  * Updates keyboard state for touch button presses.
@@ -114,16 +104,14 @@ function handleTouchButtonPress(event, action, isPressed) {
     keyboard[action] = isPressed;
 }
 
-
 /**
- * Disables context menu on mobile touch buttons.
+ * Disables the context menu on mobile touch buttons.
  */
 function disableTouchContextMenu() {
-    document.querySelectorAll(".touch-btn").forEach((btn) => {
-        btn.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.querySelectorAll(".touch-btn").forEach((button) => {
+        button.addEventListener("contextmenu", (event) => event.preventDefault());
     });
 }
-
 
 /**
  * Binds touch control buttons for mobile play.

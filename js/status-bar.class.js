@@ -1,80 +1,4 @@
 /**
- * Returns the visible health bar percentage from current HP.
- * Uses linear scaling so the first hit is visible immediately.
- * @param {number} current - Current health.
- * @param {number} max - Maximum health.
- * @returns {number} Bar fill percentage.
- */
-function getHealthDisplayPercent(current, max) {
-    if (current <= 0 || max <= 0) return 0;
-    return Math.min(100, (current / max) * 100);
-}
-
-
-/**
- * Returns bar color based on fill percentage.
- * @param {number} percent - Fill percentage.
- * @returns {string} Bar color name.
- */
-function getBarColor(percent) {
-    if (percent > 60) return "green";
-    if (percent > 30) return "orange";
-    return "blue";
-}
-
-
-/**
- * Returns nearest bar level for percentage.
- * @param {number} percent - Fill percentage.
- * @returns {number} Bar level value.
- */
-function getNearestBarLevel(percent) {
-    let nearest = StatusBar.LEVELS[0];
-    StatusBar.LEVELS.forEach((level) => {
-        if (percent >= level - 10) nearest = level;
-    });
-    return nearest;
-}
-
-
-/**
- * Returns true when the endboss bar should be on screen.
- * @param {Endboss} endboss - Endboss instance.
- * @param {number} cameraX - Camera X offset.
- * @param {number} canvasWidth - Canvas width.
- * @returns {boolean} True when visible on screen.
- */
-function isEndbossBarOnScreen(endboss, cameraX, canvasWidth) {
-    const screenX = endboss.x - cameraX;
-    return screenX + endboss.width >= 0 && screenX <= canvasWidth;
-}
-
-
-/**
- * Positions the endboss health bar at the boss top-right corner.
- * @param {HTMLElement} container - Bar container element.
- * @param {Endboss} endboss - Endboss instance.
- * @param {number} cameraX - Camera X offset.
- * @param {number} canvasWidth - Canvas width.
- * @param {number} canvasHeight - Canvas height.
- */
-function positionEndbossBarAtBoss(container, endboss, cameraX, canvasWidth, canvasHeight) {
-    const screenX = endboss.x - cameraX;
-    const leftPx = screenX + endboss.width - 136;
-    const topPx = endboss.y + 8;
-    container.style.left = Math.max(0, (leftPx / canvasWidth) * 100) + "%";
-    container.style.top = Math.max(0, (topPx / canvasHeight) * 100) + "%";
-}
-
-
-function updateBarFillImage(fillImg, color) {
-    if (!fillImg) return;
-    fillImg.style.width = "";
-    fillImg.src = StatusBar.FILL_PATHS[color] || StatusBar.FILL_PATHS.green;
-}
-
-
-/**
  * Updates HTML status bar images for all HUD elements.
  */
 class StatusBar {
@@ -103,7 +27,6 @@ class StatusBar {
         this.endbossContainer = document.getElementById("endbossBarContainer");
     }
 
-
     /**
      * Updates the health bar image.
      * @param {number} current - Current health.
@@ -116,7 +39,6 @@ class StatusBar {
         this.toggleHealthWarning(critical);
     }
 
-
     /**
      * Blinks the health bar red when health is critically low.
      * @param {boolean} active - Whether warning state is active.
@@ -127,7 +49,6 @@ class StatusBar {
         bar.classList.toggle("status-bar--health-critical", active);
     }
 
-
     /**
      * Updates the coin bar image.
      * @param {number} percent - Coin bar percentage.
@@ -136,7 +57,6 @@ class StatusBar {
         this.setBarFill(this.coinElement, percent);
     }
 
-
     /**
      * Updates the bottle bar image.
      * @param {number} percent - Bottle bar percentage.
@@ -144,7 +64,6 @@ class StatusBar {
     setBottles(percent) {
         this.setBarFill(this.bottleElement, percent);
     }
-
 
     /**
      * Updates the endboss bar in the fixed HUD.
@@ -161,7 +80,6 @@ class StatusBar {
         this.setBarFill(this.endbossElement, percent, getBarColor(percent));
     }
 
-
     /**
      * Shows or hides the endboss bar container.
      * @param {boolean} visible - Visibility flag.
@@ -169,7 +87,6 @@ class StatusBar {
     toggleEndbossVisibility(visible) {
         this.endbossContainer?.classList.toggle("status-bar--hidden", !visible);
     }
-
 
     /**
      * Sets a bar fill width and color based on percentage.
@@ -184,44 +101,5 @@ class StatusBar {
         el.style.width = clamped + "%";
         el.style.left = "0";
         updateBarFillImage(el.querySelector(".status-bar__fill-img"), color);
-    }
-}
-
-
-/**
- * Shows a centered "+ bottle" reward popup on the game screen.
- */
-class RewardPopup {
-    hideTimer = null;
-
-    /**
-     * Binds the reward popup DOM element.
-     */
-    constructor() {
-        this.element = document.getElementById("rewardPopup");
-    }
-
-
-    /**
-     * Displays the bonus bottle popup with a short animation.
-     */
-    show() {
-        if (!this.element) return;
-        clearTimeout(this.hideTimer);
-        this.element.classList.remove("reward-popup--hidden");
-        this.element.classList.remove("reward-popup--animate");
-        void this.element.offsetWidth;
-        this.element.classList.add("reward-popup--animate");
-        this.hideTimer = setTimeout(() => this.hide(), 1600);
-    }
-
-
-    /**
-     * Hides the reward popup.
-     */
-    hide() {
-        if (!this.element) return;
-        this.element.classList.remove("reward-popup--animate");
-        this.element.classList.add("reward-popup--hidden");
     }
 }

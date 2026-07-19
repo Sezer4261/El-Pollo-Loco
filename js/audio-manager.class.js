@@ -20,6 +20,7 @@ class AudioManager {
 
     /**
      * Registers all game sound files.
+     * @returns {void}
      */
     loadSounds() {
         registerSoundEffects(this);
@@ -41,6 +42,7 @@ class AudioManager {
 
     /**
      * Binds loop handling for menu and in-game music playback.
+     * @returns {void}
      */
     bindMusicEvents() {
         this.music.addEventListener("timeupdate", () => this.handleMusicLoop());
@@ -49,6 +51,7 @@ class AudioManager {
 
     /**
      * Loops in-game music from the gameplay start marker.
+     * @returns {void}
      */
     handleMusicLoop() {
         if (this.isMuted || this.musicMode !== "game" || !this.music.duration) return;
@@ -57,6 +60,7 @@ class AudioManager {
 
     /**
      * Restarts music when playback reaches the end.
+     * @returns {void}
      */
     handleMusicEnded() {
         if (this.isMuted) return;
@@ -67,6 +71,7 @@ class AudioManager {
     /**
      * Plays music from a specific time if not muted.
      * @param {number} time - Start time in seconds.
+     * @returns {void}
      */
     playFrom(time) {
         if (this.isMuted || !this.music) return;
@@ -77,6 +82,7 @@ class AudioManager {
     /**
      * Starts menu music from the beginning.
      * @param {boolean} [reset=false] - Restart from second 0.
+     * @returns {void}
      */
     startMenuMusic(reset = false) {
         if (this.isMuted || !this.music) return;
@@ -88,6 +94,7 @@ class AudioManager {
 
     /**
      * Resumes paused menu music without resetting position.
+     * @returns {void}
      */
     resumeMenuMusic() {
         if (!this.music.paused) return;
@@ -97,6 +104,7 @@ class AudioManager {
 
     /**
      * Starts in-game music from the gameplay loop marker.
+     * @returns {void}
      */
     startGameMusic() {
         if (this.isMuted || !this.music) return;
@@ -107,6 +115,7 @@ class AudioManager {
     /**
      * Plays a sound effect by name.
      * @param {string} name - Sound identifier.
+     * @returns {void}
      */
     playEffect(name) {
         if (this.isMuted) return;
@@ -116,7 +125,8 @@ class AudioManager {
     }
 
     /**
-     * Plays a short "coin" chime (Mario-like) via WebAudio.
+     * Plays a short coin chime via Web Audio.
+     * @returns {void}
      */
     playCoinChime() {
         if (this.isMuted) return;
@@ -141,11 +151,12 @@ class AudioManager {
     }
 
     /**
-     * Plays a short sine tone with a quick envelope.
+     * Plays a short square tone with a quick envelope.
      * @param {AudioContext} ctx - Audio context.
      * @param {number} freq - Frequency in Hz.
      * @param {number} start - Start time.
      * @param {number} duration - Duration in seconds.
+     * @returns {void}
      */
     playTone(ctx, freq, start, duration) {
         const osc = ctx.createOscillator();
@@ -161,7 +172,8 @@ class AudioManager {
     }
 
     /**
-     * Fallback to an existing file-based coin sound.
+     * Falls back to the file-based coin sound.
+     * @returns {void}
      */
     playFallbackCoin() {
         playClonedSound(this.sounds.coin);
@@ -169,6 +181,7 @@ class AudioManager {
 
     /**
      * Stops sound effects without affecting background music.
+     * @returns {void}
      */
     stopEffects() {
         Object.values(this.sounds).forEach((sound) => {
@@ -179,6 +192,7 @@ class AudioManager {
 
     /**
      * Pauses music and stops all sound effects.
+     * @returns {void}
      */
     stopAll() {
         this.stopEffects();
@@ -198,6 +212,7 @@ class AudioManager {
 
     /**
      * Applies the current mute state to all audio.
+     * @returns {void}
      */
     applyMuteState() {
         if (this.isMuted) return this.stopAll();
@@ -207,6 +222,7 @@ class AudioManager {
 
     /**
      * Resumes in-game music after unmuting.
+     * @returns {void}
      */
     resumeGameMusic() {
         const time = this.music.currentTime >= this.gameLoopStart
@@ -214,79 +230,4 @@ class AudioManager {
             : this.gameLoopStart;
         this.playFrom(time);
     }
-}
-
-/**
- * Registers all sound effects on the audio manager.
- * @param {AudioManager} manager - Audio manager instance.
- */
-function registerSoundEffects(manager) {
-    Object.entries(AUDIO_PATHS).forEach(([name, config]) => {
-        if (name === "music") return;
-        manager.sounds[name] = manager.createSound(config.path, config.volume);
-    });
-}
-
-/**
- * Registers background music on the audio manager.
- * @param {AudioManager} manager - Audio manager instance.
- */
-function registerBackgroundMusic(manager) {
-    const musicConfig = AUDIO_PATHS.music;
-    manager.music = manager.createSound(musicConfig.path, musicConfig.volume);
-    manager.music.preload = "auto";
-    manager.music.loop = false;
-}
-
-/**
- * Plays a registered sound effect by cloning its audio node.
- * @param {AudioManager} manager - Audio manager instance.
- * @param {string} name - Sound identifier.
- */
-function playRegisteredEffect(manager, name) {
-    if (!manager.sounds[name]) return;
-    playClonedSound(manager.sounds[name]);
-}
-
-/**
- * Clones and plays an existing audio element.
- * @param {HTMLAudioElement|undefined} source - Source audio element.
- */
-function playClonedSound(source) {
-    if (!source) return;
-    const sound = source.cloneNode();
-    sound.volume = source.volume;
-    sound.play().catch(() => {});
-}
-
-/**
- * Updates mute button icons across home and game screens.
- * @param {boolean} muted - Whether audio is muted.
- */
-function updateMuteButtonIcons(muted) {
-    const icon = muted ? "\u{1F507}" : "\u{1F50A}";
-    document.querySelectorAll("#muteButton, #homeMuteButton").forEach((button) => {
-        button.textContent = icon;
-        button.setAttribute("aria-pressed", String(muted));
-    });
-}
-
-/**
- * Restores mute button icon from local storage.
- */
-function applySavedMuteState() {
-    updateMuteButtonIcons(localStorage.getItem("gameMuted") === "true");
-}
-
-/**
- * Starts menu music after the first user interaction if autoplay was blocked.
- */
-function bindMenuMusicUnlock() {
-    const unlockMenuMusic = () => {
-        if (world?.isRunning) return;
-        audioManager.startMenuMusic();
-    };
-    const homeScreen = document.getElementById("homeScreen");
-    homeScreen.addEventListener("pointerdown", unlockMenuMusic, { once: true, capture: true });
-    document.addEventListener("keydown", unlockMenuMusic, { once: true });
 }

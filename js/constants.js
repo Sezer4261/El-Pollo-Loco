@@ -70,6 +70,7 @@ const BOTTLE_THROW_SPEED_X_LOW = 19;
 const BOTTLE_THROW_SPEED_Y = -21;
 const GROUND_Y = CANVAS_GROUND_Y - CHARACTER_HEIGHT;
 const LEVEL_MIN_X = 0;
+const LEVEL_WIDTH = 5760;
 const CHICKEN_CONTACT_DAMAGE = 10;
 const ENDBOSS_CONTACT_DAMAGE = 28;
 const ENDBOSS_HEALTH = 100;
@@ -158,22 +159,3 @@ const ENDBOSS_FRAME_PATHS = {
         "img/4_enemie_boss_chicken/5_dead/G26.png"
     ]
 };
-
-/**
- * Resolves a keyboard event to a game action name.
- * @param {KeyboardEvent} event - Keyboard event.
- * @returns {string|undefined} Action name or undefined.
- */
-function resolveKeyboardAction(event) {
-    return KEY_CODE_MAP[event.code] || KEYBOARD_MAP[event.key];
-}
-
-
-/**
- * Returns the Y position for an entity standing on the ground.
- * @param {number} entityHeight - Entity height.
- * @returns {number} Top Y coordinate.
- */
-function getGroundYForHeight(entityHeight) {
-    return CANVAS_GROUND_Y - entityHeight;
-}

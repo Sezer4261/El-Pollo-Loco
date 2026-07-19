@@ -48,7 +48,7 @@ function drawParallaxBackgroundTile(ctx, img, tile, cam, w, h) {
  * @param {number} drawW - Scaled tile width.
  * @param {number} scale - Image scale factor.
  * @param {number} canvasW - Canvas width.
- * @returns {{srcX: number, srcW: number, destX: number, destW: number}|null} Visible slice.
+ * @returns {{srcX:number,srcW:number,destX:number,destW:number}|null} Visible slice.
  */
 function getVisibleBackgroundSlice(screenX, drawW, scale, canvasW) {
     if (screenX + drawW < 0 || screenX > canvasW) return null;
@@ -69,7 +69,7 @@ function drawImageObject(ctx, obj) {
 }
 
 /**
- * Draws object with horizontal flip.
+ * Draws an object with horizontal flip.
  * @param {CanvasRenderingContext2D} ctx - Canvas context.
  * @param {MovableObject} obj - Object to draw.
  */
