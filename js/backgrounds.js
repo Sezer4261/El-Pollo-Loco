@@ -167,7 +167,7 @@ function getParallaxState(tiles, cam, h, driftOffset) {
     if (frameB.img !== frameA.img && !isReadyImage(frameB.img)) return null;
     const srcTileW = frameA.tileWorldWidth || frameA.img.naturalWidth;
     const tileScreenW = srcTileW * getBackgroundScale(h, frameA.img);
-    const scrollX = cam * (frameA.speedFactor ?? 1) * getBackgroundScale(h, frameA.img) + driftOffset;
+    const scrollX = cam * (frameA.speedFactor ?? 1) + driftOffset;
     return { frameA, frameB, srcTileW, tileScreenW, scrollX };
 }
 
@@ -268,8 +268,8 @@ async function decodeImage(img) {
     if (!img.decode) return;
     try {
         await img.decode();
-    } catch (_) {
-        /* ignore decode errors */
+    } catch (error) {
+        console.error("Image decode failed:", img?.src || img, error);
     }
 }
 

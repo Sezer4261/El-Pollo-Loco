@@ -76,7 +76,9 @@ class AudioManager {
     playFrom(time) {
         if (this.isMuted || !this.music) return;
         this.music.currentTime = time;
-        this.music.play().catch(() => {});
+        this.music.play().catch((error) => {
+            console.error("Music playback failed:", error);
+        });
     }
 
     /**
@@ -146,7 +148,11 @@ class AudioManager {
         const Ctx = window.AudioContext || window.webkitAudioContext;
         if (!Ctx) return null;
         this.audioContext = new Ctx();
-        if (this.audioContext.state === "suspended") this.audioContext.resume().catch(() => {});
+        if (this.audioContext.state === "suspended") {
+            this.audioContext.resume().catch((error) => {
+                console.error("AudioContext resume failed:", error);
+            });
+        }
         return this.audioContext;
     }
 
@@ -276,7 +282,9 @@ function playClonedSound(source) {
     if (!source) return;
     const sound = source.cloneNode();
     sound.volume = source.volume;
-    sound.play().catch(() => {});
+    sound.play().catch((error) => {
+        console.error("Sound effect playback failed:", error);
+    });
 }
 
 /**

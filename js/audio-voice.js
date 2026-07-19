@@ -83,5 +83,7 @@ function playFallbackHurt(manager) {
     if (!manager.sounds.hurt) return;
     const sound = manager.sounds.hurt.cloneNode();
     sound.volume = manager.sounds.hurt.volume;
-    sound.play().catch(() => {});
+    sound.play().catch((error) => {
+        console.error("Hurt sound playback failed:", error);
+    });
 }

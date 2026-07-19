@@ -132,14 +132,51 @@ function isTouchingCollectible(character, item) {
 }
 
 /**
+ * Returns true when Pepe's head area touches a jump coin.
+ * @param {Character} character - Player character.
+ * @param {Coin} coin - Jump coin instance.
+ * @returns {boolean} True when the head overlaps the coin.
+ */
+function isTouchingJumpCoin(character, coin) {
+    const c = character.getHitBox();
+    const head = { x: c.x + c.w * 0.2, y: c.y, w: c.w * 0.6, h: Math.max(24, c.h * 0.28) };
+    return boxesOverlap(head, coin.getHitBox());
+}
+
+/**
+ * Returns true when Pepe has jumped high enough for air coins.
+ * @param {Character} character - Player character.
+ * @returns {boolean} True when jump height is sufficient.
+ */
+function hasReachedJumpCoinHeight(character) {
+    if (!character.isAboveGround()) return false;
+    return character.getGroundY() - character.y >= JUMP_COIN_MIN_LIFT;
+}
+
+/**
  * Keeps or removes one coin after a pickup check.
  * @param {Character} character - Player character.
  * @param {Coin} coin - Coin instance.
  * @returns {boolean} True when the coin stays in the world.
  */
 function keepCoinAfterPickup(character, coin) {
-    if (coin.collected || !isTouchingCollectible(character, coin)) return !coin.collected;
-    if (coin.requiresJump && !character.isAboveGround()) return true;
+    if (coin.collected) return false;
+    if (coin.requiresJump) return keepJumpCoinAfterPickup(character, coin);
+    if (!isTouchingCollectible(character, coin)) return true;
+    if (!character.collectCoin()) return true;
+    coin.collected = true;
+    return false;
+}
+
+/**
+ * Handles pickup checks for coins that require a jump.
+ * @param {Character} character - Player character.
+ * @param {Coin} coin - Jump coin instance.
+ * @returns {boolean} True when the coin stays in the world.
+ */
+function keepJumpCoinAfterPickup(character, coin) {
+    if (!hasReachedJumpCoinHeight(character)) return true;
+    if (!isTouchingJumpCoin(character, coin)) return true;
     if (!character.collectCoin()) return true;
     coin.collected = true;
     return false;

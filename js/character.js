@@ -113,7 +113,7 @@ class Character extends MovableObject {
     /** Sets idle or long idle after 15 seconds. */
     handleIdleState() {
         const idleMs = performance.now() - this.idleStartTime;
-        const nextState = idleMs >= 15000 ? "longIdle" : "idle";
+        const nextState = idleMs >= CHARACTER_SLEEP_MS ? "longIdle" : "idle";
         if (nextState === "longIdle" && this.currentState !== "longIdle") audioManager.playEffect("snore");
         this.setState(nextState);
     }
@@ -194,11 +194,17 @@ class Character extends MovableObject {
     }
     /** @returns {ThrowableObject|null} Thrown bottle or null. */
     throwBottle() {
-        if (this.isDead || !this.canThrow || this.bottleBar < 20) return null;
+        if (!this.canStartBottleThrow()) return null;
         this.bottleBar = Math.max(0, this.bottleBar - 20);
         this.canThrow = false;
+        this.resetIdleTimer();
         setTimeout(() => { this.canThrow = true; }, BOTTLE_THROW_COOLDOWN_MS);
         return this.createThrownBottle();
+    }
+    /** @returns {boolean} True when a bottle throw is allowed. */
+    canStartBottleThrow() {
+        if (this.isDead || !this.canThrow || this.bottleBar < 20) return false;
+        return this.currentState !== "longIdle";
     }
     /** @returns {ThrowableObject} Thrown bottle instance. */
     createThrownBottle() {
@@ -270,56 +276,4 @@ class Character extends MovableObject {
         this.isDead = true;
         this.setState("dead");
     }
-}
-/** Clamps Pepe inside the level bounds. @param {Character} character - Player character. */
-function clampCharacterLevelBounds(character) {
-    if (character.x < LEVEL_MIN_X) character.x = LEVEL_MIN_X;
-    const maxX = LEVEL_WIDTH - character.width;
-    if (character.x > maxX) character.x = maxX;
-}
-/** @param {number} entityHeight - Entity height. @returns {number} Top Y coordinate. */
-function getGroundYForHeight(entityHeight) { return CANVAS_GROUND_Y - entityHeight; }
-/** Clears duck pose when Pepe leaves the ground. @param {Character} character - Player character. */
-function clearCharacterDuckInAir(character) {
-    if (!character.isDucking) return;
-    character.isDucking = false;
-    character.height = CHARACTER_HEIGHT;
-    character.offset = character.standingOffset;
-}
-/** Handles Pepe movement while jumping. @param {Character} character - Player character. @param {Keyboard} kb - Keyboard state. */
-function handleCharacterAirMovement(character, kb) {
-    clearCharacterDuckInAir(character);
-    character.resetIdleTimer();
-    character.applyAirMovement(kb);
-    character.setState("jump");
-}
-/** Applies standing walk or idle on the ground. @param {Character} character - Player character. @param {Keyboard} kb - Keyboard state. */
-function applyCharacterStandingMove(character, kb) {
-    character.isDucking = false;
-    character.applyDuckPose(false);
-    if (kb.LEFT) character.moveLeft();
-    else if (kb.RIGHT) character.moveRight();
-    else character.handleIdleState();
-}
-/** Handles Pepe movement on the ground. @param {Character} character - Player character. @param {Keyboard} kb - Keyboard state. */
-function handleCharacterGroundMovement(character, kb) {
-    if (kb.UP) return character.jump();
-    if (kb.DOWN) {
-        character.isDucking = true;
-        character.applyDuckPose(true);
-        return character.applyDuckMovement(kb);
-    }
-    applyCharacterStandingMove(character, kb);
-}
-/** @param {Character} character - Player character. @returns {string} Throw type. */
-function getCharacterThrowType(character) { return character.isDucking ? "low" : "high"; }
-/** @param {Character} character - Player character. @returns {number} Throw start Y position. */
-function getCharacterThrowY(character) {
-    if (character.isDucking) return ThrowableObject.getLowThrowY();
-    return character.y + 25;
-}
-/** @param {Character} character - Player character. @returns {number} Throw start X position. */
-function getCharacterThrowX(character) {
-    if (character.otherDirection) return character.x + 10;
-    return character.x + character.width - 10;
 }
