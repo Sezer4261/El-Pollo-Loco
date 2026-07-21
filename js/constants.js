@@ -109,8 +109,8 @@ const BACKGROUND_LAYER_GROUPS = [
         folder: "img/5_background/layers/4_clouds/",
         files: ["full.png"],
         tileWidth: BACKGROUND_CLOUD_TILE_WIDTH,
-        speed: 0.2,
-        driftSpeed: 2
+        speed: 0.55,
+        driftSpeed: 0.9
     },
     {
         folder: "img/5_background/",
@@ -161,3 +161,13 @@ const ENDBOSS_FRAME_PATHS = {
         "img/4_enemie_boss_chicken/5_dead/G26.png"
     ]
 };
+
+/**
+ * Fallback for caught errors: logs context without stopping the game.
+ * @param {string} message - What failed.
+ * @param {*} [error] - Caught error or rejection reason.
+ * @returns {void}
+ */
+function handleError(message, error) {
+    console.error(message, error);
+}

@@ -251,7 +251,7 @@ function getLayerDrift(group, layerDrifts, layerId) {
  */
 function drawBackgroundLayers(ctx, backgrounds, cam, w, h, layerDrifts = {}) {
     drawSkyLayer(ctx, backgrounds, w, h);
-    [2, 1].forEach((layerId) => {
+    [1, 2].forEach((layerId) => {
         const group = BACKGROUND_LAYER_GROUPS[layerId];
         if (!group || group.isSky) return;
         const tiles = backgrounds.filter((tile) => tile.layerId === layerId);
@@ -269,7 +269,7 @@ async function decodeImage(img) {
     try {
         await img.decode();
     } catch (error) {
-        console.error("Image decode failed:", img?.src || img, error);
+        handleError("Image decode failed: " + (img?.src || img), error);
     }
 }
 

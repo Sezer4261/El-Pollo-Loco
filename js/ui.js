@@ -197,7 +197,7 @@ class FullscreenManager {
     request() {
         if (!this.isSupported() || this.isActive()) return;
         document.documentElement.requestFullscreen().catch((error) => {
-            console.error("Fullscreen request failed:", error);
+            handleError("Fullscreen request failed:", error);
         });
     }
 
@@ -207,7 +207,7 @@ class FullscreenManager {
     exit() {
         if (!this.isActive()) return;
         document.exitFullscreen().catch((error) => {
-            console.error("Fullscreen exit failed:", error);
+            handleError("Fullscreen exit failed:", error);
         });
     }
 
